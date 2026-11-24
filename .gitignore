@@ -71,3 +71,10 @@ Desktop.ini
 
 # Keep dependency lockfiles, Prisma schema/migrations, and source assets in Git.
 PLAN.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
