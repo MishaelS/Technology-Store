@@ -68,8 +68,8 @@ def my_orders(user: User = Depends(get_current_user), db: Session = Depends(get_
     return db.scalars(select(Order).where(Order.user_id == user.id).order_by(Order.id.desc())).all()
 
 
-def _get_order(db: Session, order_id: int, user: User) -> Order:
-    order = db.get(Order, order_id)
+def _get_order(db: Session, order_id: int, user: User, lock: bool = False) -> Order:
+    order = db.get(Order, order_id, with_for_update=lock)
     if order is None or (order.user_id != user.id and not has_permission(user, "orders.manage")):
         raise HTTPException(404, t("errors.order_not_found"))
     return order
@@ -83,7 +83,8 @@ def get_order(order_id: int, user: User = Depends(get_current_user), db: Session
 @router.post("/api/orders/{order_id}/cancel", response_model=OrderOut)
 def cancel_order(order_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """A client can cancel their own order while it is in status new."""
-    order = _get_order(db, order_id, user)
+    # lock the order so a parallel cancel (e.g. by a manager) can't refund the bonuses twice
+    order = _get_order(db, order_id, user, lock=True)
     if order.user_id != user.id:
         raise HTTPException(404, t("errors.order_not_found"))
     if order.status != "new":

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -12,6 +13,10 @@ from app.security import create_token, hash_password, verify_password
 from app.services.bonus import add_bonus
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
+
+# Checked when the email is unknown, so a wrong email takes as long as a wrong password
+# and nobody can find out which emails are registered by measuring response time.
+_DUMMY_HASH = hash_password("not-a-real-password")
 
 
 @router.post("/register", response_model=TokenOut, status_code=status.HTTP_201_CREATED)
@@ -30,14 +35,19 @@ def register(data: RegisterIn, db: Session = Depends(get_db)):
     db.add(user)
     db.flush()  # so that user.id is assigned
     add_bonus(db, user, settings.welcome_bonus, t("bonus.reason.welcome"))
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:  # the same email registered by a parallel request
+        db.rollback()
+        raise HTTPException(status.HTTP_409_CONFLICT, t("errors.email_taken"))
     return TokenOut(token=create_token(user), user=UserOut.model_validate(user))
 
 
 @router.post("/login", response_model=TokenOut)
 def login(data: LoginIn, db: Session = Depends(get_db)):
     user = db.scalar(select(User).where(User.email == data.email.strip().lower()))
-    if user is None or not verify_password(data.password, user.password_hash):
+    password_ok = verify_password(data.password, user.password_hash if user else _DUMMY_HASH)
+    if user is None or not password_ok:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, t("errors.invalid_credentials"))
     if user.is_blocked:
         raise HTTPException(status.HTTP_403_FORBIDDEN, t("errors.account_blocked"))
