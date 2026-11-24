@@ -12,7 +12,7 @@ import { newsPage } from "./pages/news.js";
 import { productPage } from "./pages/product.js";
 import { runAfter, runLeave } from "./router.js";
 import { can, isLoggedIn, loadUser, logout, refreshCartCount, session } from "./session.js";
-import { flash, h, link, loading, navigate } from "./ui.js";
+import { flash, h, icon, link, loading, navigate } from "./ui.js";
 
 // [path pattern, page, access rule]
 const ROUTES = [
@@ -61,19 +61,20 @@ function renderHeader() {
     h(
       "nav",
       {},
-      link("/", h("b", {}, t("app.name"))),
-      link("/catalog", t("nav.catalog")),
-      link("/builder", t("nav.builder")),
-      link("/news", t("nav.news")),
-      user ? link("/cart", `${t("nav.cart")} (${session.cartCount})`) : null,
-      user ? link("/account", t("nav.account")) : null,
-      can("admin.access") ? link("/admin", t("nav.admin")) : null,
+      link("/", h("img", { src: "/resources/icons/logo.svg", alt: "", width: 24, height: 24 }), h("b", {}, t("app.name"))),
+      link("/catalog", icon("navigation/catalog"), t("nav.catalog")),
+      link("/builder", icon("navigation/builder"), t("nav.builder")),
+      link("/news", icon("navigation/news"), t("nav.news")),
+      user ? link("/cart", icon("navigation/cart"), `${t("nav.cart")} (${session.cartCount})`) : null,
+      user ? link("/account", icon("navigation/account"), t("nav.account")) : null,
+      can("admin.access") ? link("/admin", icon("navigation/admin"), t("nav.admin")) : null,
       h("span", { class: "spacer" }),
+      icon("navigation/language", t("nav.language")),
       languageSelect,
       user
-        ? [h("span", { class: "muted" }, `${user.name} (${t(`roles.${user.role}`)})`),
-           h("button", { onclick: onLogout }, t("nav.logout"))]
-        : [link("/login", t("nav.login")), link("/register", t("nav.register"))],
+        ? [h("span", { class: "muted" }, icon(`roles/role-${user.role}`), ` ${user.name} (${t(`roles.${user.role}`)})`),
+           h("button", { onclick: onLogout }, icon("navigation/logout"), ` ${t("nav.logout")}`)]
+        : [link("/login", icon("navigation/login"), t("nav.login")), link("/register", icon("navigation/register"), t("nav.register"))],
     ),
   );
   document.getElementById("footer").textContent = t("app.footer_note");

@@ -37,6 +37,18 @@ export function image(url, alt = "") {
   return h("img", { src: url, alt, loading: "lazy" });
 }
 
+/** Icon from resources/icons: icon("navigation/cart"). Without a label it is hidden from screen readers. */
+export function icon(name, label = "") {
+  return h("img", {
+    src: `/resources/icons/${name}.svg`,
+    alt: label,
+    class: "icon",
+    width: 18,
+    height: 18,
+    "aria-hidden": label ? null : "true",
+  });
+}
+
 export function navigate(path) {
   location.hash = path;
 }

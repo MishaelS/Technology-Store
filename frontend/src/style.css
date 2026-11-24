@@ -3,6 +3,8 @@
 body { font-family: system-ui, sans-serif; margin: 0 auto; max-width: 1100px; padding: 0 16px 40px; line-height: 1.4; }
 header nav { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #ccc; }
 header nav .spacer { flex: 1; }
+header nav a { display: inline-flex; gap: 4px; align-items: center; }
+.icon { vertical-align: middle; }
 footer { margin-top: 40px; color: #777; font-size: 13px; }
 #flash:not(:empty) { margin: 8px 0; padding: 6px 10px; border: 1px solid #999; }
 #flash.error { border-color: #c00; color: #c00; }

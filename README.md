@@ -37,6 +37,7 @@ Python (FastAPI), PostgreSQL, Docker. Фронтенд — HTML и JavaScript б
 |---|---|
 | [docs/SETUP.md](docs/SETUP.md) | как запустить проект |
 | [frontend/README.md](frontend/README.md) | как устроен фронтенд |
+| [resources/icons/README.md](resources/icons/README.md) | иконки сайта |
 | [docs/API.md](docs/API.md) | как работать с API, роли и права |
 | [docs/TESTS.md](docs/TESTS.md) | автотесты: как запускать и что проверяют |
 | [docs/TRANSLATIONS.md](docs/TRANSLATIONS.md) | переводы интерфейса |

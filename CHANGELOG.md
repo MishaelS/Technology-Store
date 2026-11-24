@@ -33,6 +33,9 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
   and scroll restore, product, news, PC builder, login and sign-up, cart and checkout, personal account,
   admin panel with sections shown by permissions, ru/en language switch.
 - Locale check also verifies keys used by the frontend.
+- Icon set in `resources/icons`: 90 outline SVG icons in 11 groups (navigation, buttons, states, categories,
+  orders, shop, content, account, admin, roles, PC tiers), a logo and favicon, a preview page and a list.
+- Header shows icons; `icon()` helper in the frontend; nginx serves the `resources` folder.
 - `run.sh`: one script to set up, start, stop, test and maintain the project (`./run.sh help`). It checks Docker, creates `.env` and generates the seed password.
 
 ### Changed
