@@ -28,6 +28,7 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - Locale checker script (`backend/scripts/check_locales.py`).
 - Automated tests (pytest) for every part of the backend, running on a separate test database.
 - Documentation: setup, API, tests and translations guides in `docs/`.
+- Edge case tests (`test_edge_cases.py`): whitespace-only fields, bad phones, wrong spec types, unsafe links, error format.
 - `run.sh`: one script to set up, start, stop, test and maintain the project (`./run.sh help`). It checks Docker, creates `.env` and generates the seed password.
 
 ### Changed
@@ -44,3 +45,12 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 ### Fixed
 
 - Row locking (`SELECT ... FOR UPDATE`) failing on queries with eager-loaded relations.
+- Fields with only spaces (name, address, phone, build name, news title) were accepted as filled.
+- Phone numbers were not validated.
+- Product specs with wrong types (e.g. `"650"` instead of `650`) were saved and crashed the PC builder with error 500.
+- Image links accepted any value, including `javascript:` and `data:` links.
+- Validation errors (422) returned a list instead of a text `detail`; unexpected errors (500) returned plain text.
+- Login answered faster for unknown emails, which allowed guessing registered emails by response time.
+- Two parallel registrations with the same email could cause error 500 instead of 409.
+- A client cancel and a manager cancel at the same time could refund bonuses twice.
+- Admin stats skipped order statuses that had no orders.
