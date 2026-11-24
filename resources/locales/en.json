@@ -327,6 +327,11 @@
     "field_required": "Field {field} can't be empty",
     "self_modify": "You can't change your own role or block yourself",
     "amount_zero": "Amount can't be 0",
-    "language_not_found": "Language \"{code}\" not found"
+    "language_not_found": "Language \"{code}\" not found",
+    "validation": "Check the fields: {fields}",
+    "internal": "Internal server error. Please try again later",
+    "invalid_phone": "Invalid phone number",
+    "invalid_image_url": "Image link must start with http://, https:// or /",
+    "specs_invalid": "Invalid values in specs: {fields}"
   }
 }

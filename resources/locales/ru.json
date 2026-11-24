@@ -327,6 +327,11 @@
     "field_required": "Поле {field} не может быть пустым",
     "self_modify": "Нельзя менять роль или блокировать самого себя",
     "amount_zero": "Сумма не может быть 0",
-    "language_not_found": "Язык «{code}» не найден"
+    "language_not_found": "Язык «{code}» не найден",
+    "validation": "Проверьте поля: {fields}",
+    "internal": "Внутренняя ошибка сервера. Попробуйте позже",
+    "invalid_phone": "Некорректный номер телефона",
+    "invalid_image_url": "Ссылка на картинку должна начинаться с http://, https:// или /",
+    "specs_invalid": "Неверные значения в specs: {fields}"
   }
 }
