@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.deps import require_permission
 from app.i18n import t
-from app.models import ROLES, Build, Category, Fact, News, Order, OrderItem, Product, User
+from app.models import ORDER_STATUSES, ROLES, Build, Category, Fact, News, Order, OrderItem, Product, User
 from app.pagination import page_paginate
 from app.permissions import permissions_for
 from app.routers.builder import build_out
@@ -41,7 +41,7 @@ from app.schemas import (
     UserOut,
 )
 from app.services.bonus import add_bonus
-from app.services.compatibility import missing_spec_fields
+from app.services.compatibility import invalid_spec_fields, missing_spec_fields
 from app.services.orders import change_status
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
@@ -62,7 +62,8 @@ PageSize = Query(20, ge=1, le=100)
 
 @router.get("/stats", response_model=StatsOut, dependencies=[Depends(can_view_stats)])
 def stats(db: Session = Depends(get_db)):
-    by_status = dict(db.execute(select(Order.status, func.count()).group_by(Order.status)).all())
+    counts = dict(db.execute(select(Order.status, func.count()).group_by(Order.status)).all())
+    by_status = {s: counts.get(s, 0) for s in ORDER_STATUSES}  # every status, even with 0 orders
     week_ago = datetime.now(timezone.utc) - timedelta(days=7)
     top = db.execute(
         select(OrderItem.product_id, OrderItem.product_name, func.sum(OrderItem.quantity).label("sold"))
@@ -129,9 +130,13 @@ def _category(db: Session, slug: str) -> Category:
 
 
 def _validate_product(product: Product) -> None:
-    missing = missing_spec_fields(product.category.slug, product.specs or {})
+    specs = product.specs or {}
+    missing = missing_spec_fields(product.category.slug, specs)
     if missing:
         raise HTTPException(422, t("errors.specs_missing", fields=", ".join(missing)))
+    invalid = invalid_spec_fields(product.category.slug, specs)
+    if invalid:
+        raise HTTPException(422, t("errors.specs_invalid", fields=", ".join(invalid)))
     if product.old_price is not None and product.old_price <= product.price:
         raise HTTPException(422, t("errors.old_price_invalid"))
 

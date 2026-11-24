@@ -35,8 +35,41 @@ PSU_RESERVE = 1.2     # PSU headroom
 IGPU_SCORE = 8        # "performance" of integrated graphics
 
 
+# Value kind of every specs field. Wrong types used to crash check_build (e.g. "650" instead of 650).
+SPEC_KINDS: dict[str, str] = {
+    "socket": "text", "ram_type": "text", "form_factor": "text", "type": "text",
+    "cores": "number", "tdp": "number", "ram_slots": "number", "size_gb": "number", "sticks": "number",
+    "vram_gb": "number", "length_mm": "number", "wattage": "number", "max_gpu_mm": "number",
+    "score": "score",
+    "igpu": "flag",
+    "form_factors": "text_list",
+}
+OPTIONAL_SPEC_FIELDS: dict[str, tuple[str, ...]] = {"cpu": ("igpu",)}
+
+
+def _is_valid(kind: str, value) -> bool:
+    is_number = isinstance(value, (int, float)) and not isinstance(value, bool)
+    if kind == "text":
+        return isinstance(value, str) and value.strip() != ""
+    if kind == "number":
+        return is_number and value > 0
+    if kind == "score":
+        return is_number and 0 <= value <= 100
+    if kind == "flag":
+        return isinstance(value, bool)
+    if kind == "text_list":
+        return isinstance(value, list) and bool(value) and all(isinstance(v, str) and v.strip() for v in value)
+    return False
+
+
 def missing_spec_fields(category: str, specs: dict) -> list[str]:
     return [f for f in SPEC_FIELDS.get(category, ()) if f not in specs]
+
+
+def invalid_spec_fields(category: str, specs: dict) -> list[str]:
+    """Known fields that are present but have a wrong type or value."""
+    known = SPEC_FIELDS.get(category, ()) + OPTIONAL_SPEC_FIELDS.get(category, ())
+    return [f for f in known if f in specs and not _is_valid(SPEC_KINDS[f], specs[f])]
 
 
 def _part(category: str) -> str:
