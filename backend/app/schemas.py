@@ -2,9 +2,10 @@
 
 import re
 from datetime import datetime
-from typing import Generic, Literal, TypeVar
+from typing import Annotated, Generic, Literal, TypeVar
+from urllib.parse import urlparse
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
 from app.i18n import t
 
@@ -15,6 +16,33 @@ OrderStatus = Literal["new", "confirmed", "assembling", "shipped", "done", "canc
 NewsType = Literal["news", "promo", "game"]
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+PHONE_RE = re.compile(r"^\+?[0-9()\-\s]+$")
+
+
+def _check_phone(value: str) -> str:
+    digits = sum(ch.isdigit() for ch in value)
+    if not PHONE_RE.match(value) or not 7 <= digits <= 15:
+        raise ValueError(t("errors.invalid_phone"))
+    return value
+
+
+def _check_image_url(value: str) -> str:
+    """Only http(s) links or paths on our own site: no javascript:, data: and so on."""
+    parsed = urlparse(value)
+    is_web = parsed.scheme in ("http", "https") and bool(parsed.netloc)
+    is_local = not parsed.scheme and not parsed.netloc and value.startswith("/")
+    if not (is_web or is_local):
+        raise ValueError(t("errors.invalid_image_url"))
+    return value
+
+
+def Text(min_length: int = 0, max_length: int | None = None):  # noqa: N802 (used as a type)
+    """A string with spaces trimmed BEFORE the length check, so "   " counts as empty."""
+    return Annotated[str, StringConstraints(strip_whitespace=True, min_length=min_length, max_length=max_length)]
+
+
+Phone = Annotated[str, StringConstraints(strip_whitespace=True, max_length=30), AfterValidator(_check_phone)]
+ImageUrl = Annotated[str, StringConstraints(strip_whitespace=True, max_length=500), AfterValidator(_check_image_url)]
 
 
 class ORM(BaseModel):
@@ -47,8 +75,8 @@ class Message(BaseModel):
 class RegisterIn(BaseModel):
     email: str = Field(max_length=255)
     password: str = Field(min_length=6, max_length=100)
-    name: str = Field(min_length=1, max_length=100)
-    phone: str | None = Field(default=None, max_length=30)
+    name: Text(1, 100)
+    phone: Phone | None = None
 
     @field_validator("email")
     @classmethod
@@ -88,8 +116,8 @@ class TokenOut(BaseModel):
 
 
 class ProfileUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=1, max_length=100)
-    phone: str | None = Field(default=None, max_length=30)
+    name: Text(1, 100) | None = None
+    phone: Phone | None = None
 
 
 # ---------- Catalog ----------
@@ -169,9 +197,9 @@ class CartOut(BaseModel):
 # ---------- Orders and bonuses ----------
 
 class OrderCreate(BaseModel):
-    address: str = Field(min_length=5, max_length=300)
-    phone: str = Field(min_length=5, max_length=30)
-    comment: str = Field(default="", max_length=500)
+    address: Text(5, 300)
+    phone: Phone
+    comment: Text(0, 500) = ""
     bonus_to_use: int = Field(default=0, ge=0)
 
 
@@ -246,7 +274,7 @@ class CheckResult(BaseModel):
 
 
 class BuildCreate(BaseModel):
-    name: str = Field(min_length=1, max_length=100)
+    name: Text(1, 100)
     product_ids: list[int] = Field(min_length=1, max_length=30)
 
 
@@ -261,52 +289,52 @@ class BuildOut(BaseModel):
 
 
 class BuildCommentIn(BaseModel):
-    comment: str = Field(max_length=2000)
+    comment: Text(0, 2000)
 
 
 # ---------- Admin ----------
 
 class ProductIn(BaseModel):
     category: str  # category slug
-    name: str = Field(min_length=1, max_length=200)
-    brand: str = Field(min_length=1, max_length=100)
+    name: Text(1, 200)
+    brand: Text(1, 100)
     price: int = Field(gt=0)
     old_price: int | None = Field(default=None, gt=0)
     stock: int = Field(default=0, ge=0)
-    image_url: str | None = Field(default=None, max_length=500)
-    description: str = ""
+    image_url: ImageUrl | None = None
+    description: Text() = ""
     specs: dict = Field(default_factory=dict)
 
 
 class ProductUpdate(BaseModel):
     category: str | None = None
-    name: str | None = Field(default=None, min_length=1, max_length=200)
-    brand: str | None = Field(default=None, min_length=1, max_length=100)
+    name: Text(1, 200) | None = None
+    brand: Text(1, 100) | None = None
     price: int | None = Field(default=None, gt=0)
     old_price: int | None = Field(default=None, gt=0)
     stock: int | None = Field(default=None, ge=0)
-    image_url: str | None = Field(default=None, max_length=500)
-    description: str | None = None
+    image_url: ImageUrl | None = None
+    description: Text() | None = None
     specs: dict | None = None
     is_active: bool | None = None
 
 
 class NewsIn(BaseModel):
-    title: str = Field(min_length=1, max_length=200)
-    text: str = Field(min_length=1)
-    image_url: str | None = Field(default=None, max_length=500)
+    title: Text(1, 200)
+    text: Text(1)
+    image_url: ImageUrl | None = None
     type: NewsType = "news"
 
 
 class NewsUpdate(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=200)
-    text: str | None = Field(default=None, min_length=1)
-    image_url: str | None = Field(default=None, max_length=500)
+    title: Text(1, 200) | None = None
+    text: Text(1) | None = None
+    image_url: ImageUrl | None = None
     type: NewsType | None = None
 
 
 class FactIn(BaseModel):
-    text: str = Field(min_length=1, max_length=1000)
+    text: Text(1, 1000)
 
 
 class UserAdminUpdate(BaseModel):
@@ -316,7 +344,7 @@ class UserAdminUpdate(BaseModel):
 
 class BonusGrantIn(BaseModel):
     amount: int  # can be negative (debit)
-    reason: str = Field(min_length=1, max_length=200)
+    reason: Text(1, 200)
 
 
 class RoleOut(BaseModel):

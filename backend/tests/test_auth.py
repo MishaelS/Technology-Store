@@ -66,8 +66,8 @@ def test_me_requires_token(client):
 def test_me_and_profile_update(client, client_user):
     user, headers = client_user
     assert client.get("/api/auth/me", headers=headers).json()["id"] == user.id
-    updated = client.patch("/api/auth/me", json={"name": "  Пётр  ", "phone": "+7999"}, headers=headers).json()
-    assert updated["name"] == "Пётр" and updated["phone"] == "+7999"
+    updated = client.patch("/api/auth/me", json={"name": "  Пётр  ", "phone": "+79991234567"}, headers=headers).json()
+    assert updated["name"] == "Пётр" and updated["phone"] == "+79991234567"
 
 
 def test_profile_update_cannot_change_role(client, client_user):
