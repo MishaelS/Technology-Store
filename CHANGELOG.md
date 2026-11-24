@@ -29,6 +29,10 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - Automated tests (pytest) for every part of the backend, running on a separate test database.
 - Documentation: setup, API, tests and translations guides in `docs/`.
 - Edge case tests (`test_edge_cases.py`): whitespace-only fields, bad phones, wrong spec types, unsafe links, error format.
+- Simple frontend without design at http://localhost:5173 (nginx in Docker): home, catalog with infinite scroll
+  and scroll restore, product, news, PC builder, login and sign-up, cart and checkout, personal account,
+  admin panel with sections shown by permissions, ru/en language switch.
+- Locale check also verifies keys used by the frontend.
 - `run.sh`: one script to set up, start, stop, test and maintain the project (`./run.sh help`). It checks Docker, creates `.env` and generates the seed password.
 
 ### Changed

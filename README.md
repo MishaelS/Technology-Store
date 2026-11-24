@@ -17,7 +17,7 @@ Technology-Store, this website is a job for an educational institution and in re
 
 ## Технологии
 
-Python (FastAPI), PostgreSQL, Docker. Фронтенд и бэкенд — отдельные части, связанные через API.
+Python (FastAPI), PostgreSQL, Docker. Фронтенд — HTML и JavaScript без сборки. Фронтенд и бэкенд — отдельные части, связанные через API.
 
 ## Быстрый старт
 
@@ -27,6 +27,8 @@ Python (FastAPI), PostgreSQL, Docker. Фронтенд и бэкенд — от�
 ./run.sh start
 ```
 
+После запуска сайт открывается по адресу http://localhost:5173.
+
 Все команды: `./run.sh help`. Подробнее — [docs/SETUP.md](docs/SETUP.md).
 
 ## Документы
@@ -34,6 +36,7 @@ Python (FastAPI), PostgreSQL, Docker. Фронтенд и бэкенд — от�
 | Документ | О чём |
 |---|---|
 | [docs/SETUP.md](docs/SETUP.md) | как запустить проект |
+| [frontend/README.md](frontend/README.md) | как устроен фронтенд |
 | [docs/API.md](docs/API.md) | как работать с API, роли и права |
 | [docs/TESTS.md](docs/TESTS.md) | автотесты: как запускать и что проверяют |
 | [docs/TRANSLATIONS.md](docs/TRANSLATIONS.md) | переводы интерфейса |
