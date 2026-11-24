@@ -58,6 +58,19 @@ def test_every_key_used_in_code_exists():
     assert sorted(used - ru.keys()) == []
 
 
+def test_every_key_used_by_the_frontend_exists():
+    frontend = Path(i18n.settings.locales_dir).parents[1] / "frontend" / "src"
+    if not frontend.exists():
+        pytest.skip("frontend is not mounted")
+    import re
+
+    used = set()
+    for file in frontend.rglob("*.js"):
+        used |= set(re.findall(r'\bt\(\s*"([a-z_.]+)"', file.read_text(encoding="utf-8")))
+    ru = flatten(json.loads((LOCALES / "ru.json").read_text(encoding="utf-8")))
+    assert sorted(used - ru.keys()) == []
+
+
 def test_translate_with_params():
     assert t("errors.bonus_limit", lang="ru", max=10) == "Можно списать не больше 10 бонусов"
     assert t("errors.bonus_limit", lang="en", max=10) == "You can spend at most 10 points"

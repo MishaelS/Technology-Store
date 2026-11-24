@@ -42,7 +42,14 @@
     "nothing_found": "Nothing found",
     "error": "Something went wrong",
     "retry": "Retry",
-    "to_top": "Back to top"
+    "to_top": "Back to top",
+    "all": "All",
+    "name": "Name",
+    "next": "Next →",
+    "prev": "← Previous",
+    "saved": "Saved",
+    "status": "Status",
+    "sum": "Sum"
   },
   "categories": {
     "cpu": "Processors",
@@ -90,7 +97,8 @@
     "discount_badge": "−{percent}%",
     "specs": "Specifications",
     "description": "Description",
-    "old_price": "Old price"
+    "old_price": "Old price",
+    "added": "Added to cart"
   },
   "specs": {
     "socket": "Socket",
@@ -151,7 +159,8 @@
       "shipped": "Shipped",
       "done": "Completed",
       "cancelled": "Cancelled"
-    }
+    },
+    "cancel_confirm": "Cancel the order?"
   },
   "bonus": {
     "title": "Bonus points",
@@ -220,7 +229,14 @@
       "graphics_error": "The processor has no integrated graphics — a graphics card is required",
       "complete_ok": "All main parts are selected",
       "complete_missing": "Missing: {parts}"
-    }
+    },
+    "add_more": "Add one more",
+    "added_to_cart": "Parts added to cart",
+    "checks_title": "Compatibility check",
+    "clear": "Clear build",
+    "not_selected": "— not selected —",
+    "open": "Open in builder",
+    "saved": "Build saved"
   },
   "auth": {
     "login_title": "Log in",
@@ -242,7 +258,8 @@
     "bonus": "Bonus points",
     "builds": "Builds",
     "save_profile": "Save profile",
-    "role": "Role"
+    "role": "Role",
+    "no_builds": "No saved builds yet"
   },
   "roles": {
     "client": "Client",
@@ -291,7 +308,25 @@
       "builds_total": "Saved builds",
       "low_stock": "Running low on stock",
       "top_products": "Top products"
-    }
+    },
+    "content": "News and facts",
+    "all_roles": "All roles",
+    "all_statuses": "All statuses",
+    "bonus_balance": "Bonus points",
+    "date": "Date",
+    "hidden": "Hidden",
+    "hide": "Hide from catalog",
+    "show": "Return to catalog",
+    "invalid_json": "Specs must be valid JSON",
+    "new_fact": "Add fact",
+    "new_news": "New news or promotion",
+    "order_search": "Email, name or order number",
+    "orders_by_status": "Orders by status",
+    "save_comment": "Save comment",
+    "specs_json": "Specs (JSON)",
+    "text": "Text",
+    "title_field": "Title",
+    "type": "Type"
   },
   "errors": {
     "auth_required": "Please log in",
