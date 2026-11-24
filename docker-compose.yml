@@ -25,11 +25,21 @@ services:
     volumes:
       - ./backend:/app
       - ./resources:/resources:ro
+      - ./frontend:/frontend:ro   # only to check translation keys used by the frontend
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
 
   adminer:
     image: adminer

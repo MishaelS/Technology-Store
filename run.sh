@@ -127,7 +127,7 @@ ${BOLD}Основное${RESET}
   stop         Остановить проект (данные базы сохраняются)
   restart      Перезапустить
   status       Какие контейнеры запущены
-  logs [svc]   Логи в реальном времени (по умолчанию backend; ещё: db, adminer). Выход: Ctrl+C
+  logs [svc]   Логи в реальном времени (по умолчанию backend; ещё: frontend, db, adminer). Выход: Ctrl+C
 
 ${BOLD}Разработка${RESET}
   test [args]  Запустить автотесты (аргументы передаются в pytest: -k bonus, tests/test_auth.py, -x)
@@ -154,6 +154,7 @@ ${BOLD}Примеры${RESET}
 logs, test и migration забирают все аргументы после себя, поэтому ставьте их последними.
 
 ${BOLD}Адреса после запуска${RESET}
+  Сайт                http://localhost:5173
   API и документация  $API_URL/docs
   Adminer (база)      http://localhost:8080
 EOF
@@ -185,6 +186,7 @@ cmd_start() {
     compose up -d
     wait_for_api
     printf '\n%sГотово!%s\n' "$BOLD" "$RESET"
+    printf '  Сайт                http://localhost:5173\n'
     printf '  API и документация  %s/docs\n' "$API_URL"
     printf '  Adminer (база)      http://localhost:8080\n'
     printf '  Тестовые аккаунты   ./run.sh password\n'
