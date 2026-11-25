@@ -3,7 +3,7 @@
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, or_, select
+from sqlalchemy import ColumnElement, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -54,7 +54,7 @@ def list_products(
     First request: no cursor. Next one: cursor=next_cursor from the response.
     next_cursor = null means there are no more products.
     """
-    filters = [Product.is_active.is_(True)]
+    filters: list[ColumnElement[bool]] = [Product.is_active.is_(True)]
     if category:
         filters.append(Product.category.has(Category.slug == category))
     if search and search.strip():

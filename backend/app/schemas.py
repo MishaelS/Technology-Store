@@ -36,9 +36,20 @@ def _check_image_url(value: str) -> str:
     return value
 
 
-def Text(min_length: int = 0, max_length: int | None = None):  # noqa: N802 (used as a type)
-    """A string with spaces trimmed BEFORE the length check, so "   " counts as empty."""
-    return Annotated[str, StringConstraints(strip_whitespace=True, min_length=min_length, max_length=max_length)]
+def _text(min_length: int = 0, max_length: int | None = None):
+    return StringConstraints(strip_whitespace=True, min_length=min_length, max_length=max_length)
+
+
+# Strings with spaces trimmed BEFORE the length check, so "   " counts as empty.
+# Name = (min length, max length).
+Text_1_100 = Annotated[str, _text(1, 100)]
+Text_1_200 = Annotated[str, _text(1, 200)]
+Text_1_1000 = Annotated[str, _text(1, 1000)]
+Text_5_300 = Annotated[str, _text(5, 300)]
+Text_0_500 = Annotated[str, _text(0, 500)]
+Text_0_2000 = Annotated[str, _text(0, 2000)]
+TextRequired = Annotated[str, _text(1)]
+TextOptional = Annotated[str, _text()]
 
 
 Phone = Annotated[str, StringConstraints(strip_whitespace=True, max_length=30), AfterValidator(_check_phone)]
@@ -75,7 +86,7 @@ class Message(BaseModel):
 class RegisterIn(BaseModel):
     email: str = Field(max_length=255)
     password: str = Field(min_length=6, max_length=100)
-    name: Text(1, 100)
+    name: Text_1_100
     phone: Phone | None = None
 
     @field_validator("email")
@@ -116,7 +127,7 @@ class TokenOut(BaseModel):
 
 
 class ProfileUpdate(BaseModel):
-    name: Text(1, 100) | None = None
+    name: Text_1_100 | None = None
     phone: Phone | None = None
 
 
@@ -197,9 +208,9 @@ class CartOut(BaseModel):
 # ---------- Orders and bonuses ----------
 
 class OrderCreate(BaseModel):
-    address: Text(5, 300)
+    address: Text_5_300
     phone: Phone
-    comment: Text(0, 500) = ""
+    comment: Text_0_500 = ""
     bonus_to_use: int = Field(default=0, ge=0)
 
 
@@ -274,7 +285,7 @@ class CheckResult(BaseModel):
 
 
 class BuildCreate(BaseModel):
-    name: Text(1, 100)
+    name: Text_1_100
     product_ids: list[int] = Field(min_length=1, max_length=30)
 
 
@@ -289,52 +300,52 @@ class BuildOut(BaseModel):
 
 
 class BuildCommentIn(BaseModel):
-    comment: Text(0, 2000)
+    comment: Text_0_2000
 
 
 # ---------- Admin ----------
 
 class ProductIn(BaseModel):
     category: str  # category slug
-    name: Text(1, 200)
-    brand: Text(1, 100)
+    name: Text_1_200
+    brand: Text_1_100
     price: int = Field(gt=0)
     old_price: int | None = Field(default=None, gt=0)
     stock: int = Field(default=0, ge=0)
     image_url: ImageUrl | None = None
-    description: Text() = ""
+    description: TextOptional = ""
     specs: dict = Field(default_factory=dict)
 
 
 class ProductUpdate(BaseModel):
     category: str | None = None
-    name: Text(1, 200) | None = None
-    brand: Text(1, 100) | None = None
+    name: Text_1_200 | None = None
+    brand: Text_1_100 | None = None
     price: int | None = Field(default=None, gt=0)
     old_price: int | None = Field(default=None, gt=0)
     stock: int | None = Field(default=None, ge=0)
     image_url: ImageUrl | None = None
-    description: Text() | None = None
+    description: TextOptional | None = None
     specs: dict | None = None
     is_active: bool | None = None
 
 
 class NewsIn(BaseModel):
-    title: Text(1, 200)
-    text: Text(1)
+    title: Text_1_200
+    text: TextRequired
     image_url: ImageUrl | None = None
     type: NewsType = "news"
 
 
 class NewsUpdate(BaseModel):
-    title: Text(1, 200) | None = None
-    text: Text(1) | None = None
+    title: Text_1_200 | None = None
+    text: TextRequired | None = None
     image_url: ImageUrl | None = None
     type: NewsType | None = None
 
 
 class FactIn(BaseModel):
-    text: Text(1, 1000)
+    text: Text_1_1000
 
 
 class UserAdminUpdate(BaseModel):
@@ -344,7 +355,7 @@ class UserAdminUpdate(BaseModel):
 
 class BonusGrantIn(BaseModel):
     amount: int  # can be negative (debit)
-    reason: Text(1, 200)
+    reason: Text_1_200
 
 
 class SpecFieldOut(BaseModel):

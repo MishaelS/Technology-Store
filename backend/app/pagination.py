@@ -53,7 +53,7 @@ def cursor_paginate(
 
 
 def page_paginate(db: Session, stmt: Select, page: int, page_size: int) -> dict:
-    total = db.scalar(select(func.count()).select_from(stmt.order_by(None).subquery()))
+    total = db.scalar(select(func.count()).select_from(stmt.order_by(None).subquery())) or 0
     items = list(db.scalars(stmt.offset((page - 1) * page_size).limit(page_size)).unique())
     return {
         "items": items,

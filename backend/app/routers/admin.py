@@ -7,7 +7,7 @@
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, or_, select
+from sqlalchemy import ColumnElement, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -69,7 +69,9 @@ PageSize = Query(20, ge=1, le=100)
 
 @router.get("/stats", response_model=StatsOut, dependencies=[Depends(can_view_stats)])
 def stats(db: Session = Depends(get_db)):
-    counts = dict(db.execute(select(Order.status, func.count()).group_by(Order.status)).all())
+    counts: dict[str, int] = {
+        status: count for status, count in db.execute(select(Order.status, func.count()).group_by(Order.status)).tuples()
+    }
     by_status = {s: counts.get(s, 0) for s in ORDER_STATUSES}  # every status, even with 0 orders
     week_ago = datetime.now(timezone.utc) - timedelta(days=7)
     top = db.execute(
@@ -109,7 +111,10 @@ def list_orders(
     if status:
         stmt = stmt.where(Order.status == status)
     if search and search.strip():
-        conds = [User.email.ilike(_like(search), escape="\\"), User.name.ilike(_like(search), escape="\\")]
+        conds: list[ColumnElement[bool]] = [
+            User.email.ilike(_like(search), escape="\\"),
+            User.name.ilike(_like(search), escape="\\"),
+        ]
         if search.strip().lstrip("#").isdigit():
             conds.append(Order.id == int(search.strip().lstrip("#")))
         stmt = stmt.where(or_(*conds))

@@ -1,6 +1,7 @@
 """PC builder rules (services/compatibility.py) on fake products, without the database."""
 
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -8,7 +9,8 @@ from app.i18n import _current
 from app.services.compatibility import check_build, missing_spec_fields
 
 
-def part(category, price=1000, **specs):
+def part(category, price=1000, **specs) -> Any:
+    """A fake product: check_build only reads category_slug, price and specs."""
     return SimpleNamespace(category_slug=category, price=price, specs=specs)
 
 

@@ -1,14 +1,15 @@
 """Passwords, JWT tokens, cursors and bonus math: security.py, pagination.py, services/bonus.py."""
 
+import base64
+import json
 from datetime import datetime, timedelta, timezone
-from types import SimpleNamespace
 
 import jwt
 import pytest
 from fastapi import HTTPException
 
 from app.config import settings
-from app.models import Product
+from app.models import Product, User
 from app.pagination import decode_cursor, encode_cursor
 from app.security import ALGORITHM, create_token, decode_token, hash_password, verify_password
 from app.services.bonus import cashback_for, max_bonus_for
@@ -27,7 +28,7 @@ def test_long_password_is_supported():
 
 
 def test_token_roundtrip():
-    token = create_token(SimpleNamespace(id=42, role="admin"))
+    token = create_token(User(id=42, role="admin"))
     assert decode_token(token) == 42
 
 
@@ -59,7 +60,7 @@ def test_cursor_roundtrip():
         encode_cursor([1]),               # wrong length
         encode_cursor(["text", 7]),       # wrong type for price
         encode_cursor([True, 7]),         # bool is not an int here
-        encode_cursor({"price": 1}),      # not a list
+        base64.urlsafe_b64encode(json.dumps({"price": 1}).encode()).decode(),  # not a list
     ],
 )
 def test_bad_cursor_gives_400(cursor):
