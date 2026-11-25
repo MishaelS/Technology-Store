@@ -1058,4 +1058,43 @@ button.image-add:hover:not(:disabled), button.image-add.over { border-color: var
 @media (max-width: 380px) {
   .brand-name { display: none; } /* the narrowest phones: the logo alone */
 }
+@media (max-width: 640px) {
+  /* builder steps on a phone: seven small circles in one line with the progress line, no scrolling;
+     the names stay for screen readers, the step titles below show them anyway */
+  .build-track { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); overflow: visible; padding: 14px 8px; }
+  .build-track::before, .build-track::after { display: block; top: 31px; left: calc(8px + (100% - 16px) / 14); width: calc((100% - 16px) * 6 / 7); }
+  .build-track li { width: auto; }
+  .build-track .node { width: 36px; height: 36px; }
+  .build-track .node .icon { width: 17px; height: 17px; }
+  .build-track .node-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+
+/* ---------- cart (pages/cart.js): items as small cards ---------- */
+.cart-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.cart-item {
+  display: grid; grid-template-columns: 72px minmax(0, 1fr) auto auto auto; align-items: center; gap: 14px;
+  padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.cart-thumb { display: grid; place-items: center; width: 72px; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); color: var(--line-strong); }
+.cart-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cart-thumb .icon { width: 28px; height: 28px; }
+.cart-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cart-info .item-link { overflow-wrap: anywhere; line-height: 1.3; }
+.cart-info .muted { font-size: 13px; }
+.cart-qty .number-field { width: 92px; }
+.cart-sum { white-space: nowrap; min-width: 90px; text-align: right; }
+.cart-total { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  /* picture | name, price          | remove
+             quantity       sum                */
+  .cart-item { grid-template-columns: 64px minmax(0, 1fr) auto; grid-template-areas: "thumb info remove" "thumb qty sum"; gap: 8px 12px; }
+  .cart-thumb { grid-area: thumb; width: 64px; align-self: start; }
+  .cart-info { grid-area: info; }
+  .cart-qty { grid-area: qty; }
+  .cart-sum { grid-area: sum; min-width: 0; }
+  .cart-remove { grid-area: remove; align-self: start; }
+}
+
+/* builder: the chosen part shows its photo when it has one */
+.part-thumb { overflow: hidden; }
+.part-thumb img { width: 100%; height: 100%; object-fit: cover; }

@@ -8,7 +8,7 @@ import { t } from "../i18n.js";
 import { headerChanged } from "../router.js";
 import { isLoggedIn, session } from "../session.js";
 import { countTo } from "../effects.js";
-import { attempt, flash, h, icon, link, money, navigate } from "../ui.js";
+import { attempt, flash, h, icon, image, link, money, navigate } from "../ui.js";
 
 const SLOTS = ["cpu", "motherboard", "ram", "gpu", "storage", "psu", "case"];
 const MULTIPLE = ["ram", "storage"]; // several pieces allowed
@@ -168,7 +168,7 @@ export async function builderPage() {
     return h(
       "div",
       { class: "chosen-part" },
-      h("span", { class: "part-thumb" }, icon(`categories/${slot}`)),
+      h("span", { class: "part-thumb" }, image(product.image_url, "") || icon(`categories/${slot}`)),
       h(
         "div",
         { class: "part-info" },

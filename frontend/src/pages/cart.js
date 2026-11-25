@@ -3,7 +3,7 @@ import { api } from "../api.js";
 import { t } from "../i18n.js";
 import { headerChanged } from "../router.js";
 import { loadUser, session } from "../session.js";
-import { attempt, emptyState, field, flash, formData, h, link, money, navigate } from "../ui.js";
+import { attempt, emptyState, field, flash, formData, h, icon, image, link, money, navigate } from "../ui.js";
 
 export async function cartPage() {
   const root = h("div");
@@ -20,19 +20,30 @@ export async function cartPage() {
       root.replaceChildren(h("h1", {}, t("cart.title")), emptyState("navigation/cart", t("cart.empty"), ["/catalog", t("cart.go_to_catalog")]));
       return;
     }
+    // every item is a small card: picture, name and price, quantity, sum and a remove button;
+    // on a phone the parts wrap instead of a table running off the screen
     const rows = cart.items.map(({ product, quantity, sum }) => {
-      const input = h("input", { type: "number", min: 0, max: 99, value: quantity, style: "width: 88px" });
+      const input = h("input", { type: "number", min: 0, max: 99, value: quantity, "aria-label": t("cart.quantity") });
       input.addEventListener("change", () =>
         update(() => api(`/api/cart/${product.id}`, { method: "PATCH", body: { quantity: Number(input.value) } })),
       );
       return h(
-        "tr",
-        {},
-        h("td", {}, h("a", { href: `#/product/${product.id}`, class: "item-link" }, product.name)),
-        h("td", { class: "price" }, money(product.price)),
-        h("td", {}, input),
-        h("td", { class: "price" }, money(sum)),
-        h("td", {}, h("button", { type: "button", onclick: () => update(() => api(`/api/cart/${product.id}`, { method: "DELETE" })) }, t("cart.remove"))),
+        "li",
+        { class: "cart-item" },
+        h("a", { href: `#/product/${product.id}`, class: "cart-thumb", tabindex: -1, "aria-hidden": "true" },
+          image(product.image_url, "") || icon(`categories/${product.category}`)),
+        h("div", { class: "cart-info" },
+          h("a", { href: `#/product/${product.id}`, class: "item-link" }, product.name),
+          h("span", { class: "muted price" }, `${money(product.price)} × ${quantity}`)),
+        h("div", { class: "cart-qty" }, input),
+        h("strong", { class: "cart-sum price" }, money(sum)),
+        h("button", {
+          type: "button",
+          class: "icon-only small ghost cart-remove",
+          title: t("cart.remove"),
+          "aria-label": `${t("cart.remove")}: ${product.name}`,
+          onclick: () => update(() => api(`/api/cart/${product.id}`, { method: "DELETE" })),
+        }, icon("actions/delete")),
       );
     });
     root.replaceChildren(
@@ -43,12 +54,11 @@ export async function cartPage() {
         h(
           "div",
           { class: "section" },
-          h("div", { class: "table-box" }, h("table", {},
-            h("tr", {}, h("th", {}, t("admin.products")), h("th", {}, t("admin.price")), h("th", {}, t("cart.quantity")), h("th", {}, t("common.sum")), h("th", {})),
-            rows)),
-          h("div", { class: "section-head" },
+          h("ul", { class: "cart-list" }, rows),
+          h("div", { class: "cart-total" },
             h("span", {}, t("cart.items_count", { count: cart.count }), " · ", h("b", { class: "price" }, `${t("cart.total")}: ${money(cart.total)}`)),
-            h("button", { type: "button", onclick: () => update(() => api("/api/cart", { method: "DELETE" })) }, t("cart.clear"))),
+            h("button", { type: "button", class: "ghost", onclick: () => update(() => api("/api/cart", { method: "DELETE" })) },
+              icon("actions/delete"), t("cart.clear"))),
         ),
         checkoutForm(cart),
       ),
