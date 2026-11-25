@@ -418,7 +418,7 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
 .big-price .price { font-size: 30px; }
 .big-price .old-price { font-size: 16px; }
 .product-page { align-items: start; }
-.product-page .thumb { aspect-ratio: 1 / 1; }
+.product-page .thumb { aspect-ratio: 4 / 3; } /* the same shape as in the cards: pictures are 4:3 */
 .product-page .thumb .icon { width: 160px; height: 160px; }
 .product-page .section .stock { font-size: 15px; font-weight: 600; }
 .stock.out { color: var(--muted); }
@@ -761,7 +761,7 @@ button.icon-only { padding: 0; width: 34px; }
 .slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; display: flex; }
 .slide > * { flex: 1; }
 .promo-slider .hero { border: 0; border-radius: 0; background: none; }
-.promo-slider:not(.single) .slide > * { padding-bottom: 56px; } /* room for the dots */
+.promo-slider:not(.single) .slide > * { padding-bottom: 64px; } /* room for the bar with dots */
 .promo-slide {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: center;
   padding: clamp(20px, 4vw, 40px);
@@ -773,16 +773,19 @@ button.icon-only { padding: 0; width: 34px; }
 .promo-slide p { margin: 0; color: var(--muted); font-size: 17px; max-width: 520px; }
 .promo-art { display: grid; place-items: center; width: clamp(140px, 22vw, 240px); aspect-ratio: 1; border-radius: 50%; background: var(--surface); color: var(--error); box-shadow: 0 18px 40px rgb(201 42 42 / 0.12); overflow: hidden; }
 .promo-art .icon { width: 45%; height: 45%; }
+/* a picture of the promotion is a wide banner: a rounded rectangle, not a circle that would cut it */
+.promo-art:has(img) { width: clamp(200px, 30vw, 340px); aspect-ratio: 16 / 9; border-radius: 16px; }
 .promo-art img { width: 100%; height: 100%; object-fit: cover; }
+/* bar under the slide: ‹ dots › */
+.slider-bar { position: absolute; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; align-items: center; gap: 12px; pointer-events: none; }
+.slider-bar > * { pointer-events: auto; }
 .slider-arrow {
-  position: absolute; top: 50%; translate: 0 -50%; width: 40px; height: 40px; padding: 0; justify-content: center;
-  border-radius: 50%; background: var(--surface); box-shadow: 0 4px 14px rgb(16 24 40 / 0.1);
-  opacity: 0; transition: opacity 0.2s ease;
+  width: 32px; min-height: 32px; height: 32px; padding: 0; border-radius: 50%;
+  border-color: var(--line); background: var(--surface); color: var(--muted);
 }
-.slider-arrow.prev { left: 12px; }
-.slider-arrow.next { right: 12px; }
-.promo-slider:hover .slider-arrow, .slider-arrow:focus-visible { opacity: 1; }
-.slider-dots { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; gap: 8px; }
+.slider-arrow:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.slider-arrow .icon { width: 16px; height: 16px; }
+.slider-dots { display: flex; align-items: center; gap: 8px; }
 .slider-dot {
   position: relative; width: 10px; min-height: 0; height: 10px; padding: 0; border: 0; border-radius: 999px;
   background: var(--line-strong); transition: width 0.3s ease, background-color 0.3s ease;
@@ -799,7 +802,6 @@ button.icon-only { padding: 0; width: 34px; }
 @media (max-width: 640px) {
   .promo-slide { grid-template-columns: minmax(0, 1fr); }
   .promo-art { display: none; }
-  .slider-arrow { display: none; } /* a swipe does it on phones */
 }
 
 /* ---------- skeletons: grey cards while the real ones load (skeletons() in ui.js) ---------- */

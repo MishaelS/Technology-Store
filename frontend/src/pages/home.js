@@ -1,7 +1,6 @@
 import { api } from "../api.js";
 import { factCard, newsCard, productCard } from "../components.js";
 import { t } from "../i18n.js";
-import { onLeave } from "../router.js";
 import { h, icon, image, moreLink } from "../ui.js";
 
 const AUTOPLAY_MS = 6000;
@@ -53,13 +52,16 @@ function promoSlider(slides) {
   const arrow = (step, name, label) =>
     h("button", { type: "button", class: `slider-arrow ${step < 0 ? "prev" : "next"}`, "aria-label": label, onclick: () => go(current + step) }, icon(name));
 
+  // arrows and dots in one bar under the slide: they never cover the slide's picture or text
+  const dotsBox = h("div", { class: "slider-dots" }, dots);
   const box = h(
     "section",
     { class: "promo-slider", "aria-roledescription": "carousel", "aria-label": t("home.slider_label") },
     track,
-    arrow(-1, "navigation/chevron-left", t("home.slide_prev")),
-    arrow(1, "navigation/chevron-right", t("home.slide_next")),
-    h("div", { class: "slider-dots" }, dots),
+    h("div", { class: "slider-bar" },
+      arrow(-1, "navigation/chevron-left", t("home.slide_prev")),
+      dotsBox,
+      arrow(1, "navigation/chevron-right", t("home.slide_next"))),
   );
 
   const markDot = () => dots.forEach((dot, i) => dot.setAttribute("aria-current", i === current ? "true" : "false"));
@@ -83,35 +85,24 @@ function promoSlider(slides) {
   for (const name of ["pointerdown", "wheel", "touchstart"]) track.addEventListener(name, () => (target = null), { passive: true });
   markDot();
 
-  // autoplay: the progress bar on the active dot shows when the next slide comes
-  let paused = false;
-  const setPaused = (value) => box.classList.toggle("paused", (paused = value));
+  // Autoplay. The bar filling the active dot is a CSS animation, and the slide changes exactly when it
+  // ends (animationend): the bar and the change can't drift apart, and everything that stops the bar
+  // (mouse over the slider, keyboard focus inside it, a background tab) stops the change too.
+  const keyboardFocus = () => box.contains(document.activeElement) && document.activeElement.matches(":focus-visible");
+  const setPaused = (value) => box.classList.toggle("paused", value);
   box.addEventListener("pointerenter", () => setPaused(true));
-  box.addEventListener("pointerleave", () => setPaused(box.contains(document.activeElement)));
-  box.addEventListener("focusin", () => setPaused(true));
-  box.addEventListener("focusout", (event) => setPaused(box.contains(event.relatedTarget) || box.matches(":hover")));
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let timer = null;
-  if (!reducedMotion) {
+  // a click leaves the focus on the dot or arrow: that alone must not keep the slider paused
+  box.addEventListener("pointerleave", () => setPaused(keyboardFocus()));
+  box.addEventListener("focusin", () => setPaused(keyboardFocus() || box.matches(":hover")));
+  box.addEventListener("focusout", (event) =>
+    setPaused((box.contains(event.relatedTarget) && event.relatedTarget.matches(":focus-visible")) || box.matches(":hover")));
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     box.classList.add("autoplay");
     box.style.setProperty("--autoplay", `${AUTOPLAY_MS}ms`);
-    // time counts only while nobody looks at the slider, like the bar on the dot; a new slide starts from zero
-    const TICK = 250;
-    let elapsed = 0;
-    let shownSlide = current;
-    timer = setInterval(() => {
-      if (shownSlide !== current) {
-        shownSlide = current;
-        elapsed = 0;
-      }
-      if (paused || document.hidden) return;
-      elapsed += TICK;
-      if (elapsed >= AUTOPLAY_MS) go(current + 1);
-    }, TICK);
+    dotsBox.addEventListener("animationend", (event) => {
+      if (event.animationName === "dot-fill") go(current + 1);
+    });
   }
-  onLeave(() => {
-    clearInterval(timer);
-  });
   return box;
 }
 

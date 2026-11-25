@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New look of the admin panel: search bar with filters and a counter, tables with spacing and status labels,
   icon buttons for row actions, dashboard tiles, collapsible create forms.
 - Form fields show their name inside (floating label) instead of a line of text above.
+- Promo slider: arrows and dots in one bar under the slide; promotion pictures shown whole.
 
 ### Removed
 
@@ -36,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The footer stays at the bottom of the screen on short pages.
 - Pale icons on the admin dashboard tiles.
+- The promo slider stopped changing slides after a click on a dot or an arrow, and could stall on the last one.
+- The product page cut its picture (square frame for a 4:3 picture).
 
 ## [0.1.0] - 2026-11-25
 
