@@ -116,6 +116,17 @@ export function select(name, options, value) {
   );
 }
 
+/** "Nothing here yet" block: an icon, a line of text and an optional button (path, text). */
+export function emptyState(iconName, text, action = null) {
+  return h(
+    "div",
+    { class: "empty-state" },
+    h("span", { class: "empty-icon" }, icon(iconName)),
+    h("p", {}, text),
+    action ? h("a", { href: `#${action[0]}`, class: "btn primary" }, action[1], icon("navigation/arrow-right")) : null,
+  );
+}
+
 /** Grey placeholders in the shape of cards, shown while the real cards load. kind: "product" | "news". */
 export function skeletons(kind, count) {
   const bone = (extra = "") => h("span", { class: `bone ${extra}` });

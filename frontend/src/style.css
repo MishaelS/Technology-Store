@@ -101,6 +101,9 @@ p { margin: 0; }
 /* weak on purpose (:where), so page layouts like .admin-layout keep their own display */
 :where(#main > div, #main > form) { display: flex; flex-direction: column; gap: 24px; }
 :where(#main > div) > button { align-self: flex-start; }
+/* plain blocks inside a page (tab content, lists of cards) also keep air between their parts */
+:where(#main > div > div:not([class]), #main > div > div > div:not([class])) { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+:where(#main > div > div:not([class]), #main > div > div > div:not([class])) > button { align-self: flex-start; }
 .item-link { color: var(--text); text-decoration: none; font-weight: 600; }
 .item-link:hover { color: var(--accent); }
 .sidebar form.stack { max-width: none; }
@@ -896,6 +899,15 @@ button.chip-btn:hover:not(:disabled) { border-color: transparent; background: va
 .form-grid fieldset legend { padding: 0 6px; color: var(--muted); font-size: 13px; font-weight: 600; }
 .form-grid > .check-row { grid-column: 1 / -1; }
 .form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+/* "nothing here yet" (emptyState() in ui.js) */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 20px; text-align: center;
+  background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--radius); color: var(--muted);
+}
+.empty-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.empty-icon .icon { width: 26px; height: 26px; }
+.empty-state p { font-size: 16px; font-weight: 600; color: var(--text); }
 
 /* picture field: drop a file or click to choose (image-drop.js) */
 .drop-zone {

@@ -4,7 +4,7 @@ import { checksList, statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { headerChanged, reload } from "../router.js";
 import { session } from "../session.js";
-import { attempt, date, field, flash, formData, h, link, money } from "../ui.js";
+import { attempt, date, emptyState, field, flash, formData, h, link, money } from "../ui.js";
 import { openInBuilder } from "./builder.js";
 import { myRepairs } from "./staff.js";
 
@@ -49,7 +49,7 @@ function profile() {
 
 async function orders() {
   const list = await api("/api/orders/my");
-  if (!list.length) return h("p", {}, t("orders.empty"));
+  if (!list.length) return emptyState("orders/order", t("orders.empty"), ["/catalog", t("cart.go_to_catalog")]);
   return h("div", {}, list.map((order) => h(
     "div",
     { class: "card" },
@@ -91,7 +91,7 @@ async function bonus() {
 
 async function builds() {
   const list = await api("/api/builds");
-  if (!list.length) return h("p", {}, t("account.no_builds"), " ", link("/builder", t("builder.title")));
+  if (!list.length) return emptyState("navigation/builder", t("account.no_builds"), ["/builder", t("builder.title")]);
   return h("div", {}, list.map((build) => h(
     "div",
     { class: "card" },

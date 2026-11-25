@@ -3,7 +3,7 @@ import { api } from "../api.js";
 import { t } from "../i18n.js";
 import { headerChanged } from "../router.js";
 import { loadUser, session } from "../session.js";
-import { attempt, field, flash, formData, h, link, money, navigate } from "../ui.js";
+import { attempt, emptyState, field, flash, formData, h, link, money, navigate } from "../ui.js";
 
 export async function cartPage() {
   const root = h("div");
@@ -17,7 +17,7 @@ export async function cartPage() {
     session.cartCount = cart.count;
     headerChanged();
     if (!cart.items.length) {
-      root.replaceChildren(h("h1", {}, t("cart.title")), h("p", {}, t("cart.empty")), link("/catalog", t("cart.go_to_catalog")));
+      root.replaceChildren(h("h1", {}, t("cart.title")), emptyState("navigation/cart", t("cart.empty"), ["/catalog", t("cart.go_to_catalog")]));
       return;
     }
     const rows = cart.items.map(({ product, quantity, sum }) => {
@@ -94,7 +94,7 @@ function checkoutForm(cart) {
     field(t("checkout.address"), h("input", { name: "address", required: true, minLength: 5 })),
     field(t("checkout.phone"), h("input", { name: "phone", type: "tel", required: true, value: session.user?.phone || "" })),
     field(t("checkout.comment"), h("input", { name: "comment" })),
-    field(`${t("checkout.use_bonus")} (${t("cart.max_bonus", { count: cart.max_bonus })})`, bonusInput),
+    field(t("checkout.use_bonus"), h("span", {}, bonusInput, h("div", { class: "muted field-hint" }, t("cart.max_bonus", { count: cart.max_bonus })))),
     h("p", { class: "muted" }, t("bonus.rules"), " ", t("checkout.payment_note")),
     summary,
     h("button", {}, t("checkout.place_order")),

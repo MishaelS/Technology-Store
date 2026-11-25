@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Picture upload: `POST /api/admin/uploads` (the type is checked by the file's bytes, no SVG, up to 5 MB),
   files in `uploads/` served by nginx at `/uploads/`; in the product editor and the news form a picture
   can be dropped onto the field, chosen from a file or pasted.
+- "Nothing here yet" block with a button for an empty cart, orders, builds and repairs.
 - `content/image` icon.
 
 ### Changed
@@ -34,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Product editor: form split into blocks, fields side by side, suggestions as chips under the field,
   checkboxes next to their text, a smaller picture preview, a quieter "save and create another" button.
 - Promo slider: arrows and dots in one bar under the slide; promotion pictures shown whole.
+- The bonus limit in checkout is a hint under the field instead of a long label.
 
 ### Removed
 
@@ -45,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pale icons on the admin dashboard tiles.
 - The promo slider stopped changing slides after a click on a dot or an arrow, and could stall on the last one.
 - The product page cut its picture (square frame for a 4:3 picture).
+- Parts of the account tabs (bonuses, orders, builds) had no space between them.
 
 ## [0.1.0] - 2026-11-25
 

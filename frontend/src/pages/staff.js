@@ -4,7 +4,7 @@ import { api, query as toQuery } from "../api.js";
 import { statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { reload } from "../router.js";
-import { attempt, date, field, flash, formData, h, icon, link, money, select } from "../ui.js";
+import { attempt, date, emptyState, field, flash, formData, h, icon, link, money, select } from "../ui.js";
 
 // ---------- repairs ----------
 
@@ -96,7 +96,7 @@ export function repairsSection(query) {
 /** Repairs of the client in the personal account. */
 export async function myRepairs() {
   const list = await api("/api/repairs/my");
-  if (!list.length) return h("p", {}, t("repairs.empty"));
+  if (!list.length) return emptyState("admin/repairs", t("repairs.empty"));
   return h("div", {}, list.map((repair) => h(
     "div",
     { class: "card" },
