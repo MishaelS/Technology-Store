@@ -41,6 +41,14 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - Product editor page (`#/admin/products/new`, `#/admin/products/:id`): a form with typed spec fields for each
   category, suggestions from existing products, live preview, discount hint, "save and add another",
   copy of a product and an edit link on the product page.
+- New roles: employee (sales, product cards, deliveries, orders, builds advice) and senior engineer
+  (server, database, errors); the engineer now handles repairs. Seed accounts for them are added
+  to existing databases automatically.
+- Repairs: accept a device, statuses from accepted to issued, price and engineer comment;
+  clients see their repairs in the account.
+- Stock receipts: an employee records a delivery, the stock grows, the log keeps who and when.
+- Tech support page: server and database state, migration, counts and recent server errors (500 are logged).
+- Icons for the new roles and admin sections.
 - `GET /api/admin/products/spec-schema` (spec fields per category) and `GET /api/admin/products/{id}` (also hidden ones).
 - `run.sh`: one script to set up, start, stop, test and maintain the project (`./run.sh help`). It checks Docker, creates `.env` and generates the seed password.
 
@@ -48,7 +56,8 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 
 - All code comments and docstrings are written in English.
 - Access checks use permissions instead of hard-coded role lists.
-- Managers can create and edit products (`products.manage`), like engineers and admins.
+- Managers can create and edit products (`products.manage`).
+- Engineers no longer manage products and client builds: employees do it now.
 - The JSON specs form in the admin products list is replaced by the product editor.
 - README now describes the project; technical guides moved to `docs/`.
 

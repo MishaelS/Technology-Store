@@ -30,15 +30,29 @@
 
 Права перечислены в одном месте — [`backend/app/permissions.py`](../backend/app/permissions.py):
 
-| Право | Что даёт | client | engineer | manager | admin |
-|---|---|:-:|:-:|:-:|:-:|
-| `admin.access` | открыть админку | | ✓ | ✓ | ✓ |
-| `stats.view` | статистика магазина | | | ✓ | ✓ |
-| `orders.manage` | все заказы, смена статуса | | | ✓ | ✓ |
-| `content.manage` | новости, акции, факты | | | ✓ | ✓ |
-| `products.manage` | товары: создание, редактирование, скрытие | | ✓ | ✓ | ✓ |
-| `builds.review` | сборки клиентов и комментарии | | ✓ | | ✓ |
-| `users.manage` | пользователи, роли, блокировка, бонусы вручную | | | | ✓ |
+Роли:
+
+| Роль | Кто это |
+|---|---|
+| `client` — клиент | покупатель |
+| `employee` — сотрудник | продавец-консультант: карточки товаров, приёмка поставок, продажи, советы по сборкам |
+| `engineer` — инженер | ремонт техники, которую принесли клиенты |
+| `senior_engineer` — старший инженер | сервер, база данных, поиск ошибок |
+| `manager` — менеджер | руководит магазином: статистика, заказы, товары, поставки, новости |
+| `admin` — администратор | всё, включая пользователей и роли |
+
+| Право | Что даёт | client | employee | engineer | senior_engineer | manager | admin |
+|---|---|:-:|:-:|:-:|:-:|:-:|:-:|
+| `admin.access` | открыть админку | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `stats.view` | статистика магазина | | | | ✓ | ✓ | ✓ |
+| `orders.manage` | все заказы, смена статуса | | ✓ | | | ✓ | ✓ |
+| `products.manage` | товары: создание, редактирование, скрытие | | ✓ | | | ✓ | ✓ |
+| `stock.receive` | приёмка поставок, журнал поставок | | ✓ | | | ✓ | ✓ |
+| `builds.review` | сборки клиентов и комментарии | | ✓ | | | | ✓ |
+| `repairs.manage` | приём техники в ремонт, статусы ремонта | | | ✓ | ✓ | | ✓ |
+| `system.view` | техподдержка: сервер, база, ошибки | | | | ✓ | | ✓ |
+| `content.manage` | новости, акции, факты | | | | | ✓ | ✓ |
+| `users.manage` | пользователи, роли, блокировка, бонусы вручную | | | | | | ✓ |
 
 Свою корзину, заказы, сборки и профиль может вести любой вошедший пользователь, отдельное право для этого не нужно.
 
@@ -78,6 +92,7 @@
 | `POST /api/orders` | оформить заказ `{address, phone, comment, bonus_to_use}` |
 | `GET /api/orders/my`, `GET /api/orders/{id}`, `POST /api/orders/{id}/cancel` | мои заказы; отменить можно, пока статус `new` |
 | `GET /api/bonus` | баланс и история бонусов |
+| `GET /api/repairs/my` | мои ремонты (если инженер указал email при приёме) |
 | `GET/POST /api/builds`, `GET/DELETE /api/builds/{id}` | сохранённые сборки |
 
 Админка (нужно право из таблицы выше):
@@ -90,11 +105,15 @@
 | `GET /api/admin/products/spec-schema` — поля характеристик каждой категории с подсказками (для редактора товара) | `products.manage` |
 | `GET /api/admin/builds`, `PATCH /api/admin/builds/{id}/comment` | `builds.review` |
 | `POST /api/admin/news`, `PATCH/DELETE /api/admin/news/{id}`, `GET/POST /api/admin/facts`, `DELETE /api/admin/facts/{id}` | `content.manage` |
+| `GET/POST /api/admin/stock/receipts` — журнал поставок, принять поставку (остаток растёт) | `stock.receive` |
+| `GET/POST /api/admin/repairs`, `GET/PATCH /api/admin/repairs/{id}` — ремонт | `repairs.manage` |
+| `GET /api/admin/system`, `DELETE /api/admin/system/errors` — состояние сервера и базы, ошибки | `system.view` |
 | `GET /api/admin/roles`, `GET /api/admin/users`, `PATCH /api/admin/users/{id}`, `POST /api/admin/users/{id}/bonus` | `users.manage` |
 
 ## Правила, которые стоит знать
 
 - **Бонусы:** 1 бонус = 1 ₽. Оплатить бонусами можно не больше 30% заказа и не больше баланса. В корзине поле `max_bonus` уже показывает этот предел. При статусе `done` начисляется 5% от оплаченной суммы. При отмене товар возвращается на склад, а бонусы на счёт.
+- **Ремонт:** `accepted → diagnostics → repairing → ready → issued`, с диагностики можно сразу в `ready`, отменить можно до выдачи. Перевести в «Готов» можно только с указанной стоимостью (0 — бесплатно).
 - **Статусы заказа** идут только вперёд: `new → confirmed → assembling → shipped → done`. Отменить (`cancelled`) можно до отправки.
 - **Удаление товара** скрывает его из каталога, но он остаётся в старых заказах и сборках.
 - **Цена в заказе** фиксируется в момент покупки.
