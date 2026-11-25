@@ -6,14 +6,15 @@ import { headerChanged, reload } from "../router.js";
 import { session } from "../session.js";
 import { attempt, date, field, flash, formData, h, link, money } from "../ui.js";
 import { openInBuilder } from "./builder.js";
+import { myRepairs } from "./staff.js";
 
-const TABS = ["profile", "orders", "bonus", "builds"];
+const TABS = ["profile", "orders", "repairs", "bonus", "builds"];
 
 export async function accountPage({ query }) {
   const tab = TABS.includes(query.get("tab")) ? query.get("tab") : "profile";
   const tabs = h("div", { class: "row" }, TABS.map((name) =>
     name === tab ? h("b", {}, t(`account.${name}`)) : link(`/account?tab=${name}`, t(`account.${name}`))));
-  const content = await { profile, orders, bonus, builds }[tab]();
+  const content = await { profile, orders, repairs: myRepairs, bonus, builds }[tab]();
   return h("div", {}, h("h1", {}, t("account.title")), tabs, content);
 }
 

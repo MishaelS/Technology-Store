@@ -259,13 +259,16 @@
     "builds": "Сборки",
     "save_profile": "Сохранить профиль",
     "role": "Роль",
-    "no_builds": "Сохранённых сборок пока нет"
+    "no_builds": "Сохранённых сборок пока нет",
+    "repairs": "Ремонт"
   },
   "roles": {
     "client": "Клиент",
     "manager": "Менеджер",
     "engineer": "Инженер",
-    "admin": "Администратор"
+    "admin": "Администратор",
+    "employee": "Сотрудник",
+    "senior_engineer": "Старший инженер"
   },
   "news_types": {
     "news": "Новости",
@@ -324,7 +327,10 @@
     "save_comment": "Сохранить комментарий",
     "text": "Текст",
     "title_field": "Заголовок",
-    "type": "Тип"
+    "type": "Тип",
+    "repairs": "Ремонт",
+    "system": "Техподдержка",
+    "receipts": "Приёмка товара"
   },
   "editor": {
     "title_new": "Новый товар",
@@ -390,6 +396,66 @@
     "internal": "Внутренняя ошибка сервера. Попробуйте позже",
     "invalid_phone": "Некорректный номер телефона",
     "invalid_image_url": "Ссылка на картинку должна начинаться с http://, https:// или /",
-    "specs_invalid": "Неверные значения в specs: {fields}"
+    "specs_invalid": "Неверные значения в specs: {fields}",
+    "client_not_found": "Клиент с email {email} не найден",
+    "repair_not_found": "Заявка на ремонт не найдена",
+    "repair_price_required": "Сначала укажите стоимость ремонта"
+  },
+  "repairs": {
+    "status": {
+      "accepted": "Принят",
+      "diagnostics": "Диагностика",
+      "repairing": "В ремонте",
+      "ready": "Готов, можно забирать",
+      "issued": "Выдан клиенту",
+      "cancelled": "Отменён"
+    },
+    "accept": "Принять в ремонт",
+    "created": "Ремонт #{id} принят",
+    "number": "Ремонт #{id}",
+    "client": "Клиент",
+    "client_name": "Имя клиента",
+    "client_phone": "Телефон клиента",
+    "client_email": "Email клиента, если есть аккаунт — ремонт появится в его кабинете",
+    "has_account": "Есть аккаунт на сайте",
+    "device": "Устройство",
+    "problem": "Неисправность",
+    "price": "Стоимость ремонта, ₽",
+    "price_not_set": "ещё не определена",
+    "comment": "Комментарий инженера",
+    "search": "Имя, телефон, устройство или номер",
+    "empty": "Ремонтов нет",
+    "price_label": "Стоимость ремонта"
+  },
+  "stock": {
+    "receive": "Принять поставку",
+    "received": "Принято: {name} +{quantity} шт., на складе {stock}",
+    "choose_product": "— выберите товар —",
+    "product": "Товар",
+    "quantity": "Количество",
+    "supplier": "Поставщик",
+    "comment": "Комментарий",
+    "log": "Журнал поставок",
+    "received_by": "Принял"
+  },
+  "system": {
+    "api": "Версия API",
+    "uptime": "Работает без перезапуска",
+    "uptime_value": "{hours} ч {minutes} мин",
+    "database": "База данных",
+    "db_ok": "Работает",
+    "db_down": "Недоступна",
+    "db_version": "Версия базы",
+    "db_size": "Размер базы",
+    "migration": "Миграция",
+    "count_users": "Пользователей",
+    "count_products": "Товаров",
+    "count_orders": "Заказов",
+    "count_repairs": "Ремонтов",
+    "count_errors_24h": "Ошибок сервера за сутки",
+    "errors": "Последние ошибки сервера",
+    "no_errors": "Ошибок нет",
+    "clear_errors": "Очистить журнал ошибок",
+    "refresh": "Обновить"
   }
 }

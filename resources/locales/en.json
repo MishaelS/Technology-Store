@@ -259,13 +259,16 @@
     "builds": "Builds",
     "save_profile": "Save profile",
     "role": "Role",
-    "no_builds": "No saved builds yet"
+    "no_builds": "No saved builds yet",
+    "repairs": "Repairs"
   },
   "roles": {
     "client": "Client",
     "manager": "Manager",
     "engineer": "Engineer",
-    "admin": "Administrator"
+    "admin": "Administrator",
+    "employee": "Employee",
+    "senior_engineer": "Senior engineer"
   },
   "news_types": {
     "news": "News",
@@ -324,7 +327,10 @@
     "save_comment": "Save comment",
     "text": "Text",
     "title_field": "Title",
-    "type": "Type"
+    "type": "Type",
+    "repairs": "Repairs",
+    "system": "Tech support",
+    "receipts": "Stock receipts"
   },
   "editor": {
     "title_new": "New product",
@@ -390,6 +396,66 @@
     "internal": "Internal server error. Please try again later",
     "invalid_phone": "Invalid phone number",
     "invalid_image_url": "Image link must start with http://, https:// or /",
-    "specs_invalid": "Invalid values in specs: {fields}"
+    "specs_invalid": "Invalid values in specs: {fields}",
+    "client_not_found": "No client with email {email}",
+    "repair_not_found": "Repair not found",
+    "repair_price_required": "Set the repair price first"
+  },
+  "repairs": {
+    "status": {
+      "accepted": "Accepted",
+      "diagnostics": "Diagnostics",
+      "repairing": "Repairing",
+      "ready": "Ready for pickup",
+      "issued": "Issued",
+      "cancelled": "Cancelled"
+    },
+    "accept": "Accept for repair",
+    "created": "Repair #{id} accepted",
+    "number": "Repair #{id}",
+    "client": "Client",
+    "client_name": "Client name",
+    "client_phone": "Client phone",
+    "client_email": "Client email if they have an account — the repair appears in their account",
+    "has_account": "Has an account",
+    "device": "Device",
+    "problem": "Problem",
+    "price": "Repair price, ₽",
+    "price_not_set": "not set yet",
+    "comment": "Engineer's comment",
+    "search": "Name, phone, device or number",
+    "empty": "No repairs",
+    "price_label": "Repair price"
+  },
+  "stock": {
+    "receive": "Receive a delivery",
+    "received": "Received: {name} +{quantity} pcs, in stock {stock}",
+    "choose_product": "— choose a product —",
+    "product": "Product",
+    "quantity": "Quantity",
+    "supplier": "Supplier",
+    "comment": "Comment",
+    "log": "Deliveries log",
+    "received_by": "Received by"
+  },
+  "system": {
+    "api": "API version",
+    "uptime": "Uptime",
+    "uptime_value": "{hours} h {minutes} min",
+    "database": "Database",
+    "db_ok": "Working",
+    "db_down": "Unavailable",
+    "db_version": "Database version",
+    "db_size": "Database size",
+    "migration": "Migration",
+    "count_users": "Users",
+    "count_products": "Products",
+    "count_orders": "Orders",
+    "count_repairs": "Repairs",
+    "count_errors_24h": "Server errors in 24 h",
+    "errors": "Recent server errors",
+    "no_errors": "No errors",
+    "clear_errors": "Clear the error log",
+    "refresh": "Refresh"
   }
 }

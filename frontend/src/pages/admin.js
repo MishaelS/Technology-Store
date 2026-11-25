@@ -4,6 +4,7 @@ import { api, query as toQuery } from "../api.js";
 import { checksList, pager, statusName } from "../components.js";
 import { t } from "../i18n.js";
 import { reload } from "../router.js";
+import { repairsSection, stockSection, systemSection } from "./staff.js";
 import { can, session } from "../session.js";
 import { attempt, date, field, flash, formData, h, icon, link, money, navigate, select } from "../ui.js";
 
@@ -12,8 +13,11 @@ const SECTIONS = [
   ["orders", "orders.manage", orders],
   ["products", "products.manage", products],
   ["builds", "builds.review", builds],
+  ["receipts", "stock.receive", stockSection],
+  ["repairs", "repairs.manage", repairsSection],
   ["content", "content.manage", content],
   ["users", "users.manage", users],
+  ["system", "system.view", systemSection],
 ];
 const STATUSES = ["new", "confirmed", "assembling", "shipped", "done", "cancelled"];
 // Same rules as the backend (services/orders.py): which status can follow which
