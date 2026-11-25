@@ -137,6 +137,9 @@ ${BOLD}Разработка${RESET}
   locales      Проверить, что переводы ru/en совпадают по ключам
   db           Открыть консоль PostgreSQL (psql)
   shell        Открыть терминал внутри контейнера бэкенда
+  ide          Подготовить редактор кода (VS Code / Pylance): локальные библиотеки Python
+               в backend/.venv, чтобы не было ошибок «Import could not be resolved»
+  typecheck    Проверить типы в коде бэкенда (то же, что подсвечивает Pylance)
 
 ${BOLD}Настройка и данные${RESET}
   setup        Только подготовка: проверить Docker, создать .env, сгенерировать пароль, собрать образы
@@ -259,6 +262,24 @@ cmd_shell() {
     compose exec backend bash
 }
 
+cmd_ide() {
+    command -v python3 >/dev/null 2>&1 || die "Нужен Python 3.12+ на компьютере: https://www.python.org/downloads/"
+    if [ ! -x backend/.venv/bin/python ]; then
+        info "Создаю backend/.venv…"
+        python3 -m venv backend/.venv
+    fi
+    info "Ставлю библиотеки бэкенда для редактора…"
+    backend/.venv/bin/pip install -q --upgrade pip
+    backend/.venv/bin/pip install -q -r backend/requirements.txt basedpyright
+    info "Готово. Перезапустите VS Code (или «Python: Restart Language Server») — ошибки импорта пропадут."
+    info "Настройки проверки лежат в pyrightconfig.json."
+}
+
+cmd_typecheck() {
+    [ -x backend/.venv/bin/basedpyright ] || cmd_ide
+    backend/.venv/bin/basedpyright
+}
+
 cmd_password() {
     local password
     password="$(env_get SEED_PASSWORD)"
@@ -303,6 +324,8 @@ main() {
             locales)        cmd_locales ;;
             db)             cmd_db ;;
             shell)          cmd_shell ;;
+            ide)            cmd_ide ;;
+            typecheck)      cmd_typecheck ;;
             logs)           cmd_logs ${@+"$@"}; return ;;
             test)           cmd_test ${@+"$@"}; return ;;
             migration)      cmd_migration ${@+"$@"}; return ;;

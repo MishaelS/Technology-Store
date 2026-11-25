@@ -28,6 +28,8 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - Locale checker script (`backend/scripts/check_locales.py`).
 - Automated tests (pytest) for every part of the backend, running on a separate test database.
 - Documentation: setup, API, tests and translations guides in `docs/`.
+- `./run.sh ide` and `pyrightconfig.json`: local Python libraries for VS Code / Pylance, no more unresolved imports;
+  `./run.sh typecheck` runs the same type check.
 - Edge case tests (`test_edge_cases.py`): whitespace-only fields, bad phones, wrong spec types, unsafe links, error format.
 - Simple frontend without design at http://localhost:5173 (nginx in Docker): home, catalog with infinite scroll
   and scroll restore, product, news, PC builder, login and sign-up, cart and checkout, personal account,
@@ -57,6 +59,7 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 
 ### Fixed
 
+- Type errors reported by Pylance: text field types in schemas, filter lists, stats counts, pagination total.
 - Row locking (`SELECT ... FOR UPDATE`) failing on queries with eager-loaded relations.
 - Fields with only spaces (name, address, phone, build name, news title) were accepted as filled.
 - Phone numbers were not validated.
