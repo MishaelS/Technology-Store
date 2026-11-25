@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a row is redrawn in place after a change.
 - New look of the admin panel: search bar with filters and a counter, tables with spacing and status labels,
   icon buttons for row actions, dashboard tiles, collapsible create forms.
+- Form fields show their name inside (floating label) instead of a line of text above.
 
 ### Removed
 

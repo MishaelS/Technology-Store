@@ -94,8 +94,18 @@ export function formData(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+/**
+ * Field with its name inside: grey text in the empty field that moves up and shrinks
+ * when the user types or picks something (a "floating label"), so no line of text above every field.
+ * `input` can be the control itself or a wrapper with it (and a hint under it).
+ */
 export function field(label, input) {
-  return h("label", {}, label, input);
+  const control = input.matches?.("input, textarea, select") ? input : input.querySelector?.("input, textarea, select");
+  if (!control || ["checkbox", "radio"].includes(control.type)) return h("label", {}, label, input);
+  // :placeholder-shown tells CSS the field is empty; a real placeholder only shows once the field is focused
+  if (control.tagName !== "SELECT" && !control.placeholder) control.placeholder = " ";
+  const kind = control.tagName === "SELECT" ? " is-select" : control.tagName === "TEXTAREA" ? " is-textarea" : "";
+  return h("label", { class: `float-field${kind}` }, input, h("span", { class: "float-label" }, label));
 }
 
 export function select(name, options, value) {

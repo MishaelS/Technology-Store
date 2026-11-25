@@ -468,7 +468,7 @@
     "client": "Client",
     "client_name": "Client name",
     "client_phone": "Client phone",
-    "client_email": "Client email if they have an account — the repair appears in their account",
+    "client_email": "Client email, if they have an account",
     "has_account": "Has an account",
     "device": "Device",
     "problem": "Problem",

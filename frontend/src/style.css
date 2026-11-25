@@ -178,6 +178,32 @@ label { font-weight: 600; font-size: 14px; }
 form.stack { display: grid; gap: 14px; max-width: 460px; }
 form.stack label { display: grid; gap: 6px; }
 form.stack.card { max-width: 640px; }
+/* floating label (field() in ui.js): the name sits inside the empty field like a placeholder
+   and moves up, small, when the field gets focus or a value */
+form.stack label.float-field, label.float-field { position: relative; display: grid; gap: 4px; font-weight: 500; font-size: 15px; }
+.float-field > input, .float-field > textarea, .float-field > .number-field > input, .float-field > span > input,
+.float-field > span > .number-field > input { min-height: 52px; padding-top: 20px; padding-bottom: 4px; width: 100%; }
+.float-field > textarea { padding-top: 24px; }
+.float-field .dropdown { width: 100%; }
+.float-field .dropdown-button { min-height: 52px; padding-top: 16px; }
+.float-field > span:not(.float-label):not(.number-field):not(.dropdown) { display: grid; gap: 4px; }
+.float-field .muted, .field-hint { font-size: 13px; font-weight: 400; line-height: 1.4; }
+.float-field ::placeholder { color: transparent; }
+.float-field :focus::placeholder { color: var(--muted); }
+.float-label {
+  position: absolute; left: 13px; right: 40px; top: 15px; pointer-events: none;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  color: var(--muted); font-size: 15px; line-height: 22px; font-weight: 500; transform-origin: left top;
+  transition: translate 0.15s ease, scale 0.15s ease, color 0.15s ease;
+}
+/* focused or filled: up and smaller; a select always has a value */
+.float-field:has(:focus) .float-label,
+.float-field:has(input:not(:placeholder-shown), textarea:not(:placeholder-shown)) .float-label,
+.float-field.is-select .float-label { translate: 0 -9px; scale: 0.76; }
+.float-field:has(:focus) .float-label { color: var(--accent); }
+.float-field.is-textarea .float-label { top: 13px; }
+.float-field.is-textarea:has(:focus, textarea:not(:placeholder-shown)) .float-label { translate: 0 -7px; }
+.float-field:has(:disabled) .float-label { color: var(--muted); }
 form.row label, .filters label { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
 fieldset { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px; margin: 0; }
 /* ---------- dropdowns (frontend/src/dropdown.js) ---------- */
