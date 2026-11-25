@@ -2,22 +2,27 @@
 
 import pytest
 
+from app.models import ROLES
+
 from tests.conftest import GOOD_BUILD
 
 # (method, url, roles that are allowed)
 ENDPOINTS = [
-    ("GET", "/api/admin/stats", {"admin", "manager"}),
-    ("GET", "/api/admin/orders", {"admin", "manager"}),
-    ("GET", "/api/admin/products", {"admin", "manager", "engineer"}),
-    ("GET", "/api/admin/products/spec-schema", {"admin", "manager", "engineer"}),
-    ("GET", "/api/admin/builds", {"admin", "engineer"}),
+    ("GET", "/api/admin/stats", {"admin", "manager", "senior_engineer"}),
+    ("GET", "/api/admin/orders", {"admin", "manager", "employee"}),
+    ("GET", "/api/admin/products", {"admin", "manager", "employee"}),
+    ("GET", "/api/admin/products/spec-schema", {"admin", "manager", "employee"}),
+    ("GET", "/api/admin/builds", {"admin", "employee"}),
     ("GET", "/api/admin/facts", {"admin", "manager"}),
     ("GET", "/api/admin/users", {"admin"}),
+    ("GET", "/api/admin/stock/receipts", {"admin", "manager", "employee"}),
+    ("GET", "/api/admin/repairs", {"admin", "engineer", "senior_engineer"}),
+    ("GET", "/api/admin/system", {"admin", "senior_engineer"}),
 ]
 
 
 @pytest.mark.parametrize("method, url, allowed", ENDPOINTS)
-@pytest.mark.parametrize("role", ["client", "manager", "engineer", "admin"])
+@pytest.mark.parametrize("role", ROLES)
 def test_role_permissions(client, make_user, method, url, allowed, role):
     _, headers = make_user(role)
     expected = 200 if role in allowed else 403
@@ -65,19 +70,19 @@ NEW_PSU = {"category": "psu", "name": "Тестовый БП", "brand": "Test", 
            "specs": {"wattage": 600}}
 
 
-def test_create_update_delete_product(client, engineer_headers):
-    created = client.post("/api/admin/products", json=NEW_PSU, headers=engineer_headers)
+def test_create_update_delete_product(client, employee_headers):
+    created = client.post("/api/admin/products", json=NEW_PSU, headers=employee_headers)
     assert created.status_code == 201
     product_id = created.json()["id"]
     assert client.get(f"/api/products/{product_id}").json()["name"] == "Тестовый БП"
 
     updated = client.patch(f"/api/admin/products/{product_id}", json={"price": 4000, "old_price": 5000},
-                           headers=engineer_headers).json()
+                           headers=employee_headers).json()
     assert updated["discount_percent"] == 20
 
-    assert client.delete(f"/api/admin/products/{product_id}", headers=engineer_headers).status_code == 204
+    assert client.delete(f"/api/admin/products/{product_id}", headers=employee_headers).status_code == 204
     assert client.get(f"/api/products/{product_id}").status_code == 404           # hidden from the catalog
-    admin_list = client.get("/api/admin/products?search=Тестовый", headers=engineer_headers).json()
+    admin_list = client.get("/api/admin/products?search=Тестовый", headers=employee_headers).json()
     assert admin_list["items"][0]["is_active"] is False                           # but still in the admin list
 
 
@@ -91,8 +96,8 @@ def test_create_update_delete_product(client, engineer_headers):
         ({"name": None}, 422),
     ],
 )
-def test_product_validation(client, engineer_headers, change, status):
-    assert client.post("/api/admin/products", json={**NEW_PSU, **change}, headers=engineer_headers).status_code == status
+def test_product_validation(client, employee_headers, change, status):
+    assert client.post("/api/admin/products", json={**NEW_PSU, **change}, headers=employee_headers).status_code == status
 
 
 def test_spec_schema(client, manager_headers):
@@ -115,45 +120,45 @@ def test_manager_creates_and_edits_product(client, manager_headers):
     assert updated.json()["stock"] == 10
 
 
-def test_admin_gets_hidden_product_by_id(client, engineer_headers, product):
+def test_admin_gets_hidden_product_by_id(client, employee_headers, product):
     p = product("Cougar GEX 650W")
-    client.delete(f"/api/admin/products/{p.id}", headers=engineer_headers)
+    client.delete(f"/api/admin/products/{p.id}", headers=employee_headers)
     assert client.get(f"/api/products/{p.id}").status_code == 404
-    body = client.get(f"/api/admin/products/{p.id}", headers=engineer_headers).json()
+    body = client.get(f"/api/admin/products/{p.id}", headers=employee_headers).json()
     assert body["id"] == p.id and body["is_active"] is False
-    assert client.get("/api/admin/products/999999", headers=engineer_headers).status_code == 404
+    assert client.get("/api/admin/products/999999", headers=employee_headers).status_code == 404
 
 
-def test_update_validation(client, engineer_headers, product):
+def test_update_validation(client, employee_headers, product):
     p = product("Cougar GEX 650W")
     url = f"/api/admin/products/{p.id}"
-    assert client.patch(url, json={"price": None}, headers=engineer_headers).status_code == 422
-    assert client.patch(url, json={"specs": {"color": "black"}}, headers=engineer_headers).status_code == 422
-    assert client.patch("/api/admin/products/999999", json={"stock": 1}, headers=engineer_headers).status_code == 404
+    assert client.patch(url, json={"price": None}, headers=employee_headers).status_code == 422
+    assert client.patch(url, json={"specs": {"color": "black"}}, headers=employee_headers).status_code == 422
+    assert client.patch("/api/admin/products/999999", json={"stock": 1}, headers=employee_headers).status_code == 404
 
 
-def test_product_deleted_after_order_stays_in_order(client, client_user, engineer_headers, product):
+def test_product_deleted_after_order_stays_in_order(client, client_user, employee_headers, product):
     _, headers = client_user
     ssd = product("Kingston NV2 500GB NVMe")
     client.post("/api/cart", json={"product_id": ssd.id}, headers=headers)
     order_id = client.post("/api/orders", json={"address": "Москва, 1", "phone": "+7999000"}, headers=headers).json()["id"]
-    client.delete(f"/api/admin/products/{ssd.id}", headers=engineer_headers)
+    client.delete(f"/api/admin/products/{ssd.id}", headers=employee_headers)
     assert client.get(f"/api/orders/{order_id}", headers=headers).json()["items"][0]["product_name"] == ssd.name
 
 
 # ---------- builds ----------
 
-def test_engineer_comments_build(client, client_user, engineer_headers, ids):
+def test_employee_comments_build(client, client_user, employee_headers, ids):
     _, headers = client_user
     build_id = client.post("/api/builds", json={"name": "A", "product_ids": ids(GOOD_BUILD)}, headers=headers).json()["id"]
-    waiting = client.get("/api/admin/builds?without_comment=true&page_size=100", headers=engineer_headers).json()
+    waiting = client.get("/api/admin/builds?without_comment=true&page_size=100", headers=employee_headers).json()
     assert build_id in [b["id"] for b in waiting["items"]]
 
     commented = client.patch(f"/api/admin/builds/{build_id}/comment", json={"comment": "Отличная сборка"},
-                             headers=engineer_headers)
+                             headers=employee_headers)
     assert commented.json()["engineer_comment"] == "Отличная сборка"
     assert client.get(f"/api/builds/{build_id}", headers=headers).json()["engineer_comment"] == "Отличная сборка"
-    waiting = client.get("/api/admin/builds?without_comment=true&page_size=100", headers=engineer_headers).json()
+    waiting = client.get("/api/admin/builds?without_comment=true&page_size=100", headers=employee_headers).json()
     assert build_id not in [b["id"] for b in waiting["items"]]
 
 
@@ -186,8 +191,8 @@ def test_facts_crud(client, manager_headers):
 def test_admin_changes_role_and_blocks(client, make_user):
     admin, admin_headers = make_user("admin")
     user, user_headers = make_user()
-    assert client.patch(f"/api/admin/users/{user.id}", json={"role": "engineer"},
-                        headers=admin_headers).json()["role"] == "engineer"
+    assert client.patch(f"/api/admin/users/{user.id}", json={"role": "employee"},
+                        headers=admin_headers).json()["role"] == "employee"
     assert client.get("/api/admin/products", headers=user_headers).status_code == 200   # new role works at once
     client.patch(f"/api/admin/users/{user.id}", json={"is_blocked": True}, headers=admin_headers)
     assert client.get("/api/auth/me", headers=user_headers).status_code == 403

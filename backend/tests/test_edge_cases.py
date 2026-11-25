@@ -80,39 +80,39 @@ PSU = {"category": "psu", "name": "БП", "brand": "Test", "price": 5000, "stock
         ("ram", {"ram_type": "DDR5", "size_gb": 16, "sticks": True}),                     # bool is not a number
     ],
 )
-def test_wrong_spec_types_are_rejected(client, engineer_headers, category, specs):
+def test_wrong_spec_types_are_rejected(client, employee_headers, category, specs):
     response = client.post("/api/admin/products", json={**PSU, "category": category, "specs": specs},
-                           headers=engineer_headers)
+                           headers=employee_headers)
     assert response.status_code == 422
 
 
-def test_builder_survives_product_with_float_specs(client, engineer_headers, ids):
-    created = client.post("/api/admin/products", json={**PSU, "specs": {"wattage": 650.5}}, headers=engineer_headers)
+def test_builder_survives_product_with_float_specs(client, employee_headers, ids):
+    created = client.post("/api/admin/products", json={**PSU, "specs": {"wattage": 650.5}}, headers=employee_headers)
     assert created.status_code == 201
     check = client.post("/api/builder/check", json={"product_ids": ids(["AMD Ryzen 5 7600"]) + [created.json()["id"]]})
     assert check.status_code == 200
 
 
-def test_wrong_specs_rejected_on_update(client, engineer_headers, product):
+def test_wrong_specs_rejected_on_update(client, employee_headers, product):
     p = product("Cougar GEX 650W")
-    response = client.patch(f"/api/admin/products/{p.id}", json={"specs": {"wattage": "a lot"}}, headers=engineer_headers)
+    response = client.patch(f"/api/admin/products/{p.id}", json={"specs": {"wattage": "a lot"}}, headers=employee_headers)
     assert response.status_code == 422
 
 
 # ---------- links ----------
 
 @pytest.mark.parametrize("url", ["javascript:alert(1)", "data:text/html;base64,PHNjcmlwdD4=", "ftp://x.dev/a.png", "img.png"])
-def test_unsafe_image_links_are_rejected(client, engineer_headers, manager_headers, url):
+def test_unsafe_image_links_are_rejected(client, employee_headers, manager_headers, url):
     product = client.post("/api/admin/products", json={**PSU, "specs": {"wattage": 500}, "image_url": url},
-                          headers=engineer_headers)
+                          headers=employee_headers)
     news = client.post("/api/admin/news", json={"title": "A", "text": "B", "image_url": url}, headers=manager_headers)
     assert product.status_code == 422 and news.status_code == 422
 
 
 @pytest.mark.parametrize("url", ["https://cdn.example.com/a.png", "http://localhost/a.png", "/images/a.png"])
-def test_safe_image_links_are_accepted(client, engineer_headers, url):
+def test_safe_image_links_are_accepted(client, employee_headers, url):
     response = client.post("/api/admin/products", json={**PSU, "specs": {"wattage": 500}, "image_url": url},
-                           headers=engineer_headers)
+                           headers=employee_headers)
     assert response.status_code == 201
 
 

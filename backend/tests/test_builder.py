@@ -51,14 +51,14 @@ def test_save_list_get_delete_build(client, client_user, ids):
     assert client.get("/api/builds", headers=headers).json() == []
 
 
-def test_builds_are_private_but_visible_to_staff(client, make_user, engineer_headers, ids):
+def test_builds_are_private_but_visible_to_staff(client, make_user, employee_headers, ids):
     _, alice = make_user()
     _, bob = make_user()
     build_id = client.post("/api/builds", json={"name": "A", "product_ids": ids(GOOD_BUILD)}, headers=alice).json()["id"]
     assert client.get(f"/api/builds/{build_id}", headers=bob).status_code == 404
     assert client.delete(f"/api/builds/{build_id}", headers=bob).status_code == 404
-    assert client.get(f"/api/builds/{build_id}", headers=engineer_headers).status_code == 200
-    assert client.delete(f"/api/builds/{build_id}", headers=engineer_headers).status_code == 403
+    assert client.get(f"/api/builds/{build_id}", headers=employee_headers).status_code == 200
+    assert client.delete(f"/api/builds/{build_id}", headers=employee_headers).status_code == 403
 
 
 def test_save_requires_login_and_valid_data(client, client_user, ids):

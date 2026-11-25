@@ -11,9 +11,10 @@ from app.i18n import t
 
 T = TypeVar("T")
 
-Role = Literal["client", "manager", "engineer", "admin"]
+Role = Literal["client", "employee", "engineer", "senior_engineer", "manager", "admin"]
 OrderStatus = Literal["new", "confirmed", "assembling", "shipped", "done", "cancelled"]
 NewsType = Literal["news", "promo", "game"]
+RepairStatus = Literal["accepted", "diagnostics", "repairing", "ready", "issued", "cancelled"]
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 PHONE_RE = re.compile(r"^\+?[0-9()\-\s]+$")
@@ -386,3 +387,88 @@ class StatsOut(BaseModel):
     builds_total: int
     low_stock: int           # products with stock <= 3
     top_products: list[TopProduct]
+
+
+# ---------- Repairs ----------
+
+class RepairCreate(BaseModel):
+    client_email: str | None = None   # link the repair to a registered client (optional)
+    client_name: Text_1_100
+    client_phone: Phone
+    device: Text_1_200
+    problem: TextRequired
+    price: int | None = Field(default=None, ge=0)
+
+
+class RepairUpdate(BaseModel):
+    status: RepairStatus | None = None
+    price: int | None = Field(default=None, ge=0)
+    engineer_comment: Text_0_2000 | None = None
+    device: Text_1_200 | None = None
+    problem: TextRequired | None = None
+
+
+class RepairOut(ORM):
+    id: int
+    client_id: int | None
+    client_name: str
+    client_phone: str
+    device: str
+    problem: str
+    status: str
+    price: int | None
+    engineer_comment: str
+    engineer: UserShort | None
+    created_at: datetime
+    updated_at: datetime
+
+
+# ---------- Stock receipts ----------
+
+class StockReceiptIn(BaseModel):
+    product_id: int
+    quantity: int = Field(ge=1, le=100_000)
+    supplier: Text_0_500 = ""
+    comment: Text_0_500 = ""
+
+
+class ProductShort(ORM):
+    id: int
+    name: str
+    stock: int
+
+
+class StockReceiptOut(ORM):
+    id: int
+    product: ProductShort
+    quantity: int
+    supplier: str
+    comment: str
+    received_by: UserShort | None
+    created_at: datetime
+
+
+# ---------- Tech support ----------
+
+class ErrorLogOut(ORM):
+    id: int
+    method: str
+    path: str
+    error: str
+    created_at: datetime
+
+
+class DatabaseInfo(BaseModel):
+    ok: bool
+    version: str
+    size: str
+    migration: str | None
+
+
+class SystemOut(BaseModel):
+    api_version: str
+    python_version: str
+    uptime_seconds: int
+    database: DatabaseInfo
+    counts: dict[str, int]
+    recent_errors: list[ErrorLogOut]

@@ -117,6 +117,16 @@ def engineer_headers(make_user):
 
 
 @pytest.fixture
+def employee_headers(make_user):
+    return make_user("employee")[1]
+
+
+@pytest.fixture
+def senior_engineer_headers(make_user):
+    return make_user("senior_engineer")[1]
+
+
+@pytest.fixture
 def product(db):
     """Find a seeded product by its exact name."""
 

@@ -47,11 +47,11 @@ def test_engineer_cannot_see_other_peoples_orders(client, client_user, engineer_
     assert client.get(f"/api/orders/{order_id}", headers=manager_headers).status_code == 200
 
 
-def test_manager_cannot_see_other_peoples_builds(client, client_user, engineer_headers, manager_headers, ids):
+def test_manager_cannot_see_other_peoples_builds(client, client_user, employee_headers, manager_headers, ids):
     _, headers = client_user
     build_id = client.post("/api/builds", json={"name": "A", "product_ids": ids(GOOD_BUILD)}, headers=headers).json()["id"]
     assert client.get(f"/api/builds/{build_id}", headers=manager_headers).status_code == 404
-    assert client.get(f"/api/builds/{build_id}", headers=engineer_headers).status_code == 200
+    assert client.get(f"/api/builds/{build_id}", headers=employee_headers).status_code == 200
 
 
 def test_permission_error_is_translated(client, client_user):

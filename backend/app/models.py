@@ -20,9 +20,12 @@ from app.database import Base
 from app.i18n import t
 from app.permissions import permissions_for
 
-ROLES = ("client", "manager", "engineer", "admin")
+# client - buyer; employee - sales and stock; engineer - repairs;
+# senior_engineer - servers, database, errors; manager; admin
+ROLES = ("client", "employee", "engineer", "senior_engineer", "manager", "admin")
 ORDER_STATUSES = ("new", "confirmed", "assembling", "shipped", "done", "cancelled")
 NEWS_TYPES = ("news", "promo", "game")
+REPAIR_STATUSES = ("accepted", "diagnostics", "repairing", "ready", "issued", "cancelled")
 
 
 def _in(column: str, values: tuple[str, ...]) -> str:
@@ -210,3 +213,57 @@ class Fact(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     text: Mapped[str] = mapped_column(Text)
+
+
+class Repair(TimestampMixin, Base):
+    """A device brought in for repair."""
+
+    __tablename__ = "repairs"
+    __table_args__ = (
+        CheckConstraint(_in("status", REPAIR_STATUSES), name="ck_repairs_status"),
+        CheckConstraint("price IS NULL OR price >= 0", name="ck_repairs_price"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
+    client_name: Mapped[str] = mapped_column(String(100))
+    client_phone: Mapped[str] = mapped_column(String(30))
+    device: Mapped[str] = mapped_column(String(200))
+    problem: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(20), default="accepted", index=True)
+    price: Mapped[int | None] = mapped_column(Integer)       # repair cost, set after diagnostics
+    engineer_comment: Mapped[str] = mapped_column(Text, default="")
+    engineer_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    engineer: Mapped[User | None] = relationship(foreign_keys=[engineer_id], lazy="joined")
+
+
+class StockReceipt(TimestampMixin, Base):
+    """A delivery of goods: stock of the product grows by `quantity`."""
+
+    __tablename__ = "stock_receipts"
+    __table_args__ = (CheckConstraint("quantity > 0", name="ck_stock_receipts_quantity"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), index=True)
+    quantity: Mapped[int] = mapped_column(Integer)
+    supplier: Mapped[str] = mapped_column(String(200), default="")
+    comment: Mapped[str] = mapped_column(String(500), default="")
+    received_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+    product: Mapped[Product] = relationship(lazy="joined", innerjoin=True)
+    received_by: Mapped[User | None] = relationship(lazy="joined")
+
+
+class ErrorLog(TimestampMixin, Base):
+    """Unexpected server errors (500), shown on the tech support page."""
+
+    __tablename__ = "error_log"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    method: Mapped[str] = mapped_column(String(10))
+    path: Mapped[str] = mapped_column(String(500))
+    error: Mapped[str] = mapped_column(Text)

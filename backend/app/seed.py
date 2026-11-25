@@ -1,4 +1,7 @@
-"""Test data. Run: python -m app.seed (runs only if the database is empty).
+"""Test data. Run: python -m app.seed
+
+* Empty database: creates everything (accounts, products, news, facts).
+* Filled database: only adds seed accounts that are missing (e.g. after a new role appeared).
 
 Creates one account per role (emails in USERS). All of them get the same password:
 SEED_PASSWORD from .env, or a random one that is printed to the log once.
@@ -18,7 +21,9 @@ from app.security import hash_password
 USERS = [
     ("admin@store.dev", "Администратор", "admin"),
     ("manager@store.dev", "Мария Менеджер", "manager"),
+    ("employee@store.dev", "Ольга Сотрудник", "employee"),
     ("engineer@store.dev", "Иван Инженер", "engineer"),
+    ("senior-engineer@store.dev", "Сергей Старший инженер", "senior_engineer"),
     ("client@store.dev", "Пётр Покупатель", "client"),
 ]
 
@@ -149,10 +154,28 @@ FACTS = [
 ]
 
 
+def add_missing_users(db) -> None:
+    """Adds seed accounts that don't exist yet (with SEED_PASSWORD), keeps everything else."""
+    existing = set(db.scalars(select(User.email)))
+    missing = [(email, name, role) for email, name, role in USERS if email not in existing]
+    if not missing:
+        print("seed: database is not empty — skipping")
+        return
+    if not settings.seed_password:
+        print("seed: new seed accounts need SEED_PASSWORD in .env — skipping "
+              + ", ".join(email for email, _, _ in missing))
+        return
+    password_hash = hash_password(settings.seed_password)
+    for email, name, role in missing:
+        db.add(User(email=email, name=name, role=role, password_hash=password_hash, bonus_balance=0))
+    db.commit()
+    print("seed: added accounts " + ", ".join(email for email, _, _ in missing))
+
+
 def seed() -> None:
     with SessionLocal() as db:
         if db.scalar(select(User.id).limit(1)):
-            print("seed: database is not empty — skipping")
+            add_missing_users(db)
             return
 
         password = settings.seed_password or secrets.token_urlsafe(9)

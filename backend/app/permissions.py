@@ -17,12 +17,22 @@ PERMISSIONS: dict[str, str] = {
     "builds.review": "See client builds and comment on them",
     "content.manage": "Manage news, promotions and facts",
     "users.manage": "Manage users: roles, blocking, manual bonuses",
+    "stock.receive": "Receive deliveries: add stock and see the receipts log",
+    "repairs.manage": "Accept devices for repair and lead them to the end",
+    "system.view": "See the server state, database and recent errors",
 }
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
     "client": frozenset(),
-    "manager": frozenset({"admin.access", "stats.view", "orders.manage", "content.manage", "products.manage"}),
-    "engineer": frozenset({"admin.access", "products.manage", "builds.review"}),
+    # sales assistant: product cards, deliveries, selling, advice on builds
+    "employee": frozenset({"admin.access", "products.manage", "stock.receive", "orders.manage", "builds.review"}),
+    # repairs devices brought by clients
+    "engineer": frozenset({"admin.access", "repairs.manage"}),
+    # servers, database, finding errors
+    "senior_engineer": frozenset({"admin.access", "system.view", "stats.view", "repairs.manage"}),
+    "manager": frozenset({
+        "admin.access", "stats.view", "orders.manage", "content.manage", "products.manage", "stock.receive",
+    }),
     "admin": frozenset(PERMISSIONS),
 }
 
