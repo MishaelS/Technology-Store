@@ -309,7 +309,11 @@
     "save_profile": "Save profile",
     "role": "Role",
     "no_builds": "No saved builds yet",
-    "repairs": "Repairs"
+    "repairs": "Repairs",
+    "photo_upload": "Upload photo",
+    "photo_remove": "Remove photo",
+    "photo_hint": "PNG, JPEG, WebP or GIF up to 5 MB — you can drop a file onto the avatar",
+    "logout": "Log out"
   },
   "roles": {
     "client": "Client",

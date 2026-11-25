@@ -47,24 +47,46 @@ def can_upload(user: User = Depends(get_current_user)) -> User:
     return user
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
-async def upload_image(request: Request, _: User = Depends(can_upload)) -> dict[str, str]:
+async def read_image(request: Request) -> tuple[bytes, str]:
+    """The picture from the request body and its extension; errors for a wrong type or size."""
+    too_big = HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, t("errors.upload_too_big", mb=MAX_BYTES // 1024 // 1024))
     length = request.headers.get("content-length")
     if length and length.isdigit() and int(length) > MAX_BYTES:
-        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, t("errors.upload_too_big", mb=MAX_BYTES // 1024 // 1024))
+        raise too_big
     data = bytearray()
     async for chunk in request.stream():
         data += chunk
         if len(data) > MAX_BYTES:  # the header can lie: count what really comes
-            raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, t("errors.upload_too_big", mb=MAX_BYTES // 1024 // 1024))
+            raise too_big
     if not data:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, t("errors.upload_empty"))
     extension = image_type(bytes(data[:16]))
     if extension is None:
         raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, t("errors.upload_type"))
+    return bytes(data), extension
 
-    folder = Path(settings.upload_dir)
-    folder.mkdir(parents=True, exist_ok=True)
-    name = f"{secrets.token_hex(12)}.{extension}"  # random name: no paths or names from the user
-    (folder / name).write_bytes(data)
-    return {"url": f"/uploads/{name}"}
+
+def save_image(data: bytes, extension: str, folder: str = "") -> str:
+    """Saves the picture under a random name (no paths or names from the user). Returns its URL."""
+    target = Path(settings.upload_dir) / folder
+    target.mkdir(parents=True, exist_ok=True)
+    name = f"{secrets.token_hex(12)}.{extension}"
+    (target / name).write_bytes(data)
+    return f"/uploads/{folder + '/' if folder else ''}{name}"
+
+
+def delete_upload(url: str | None, folder: str) -> None:
+    """Removes a file we saved before (only from uploads/<folder>, never anything else)."""
+    prefix = f"/uploads/{folder}/"
+    if not url or not url.startswith(prefix):
+        return
+    name = url[len(prefix):]
+    if "/" in name or name.startswith("."):
+        return
+    (Path(settings.upload_dir) / folder / name).unlink(missing_ok=True)
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+async def upload_image(request: Request, _: User = Depends(can_upload)) -> dict[str, str]:
+    data, extension = await read_image(request)
+    return {"url": save_image(data, extension)}

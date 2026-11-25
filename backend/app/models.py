@@ -53,6 +53,7 @@ class User(TimestampMixin, Base):
     role: Mapped[str] = mapped_column(String(20), default="client")
     bonus_balance: Mapped[int] = mapped_column(Integer, default=0)
     is_blocked: Mapped[bool] = mapped_column(Boolean, default=False)
+    avatar_url: Mapped[str | None] = mapped_column(String(500))  # own photo; none = initials in a circle
 
     @property
     def permissions(self) -> list[str]:

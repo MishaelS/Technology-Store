@@ -87,6 +87,8 @@
 | Метод | Что делает |
 |---|---|
 | `GET /api/auth/me`, `PATCH /api/auth/me` | профиль и права; изменить имя и телефон |
+| `POST /api/auth/me/avatar` | своё фото: файл в теле запроса (PNG, JPEG, WebP, GIF до 5 МБ), старый файл удаляется; ответ — пользователь с `avatar_url` |
+| `DELETE /api/auth/me/avatar` | убрать фото: снова показываются инициалы |
 | `GET /api/cart`, `POST /api/cart`, `PATCH /api/cart/{product_id}`, `DELETE /api/cart/{product_id}`, `DELETE /api/cart` | корзина |
 | `POST /api/cart/add-many` | «Всё в корзину» из конфигуратора |
 | `POST /api/orders` | оформить заказ `{address, phone, comment, bonus_to_use}` |

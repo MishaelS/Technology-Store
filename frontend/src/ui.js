@@ -116,6 +116,23 @@ export function select(name, options, value) {
   );
 }
 
+/** First letters of the first two words of the name: "Пётр Покупатель" -> "ПП". */
+export function initials(name) {
+  const words = String(name || "").trim().split(/\s+/).filter(Boolean);
+  return (words.slice(0, 2).map((w) => w[0]).join("") || "?").toUpperCase();
+}
+
+// soft colors for circles with initials; a user always gets the same one (by id)
+const AVATAR_COLORS = ["#3B5BDB", "#0C8599", "#7048E8", "#E8590C", "#2B8A3E", "#C2255C", "#1971C2", "#E67700"];
+
+/** Round avatar: the user's photo, or the initials on a color. `size` is "" (header) or "big". */
+export function avatar(user, size = "") {
+  const cls = `avatar${size ? ` ${size}` : ""}`;
+  const photo = image(user.avatar_url, "");
+  if (photo) return h("span", { class: cls }, photo);
+  return h("span", { class: `${cls} initials`, style: `--avatar-color: ${AVATAR_COLORS[(user.id || 0) % AVATAR_COLORS.length]}` }, initials(user.name));
+}
+
 /** "Nothing here yet" block: an icon, a line of text and an optional button (path, text). */
 export function emptyState(iconName, text, action = null) {
   return h(

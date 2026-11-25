@@ -113,6 +113,7 @@ class UserOut(ORM):
     permissions: list[str]  # what the frontend may show this user, see app/permissions.py
     bonus_balance: int
     is_blocked: bool
+    avatar_url: str | None = None
     created_at: datetime
 
 

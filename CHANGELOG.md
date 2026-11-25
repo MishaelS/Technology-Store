@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Own photo (avatar): `POST/DELETE /api/auth/me/avatar`, `avatar_url` in the user; set in the account by choosing
+  a file or dropping it onto the avatar. Without a photo the avatar shows the initials on a color.
 - Skeleton placeholders in the shape of cards while the catalog, the news and the first page load.
 - Promo slider on the home page: the "build a PC" slide and the promotions, changes by itself
   with a progress bar on the active dot, pauses under the mouse, arrows and swipe on phones.
@@ -33,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The header shows the user's avatar instead of the name and the logout button; logging out is in the account.
 - Admin panel lists (orders, products, client builds, users, repairs, stock receipts, news) load more rows
   while scrolling instead of page buttons; search works while typing, filters stay in the address,
   a row is redrawn in place after a change.

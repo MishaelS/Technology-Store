@@ -17,7 +17,7 @@ import { productPage } from "./pages/product.js";
 import { productEditorPage } from "./pages/product-editor.js";
 import { runAfter, runLeave } from "./router.js";
 import { can, isLoggedIn, loadUser, logout, refreshCartCount, session } from "./session.js";
-import { flash, h, icon, link, loading, navigate } from "./ui.js";
+import { avatar, flash, h, icon, link, loading, navigate } from "./ui.js";
 
 // [path pattern, page, access rule]
 const ROUTES = [
@@ -73,7 +73,7 @@ function markCurrentSection() {
 /** Draws the header only when something in it changed (user, cart, language), otherwise it would blink. */
 function renderHeader() {
   const user = session.user;
-  const key = JSON.stringify([user?.id, user?.name, user?.role, session.cartCount, getLanguage()]);
+  const key = JSON.stringify([user?.id, user?.name, user?.role, user?.avatar_url, session.cartCount, getLanguage()]);
   if (key === headerKey) {
     markCurrentSection();
     return;
@@ -127,8 +127,9 @@ function renderHeader() {
               h("a", { href: "#/cart" }, icon("navigation/cart"), t("nav.cart"), session.cartCount
                 ? h("span", { class: session.cartCount > shownCartCount ? "count bump" : "count" }, session.cartCount) // grew: the number jumps
                 : null),
-              h("a", { href: "#/account", title: t(`roles.${user.role}`) }, icon("navigation/account"), user.name),
-              h("button", { type: "button", onclick: onLogout }, t("nav.logout")),
+              // own photo or initials; logging out is in the account
+              h("a", { href: "#/account", class: "avatar-link", title: `${user.name} · ${t(`roles.${user.role}`)}`, "aria-label": t("account.title") },
+                avatar(user)),
             ]
           : [
               h("a", { href: "#/login" }, icon("navigation/login"), t("nav.login")),
@@ -268,11 +269,6 @@ async function changeLanguage(code) {
   render();
 }
 
-function onLogout() {
-  logout();
-  navigate("/");
-  render();
-}
 
 async function start() {
   watchSelects(document.body); // every <select> becomes the site's own dropdown
