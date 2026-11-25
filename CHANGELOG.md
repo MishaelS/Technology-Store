@@ -60,6 +60,7 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - Engineers no longer manage products and client builds: employees do it now.
 - The JSON specs form in the admin products list is replaced by the product editor.
 - README now describes the project; technical guides moved to `docs/`.
+- Header: menu and account actions on the right, search on its own row under the logo.
 
 ### Removed
 

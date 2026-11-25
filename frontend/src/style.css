@@ -57,7 +57,17 @@ p { margin: 0; }
 @media (min-width: 720px) {
   .header-inner, #main, .footer-inner { padding-left: 32px; padding-right: 32px; }
 }
-.header-inner { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; padding-block: 10px; }
+.header-inner {
+  /* row 1: logo + sections on the left, language/cart/user on the right; row 2: search under the logo */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "brand nav actions" "search search search";
+  align-items: center; gap: 10px 24px; padding-block: 10px 14px;
+}
+.brand { grid-area: brand; }
+.main-nav { grid-area: nav; }
+.header-search { grid-area: search; }
+.header-actions { grid-area: actions; justify-content: flex-end; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 800; font-size: 17px; }
 .brand:hover { color: var(--text); }
 .main-nav { display: flex; flex-wrap: wrap; gap: 4px 18px; font-weight: 600; }
@@ -65,7 +75,7 @@ p { margin: 0; }
 .main-nav a:hover, .header-actions a:hover { color: var(--accent); }
 .main-nav a[aria-current="page"] { color: var(--accent); }
 .header-search {
-  flex: 1 1 160px; min-width: 140px; display: flex; align-items: center; gap: 8px;
+  min-width: 0; display: flex; align-items: center; gap: 8px;
   height: 42px; padding: 0 12px; border-radius: var(--radius-sm); background: var(--surface-2); color: var(--muted);
 }
 .header-search input { flex: 1; min-width: 0; height: 100%; border: 0; padding: 0; background: transparent; outline: none; }
@@ -249,13 +259,15 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
 #to-top { position: fixed; z-index: 15; right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 4px 14px rgba(22, 24, 29, 0.12); }
 
 @media (max-width: 860px) {
+  .header-inner { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "brand actions" "nav nav" "search search"; }
   .columns, .admin-layout { grid-template-columns: minmax(0, 1fr); }
   .sidebar { position: static; }
   .side-menu { flex-direction: row; flex-wrap: wrap; }
 }
 @media (max-width: 560px) {
   h1 { font-size: 26px; }
-  .header-search { order: 5; flex-basis: 100%; }
+  .header-inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "brand" "actions" "nav" "search"; }
+  .header-actions { justify-content: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; }
