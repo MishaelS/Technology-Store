@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   paint, so a dark page never flashes white. The hex background and pictures follow the theme.
 - `navigation/theme-dark` and `navigation/theme-light` icons.
 
+### Changed
+
+- New home page: a wide first screen (a big colored title, a product photo on two colored circles, bar indicators),
+  catalog sections as tiles, news in three columns under a thick line, a band of big numbers that count up,
+  an "about the store" block over a dark band, a question band; the categories sidebar is gone from the home page.
+- Dark footer with columns of links: the catalog sections, for buyers, service.
+
 ## [0.2.0] - 2026-11-25
 
 New design of the whole site, admin panel with infinite lists, picture uploads, product galleries,

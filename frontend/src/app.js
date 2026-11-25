@@ -1,5 +1,6 @@
 // Entry point: header, routing (#/path?query) and page rendering.
 import { LANGUAGES } from "./config.js";
+import { api } from "./api.js";
 import { watchSelects } from "./dropdown.js";
 import { installRipple, revealOnScroll } from "./effects.js";
 import { hexWave, installHexBackground } from "./hex-background.js";
@@ -163,8 +164,39 @@ function renderHeader() {
       ),
     ),
   );
-  document.getElementById("footer").replaceChildren(h("div", { class: "footer-inner" }, t("app.footer_note")));
+  renderFooter();
   markCurrentSection();
+}
+
+let footerCategories = null; // loaded once: the footer lists the catalog sections
+
+/** Dark footer with columns of links: the store, the catalog sections, for buyers, service. */
+function renderFooter() {
+  const column = (title, links) => h("nav", { class: "footer-col", "aria-label": title },
+    h("h3", {}, title), h("ul", {}, links.map(([path, text]) => h("li", {}, h("a", { href: `#${path}` }, text)))));
+  const shop = h("div", { class: "footer-shop" });
+  const drawShop = () => shop.replaceChildren(column(t("footer.shop"), [["/catalog", t("catalog.all_categories")],
+    ...(footerCategories || []).map((c) => [`/catalog?category=${c.slug}`, c.name])]));
+  drawShop();
+  if (!footerCategories) {
+    api("/api/categories").then((list) => {
+      footerCategories = list;
+      drawShop();
+    }).catch(() => {});
+  }
+  document.getElementById("footer").replaceChildren(
+    h("div", { class: "footer-inner" },
+      h("div", { class: "footer-grid" },
+        h("div", { class: "footer-brand" },
+          h("a", { href: "#/", class: "brand" }, h("img", { src: "/resources/icons/logo.svg", alt: "", width: 28, height: 28 }), t("app.name")),
+          h("p", {}, `© 2026 ${t("app.name")}`),
+          h("p", { class: "footer-note" }, t("app.footer_note"))),
+        shop,
+        column(t("footer.buyers"), [["/catalog", t("nav.catalog")], ["/builder", t("nav.builder")], ["/news", t("nav.news")], ["/cart", t("nav.cart")]]),
+        column(t("footer.service"), [["/account?tab=orders", t("footer.orders")], ["/account?tab=builds", t("footer.builds")],
+          ["/account?tab=repairs", t("footer.repairs")], ["/account?tab=bonus", t("footer.bonus")]])),
+      h("div", { class: "footer-bottom" }, h("span", {}, t("app.tagline")), h("a", { href: "#/" }, t("app.name")))),
+  );
 }
 
 let renderCounter = 0;

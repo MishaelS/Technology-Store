@@ -79,7 +79,15 @@
     "slider_label": "Offers and promotions",
     "slide_prev": "Previous slide",
     "slide_next": "Next slide",
-    "slide_of": "Slide {n} of {total}"
+    "slide_of": "Slide {n} of {total}",
+    "hero_build_title": "Build your PC",
+    "stat_products": "products in the catalog",
+    "stat_brands": "brands",
+    "stat_categories": "categories of parts",
+    "about_title": "About the store",
+    "about_text": "We sell PC parts and help to build a working computer from them: the builder checks that the CPU fits the board, the memory fits the slots and the power supply is enough for everything.",
+    "ask": "Not sure what to choose?",
+    "ask_link": "Build a PC in the builder — we will check that the parts fit."
   },
   "catalog": {
     "title": "Catalog",
@@ -561,5 +569,14 @@
     "restore": "Restore",
     "restore_confirm": "Restore the backup from {date}? ALL current store data (products, orders, users, pictures) will be replaced with the backup.",
     "restored": "Data restored from the backup ({rows} records)"
+  },
+  "footer": {
+    "shop": "Shop",
+    "buyers": "For buyers",
+    "service": "Service",
+    "repairs": "Repairs",
+    "bonus": "Bonuses",
+    "orders": "My orders",
+    "builds": "My builds"
   }
 }
