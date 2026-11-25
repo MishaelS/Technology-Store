@@ -1,6 +1,6 @@
 """Admin panel. Access is checked by permissions, see app/permissions.py:
 * admin    - everything
-* manager  - stats, orders, news/promos/facts
+* manager  - stats, orders, products, news/promos/facts
 * engineer - products, client builds
 """
 
@@ -36,12 +36,19 @@ from app.schemas import (
     ProductUpdate,
     Role,
     RoleOut,
+    SpecFieldOut,
     StatsOut,
     UserAdminUpdate,
     UserOut,
 )
 from app.services.bonus import add_bonus
-from app.services.compatibility import invalid_spec_fields, missing_spec_fields
+from app.services.compatibility import (
+    OPTIONAL_SPEC_FIELDS,
+    SPEC_FIELDS,
+    SPEC_KINDS,
+    invalid_spec_fields,
+    missing_spec_fields,
+)
 from app.services.orders import change_status
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
@@ -158,6 +165,38 @@ def admin_products(
     if search and search.strip():
         stmt = stmt.where(or_(Product.name.ilike(_like(search), escape="\\"), Product.brand.ilike(_like(search), escape="\\")))
     return page_paginate(db, stmt, page, page_size)
+
+
+@router.get("/products/spec-schema", response_model=dict[str, list[SpecFieldOut]],
+            dependencies=[Depends(can_manage_products)])
+def spec_schema(db: Session = Depends(get_db)):
+    """Specs fields of every category, so the product editor can build its form.
+
+    For text fields `suggestions` lists values other products already use (AM5, DDR5, ATX...).
+    """
+    used: dict[tuple[str, str], set[str]] = {}
+    for slug, specs in db.execute(select(Category.slug, Product.specs).join(Product.category)).all():
+        for key, value in (specs or {}).items():
+            values = value if isinstance(value, list) else [value]
+            used.setdefault((slug, key), set()).update(v for v in values if isinstance(v, str) and v.strip())
+    schema = {}
+    for slug, required in SPEC_FIELDS.items():
+        fields = [(key, True) for key in required] + [(key, False) for key in OPTIONAL_SPEC_FIELDS.get(slug, ())]
+        schema[slug] = [
+            {"key": key, "kind": SPEC_KINDS[key], "required": is_required,
+             "suggestions": sorted(used.get((slug, key), set()))}
+            for key, is_required in fields
+        ]
+    return schema
+
+
+@router.get("/products/{product_id}", response_model=ProductOut, dependencies=[Depends(can_manage_products)])
+def admin_product(product_id: int, db: Session = Depends(get_db)):
+    """One product, including hidden ones (the public endpoint returns 404 for them)."""
+    product = db.get(Product, product_id)
+    if product is None:
+        raise HTTPException(404, t("errors.product_not_found"))
+    return product
 
 
 @router.post("/products", response_model=ProductOut, status_code=status.HTTP_201_CREATED,

@@ -347,6 +347,13 @@ class BonusGrantIn(BaseModel):
     reason: Text(1, 200)
 
 
+class SpecFieldOut(BaseModel):
+    key: str
+    kind: Literal["text", "number", "score", "flag", "text_list"]
+    required: bool
+    suggestions: list[str]  # values already used by other products of the category
+
+
 class RoleOut(BaseModel):
     role: str
     permissions: list[str]

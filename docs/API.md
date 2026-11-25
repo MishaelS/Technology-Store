@@ -36,7 +36,7 @@
 | `stats.view` | статистика магазина | | | ✓ | ✓ |
 | `orders.manage` | все заказы, смена статуса | | | ✓ | ✓ |
 | `content.manage` | новости, акции, факты | | | ✓ | ✓ |
-| `products.manage` | товары | | ✓ | | ✓ |
+| `products.manage` | товары: создание, редактирование, скрытие | | ✓ | ✓ | ✓ |
 | `builds.review` | сборки клиентов и комментарии | | ✓ | | ✓ |
 | `users.manage` | пользователи, роли, блокировка, бонусы вручную | | | | ✓ |
 
@@ -86,7 +86,8 @@
 |---|---|
 | `GET /api/admin/stats` | `stats.view` |
 | `GET /api/admin/orders`, `PATCH /api/admin/orders/{id}/status` | `orders.manage` |
-| `GET/POST /api/admin/products`, `PATCH/DELETE /api/admin/products/{id}` | `products.manage` |
+| `GET/POST /api/admin/products`, `GET/PATCH/DELETE /api/admin/products/{id}` | `products.manage` |
+| `GET /api/admin/products/spec-schema` — поля характеристик каждой категории с подсказками (для редактора товара) | `products.manage` |
 | `GET /api/admin/builds`, `PATCH /api/admin/builds/{id}/comment` | `builds.review` |
 | `POST /api/admin/news`, `PATCH/DELETE /api/admin/news/{id}`, `GET/POST /api/admin/facts`, `DELETE /api/admin/facts/{id}` | `content.manage` |
 | `GET /api/admin/roles`, `GET /api/admin/users`, `PATCH /api/admin/users/{id}`, `POST /api/admin/users/{id}/bonus` | `users.manage` |

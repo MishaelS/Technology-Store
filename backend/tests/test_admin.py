@@ -8,7 +8,8 @@ from tests.conftest import GOOD_BUILD
 ENDPOINTS = [
     ("GET", "/api/admin/stats", {"admin", "manager"}),
     ("GET", "/api/admin/orders", {"admin", "manager"}),
-    ("GET", "/api/admin/products", {"admin", "engineer"}),
+    ("GET", "/api/admin/products", {"admin", "manager", "engineer"}),
+    ("GET", "/api/admin/products/spec-schema", {"admin", "manager", "engineer"}),
     ("GET", "/api/admin/builds", {"admin", "engineer"}),
     ("GET", "/api/admin/facts", {"admin", "manager"}),
     ("GET", "/api/admin/users", {"admin"}),
@@ -92,6 +93,35 @@ def test_create_update_delete_product(client, engineer_headers):
 )
 def test_product_validation(client, engineer_headers, change, status):
     assert client.post("/api/admin/products", json={**NEW_PSU, **change}, headers=engineer_headers).status_code == status
+
+
+def test_spec_schema(client, manager_headers):
+    schema = client.get("/api/admin/products/spec-schema", headers=manager_headers).json()
+    assert set(schema) == {"cpu", "motherboard", "ram", "gpu", "psu", "case", "storage"}
+    cpu = {f["key"]: f for f in schema["cpu"]}
+    assert cpu["socket"]["kind"] == "text" and cpu["socket"]["required"]
+    assert {"AM4", "AM5", "LGA1700"} <= set(cpu["socket"]["suggestions"])
+    assert cpu["igpu"] == {"key": "igpu", "kind": "flag", "required": False, "suggestions": []}
+    case = {f["key"]: f for f in schema["case"]}
+    assert case["form_factors"]["kind"] == "text_list"
+    assert set(case["form_factors"]["suggestions"]) == {"ATX", "mATX", "Mini-ITX"}
+
+
+def test_manager_creates_and_edits_product(client, manager_headers):
+    created = client.post("/api/admin/products", json=NEW_PSU, headers=manager_headers)
+    assert created.status_code == 201
+    product_id = created.json()["id"]
+    updated = client.patch(f"/api/admin/products/{product_id}", json={"stock": 10}, headers=manager_headers)
+    assert updated.json()["stock"] == 10
+
+
+def test_admin_gets_hidden_product_by_id(client, engineer_headers, product):
+    p = product("Cougar GEX 650W")
+    client.delete(f"/api/admin/products/{p.id}", headers=engineer_headers)
+    assert client.get(f"/api/products/{p.id}").status_code == 404
+    body = client.get(f"/api/admin/products/{p.id}", headers=engineer_headers).json()
+    assert body["id"] == p.id and body["is_active"] is False
+    assert client.get("/api/admin/products/999999", headers=engineer_headers).status_code == 404
 
 
 def test_update_validation(client, engineer_headers, product):
