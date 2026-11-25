@@ -1,6 +1,6 @@
 // Personal account: profile, orders, bonuses, saved builds (tabs in the address: ?tab=orders).
 import { api } from "../api.js";
-import { checksList, statusName } from "../components.js";
+import { checksList, statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { headerChanged, reload } from "../router.js";
 import { session } from "../session.js";
@@ -12,7 +12,7 @@ const TABS = ["profile", "orders", "repairs", "bonus", "builds"];
 
 export async function accountPage({ query }) {
   const tab = TABS.includes(query.get("tab")) ? query.get("tab") : "profile";
-  const tabs = h("div", { class: "row" }, TABS.map((name) =>
+  const tabs = h("nav", { class: "tabs", "aria-label": t("account.title") }, TABS.map((name) =>
     name === tab ? h("b", {}, t(`account.${name}`)) : link(`/account?tab=${name}`, t(`account.${name}`))));
   const content = await { profile, orders, repairs: myRepairs, bonus, builds }[tab]();
   return h("div", {}, h("h1", {}, t("account.title")), tabs, content);
@@ -53,12 +53,12 @@ async function orders() {
   return h("div", {}, list.map((order) => h(
     "div",
     { class: "card" },
-    h("h3", {}, t("orders.order_number", { id: order.id }), " · ", statusName(order.status)),
+    h("div", { class: "section-head" }, h("h3", {}, t("orders.order_number", { id: order.id })), statusPill(order.status)),
     h("div", { class: "muted" }, date(order.created_at), " · ", order.address),
     h("ul", {}, order.items.map((i) => h("li", {}, `${i.product_name} × ${i.quantity} — ${money(i.price * i.quantity)}`))),
     h("p", {},
       `${t("checkout.subtotal")}: ${money(order.subtotal)} · ${t("checkout.bonus_used")}: ${money(order.bonus_used)} · `,
-      h("b", {}, `${t("orders.total")}: ${money(order.total)}`)),
+      h("b", { class: "price" }, `${t("orders.total")}: ${money(order.total)}`)),
     order.bonus_earned ? h("p", { class: "ok" }, t("orders.bonus_earned", { count: order.bonus_earned })) : null,
     order.status === "new"
       ? h("button", {

@@ -36,7 +36,7 @@ export async function builderPage() {
   const products = new Map(lists.flatMap((list) => list.items).map((p) => [p.id, p]));
 
   let selection = loadSelection().filter((id) => products.has(id)); // drop hidden products
-  const slotsBox = h("div");
+  const slotsBox = h("div", { class: "slots card" });
   const panel = h("div", { class: "sidebar" });
 
   const idsOf = (slot) => selection.filter((id) => products.get(id).category === slot);
@@ -78,7 +78,7 @@ export async function builderPage() {
         h("h3", {}, t(`categories.${slot}`)),
         rows,
         MULTIPLE.includes(slot) && ids.length
-          ? h("button", { onclick: () => setSlot(slot, [...ids, ids[ids.length - 1]]) }, t("builder.add_more"))
+          ? h("button", { type: "button", onclick: () => setSlot(slot, [...ids, ids[ids.length - 1]]) }, t("builder.add_more"))
           : null,
       );
     }));
@@ -104,8 +104,8 @@ export async function builderPage() {
       selection.length
         ? h(
             "div",
-            {},
-            h("button", { onclick: addAllToCart }, t("builder.add_all_to_cart")),
+            { class: "section" },
+            h("button", { type: "button", class: "primary big", style: "width: 100%", onclick: addAllToCart }, t("builder.add_all_to_cart")),
             isLoggedIn()
               ? h(
                   "form",
@@ -124,13 +124,13 @@ export async function builderPage() {
                     },
                   },
                   nameInput,
-                  h("button", {}, t("builder.save")),
+                  h("button", { type: "submit" }, t("builder.save")),
                 )
               : h("p", { class: "muted" }, link(`/login?next=${encodeURIComponent("/builder")}`, t("builder.login_to_save"))),
             saveErrors,
-            h("button", { onclick: () => { selection = []; saveSelection(selection); draw(); } }, t("builder.clear")),
+            h("button", { type: "button", onclick: () => { selection = []; saveSelection(selection); draw(); } }, t("builder.clear")),
           )
-        : null,
+        : "", // empty string, not null: replaceChildren would print null as text
     );
   }
 

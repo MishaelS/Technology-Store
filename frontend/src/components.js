@@ -3,7 +3,7 @@ import { api } from "./api.js";
 import { t } from "./i18n.js";
 import { headerChanged } from "./router.js";
 import { isLoggedIn, session } from "./session.js";
-import { attempt, date, flash, h, image, link, money, navigate } from "./ui.js";
+import { attempt, date, flash, h, icon, image, money, navigate } from "./ui.js";
 
 export function goToLogin() {
   navigate(`/login?next=${encodeURIComponent(location.hash.slice(1) || "/")}`);
@@ -19,26 +19,37 @@ export async function addToCart(productId, quantity = 1) {
   }
 }
 
+/** Picture of a product, or its category icon while there is no photo. */
+export function productThumb(product, href) {
+  const content = image(product.image_url, product.name) || icon(`categories/${product.category}`);
+  return h("a", { href: `#${href}`, class: "thumb", "aria-hidden": "true", tabindex: -1 }, content);
+}
+
 export function productCard(product) {
+  const href = `/product/${product.id}`;
   return h(
-    "div",
-    { class: "card" },
-    image(product.image_url, product.name),
-    h("div", { class: "muted" }, product.category_name),
-    link(`/product/${product.id}`, h("b", {}, product.name)),
+    "article",
+    { class: "card product-card" },
+    productThumb(product, href),
+    h("span", { class: "muted", style: "font-size: 13px" }, product.category_name),
+    h("a", { href: `#${href}`, class: "title" }, product.name),
     priceRow(product),
-    h("div", { class: "muted" }, stockText(product)),
-    h("button", { disabled: product.stock <= 0, onclick: () => addToCart(product.id) }, t("product.add_to_cart")),
+    h(
+      "div",
+      { class: "foot" },
+      h("span", { class: product.stock > 0 ? "stock" : "stock out" }, stockText(product)),
+      h("button", { type: "button", class: "primary", disabled: product.stock <= 0, onclick: () => addToCart(product.id) }, t("product.add_to_cart")),
+    ),
   );
 }
 
 export function priceRow(product) {
   return h(
     "div",
-    { class: "row" },
-    h("b", {}, money(product.price)),
+    { class: "row price-row" },
+    h("span", { class: "price" }, money(product.price)),
     product.old_price ? h("span", { class: "old-price" }, money(product.old_price)) : null,
-    product.discount_percent > 0 ? h("span", { class: "badge" }, t("product.discount_badge", { percent: product.discount_percent })) : null,
+    product.discount_percent > 0 ? h("span", { class: "discount" }, t("product.discount_badge", { percent: product.discount_percent })) : null,
   );
 }
 
@@ -75,6 +86,11 @@ export function statusName(status) {
   return t(`orders.status.${status}`);
 }
 
+/** Colored status label. `text` defaults to the order status name. */
+export function statusPill(status, text = statusName(status)) {
+  return h("span", { class: `pill s-${status}` }, text);
+}
+
 /** "← Назад  Страница 1 из 3  Вперёд →" for admin tables. */
 export function pager({ page, pages }, go) {
   return h(
@@ -86,12 +102,17 @@ export function pager({ page, pages }, go) {
   );
 }
 
-/** List of the build checks with simple markers. */
+/** List of the build checks with status icons. */
 export function checksList(checks) {
-  const marks = { ok: "✓", error: "✗", warning: "!", skip: "–" };
+  const icons = { ok: "feedback/success", error: "feedback/error", warning: "feedback/warning", skip: "feedback/skip" };
   return h(
     "ul",
-    {},
-    checks.map((c) => h("li", { class: c.status === "skip" ? "muted" : c.status }, `${marks[c.status]} ${c.message}`)),
+    { class: "checks" },
+    checks.map((c) => h(
+      "li",
+      { class: c.status === "skip" ? "muted" : c.status },
+      icon(icons[c.status], t(`builder.check_status.${c.status}`)),
+      h("span", {}, c.message),
+    )),
   );
 }

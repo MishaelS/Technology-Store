@@ -67,7 +67,12 @@
     "hits": "Best sellers",
     "fact": "Fun fact",
     "build_cta": "Build a PC",
-    "build_cta_text": "Pick your parts — we'll check compatibility and rate the performance"
+    "build_cta_text": "Pick your parts — we'll check compatibility and rate the performance",
+    "build_steps": "Pick parts and the site checks right away:",
+    "build_check_socket": "the CPU fits the motherboard",
+    "build_check_ram": "memory matches type and slots",
+    "build_check_psu": "the power supply is enough for the build",
+    "categories": "Categories"
   },
   "catalog": {
     "title": "Catalog",
@@ -236,7 +241,13 @@
     "clear": "Clear build",
     "not_selected": "— not selected —",
     "open": "Open in builder",
-    "saved": "Build saved"
+    "saved": "Build saved",
+    "check_status": {
+      "ok": "Passed",
+      "error": "Error",
+      "warning": "Warning",
+      "skip": "Not checked"
+    }
   },
   "auth": {
     "login_title": "Log in",

@@ -1,6 +1,6 @@
 // Admin sections for staff work: repairs (engineers), stock receipts (employees), tech support (senior engineer).
 import { api, query as toQuery } from "../api.js";
-import { pager } from "../components.js";
+import { pager, statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { reload } from "../router.js";
 import { attempt, date, field, flash, formData, h, link, money, navigate, select } from "../ui.js";
@@ -78,7 +78,7 @@ export async function repairsSection(query) {
         repair.client_id ? h("div", { class: "muted" }, t("repairs.has_account")) : null),
       h("td", {}, h("b", {}, repair.device), h("div", {}, repair.problem)),
       h("td", {},
-        h("b", {}, repairStatus(repair.status)),
+        statusPill(repair.status, repairStatus(repair.status)),
         repair.engineer ? h("div", { class: "muted" }, repair.engineer.name) : null,
         h("div", {}, REPAIR_NEXT[repair.status].map((next) =>
           h("button", { onclick: save({ status: next }) }, `→ ${repairStatus(next)}`)))),
@@ -109,7 +109,7 @@ export async function myRepairs() {
     "div",
     { class: "card" },
     h("h3", {}, t("repairs.number", { id: repair.id }), " · ", repair.device),
-    h("p", {}, h("b", {}, repairStatus(repair.status)), " · ", date(repair.updated_at)),
+    h("p", { class: "row" }, statusPill(repair.status, repairStatus(repair.status)), h("span", { class: "muted" }, date(repair.updated_at))),
     h("p", {}, `${t("repairs.problem")}: ${repair.problem}`),
     h("p", {}, `${t("repairs.price_label")}: `, repair.price === null ? t("repairs.price_not_set") : money(repair.price)),
     repair.engineer_comment ? h("p", {}, h("b", {}, `${t("repairs.comment")}: `), repair.engineer_comment) : null,

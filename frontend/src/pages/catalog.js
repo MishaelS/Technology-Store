@@ -20,7 +20,7 @@ export async function catalogPage({ query }) {
   const form = h(
     "form",
     {
-      class: "row",
+      class: "row filters",
       onchange: () => apply(),
       onsubmit: (event) => {
         event.preventDefault();

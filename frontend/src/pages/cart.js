@@ -28,19 +28,30 @@ export async function cartPage() {
       return h(
         "tr",
         {},
-        h("td", {}, link(`/product/${product.id}`, product.name)),
-        h("td", {}, money(product.price)),
+        h("td", {}, h("a", { href: `#/product/${product.id}`, class: "item-link" }, product.name)),
+        h("td", { class: "price" }, money(product.price)),
         h("td", {}, input),
-        h("td", {}, money(sum)),
-        h("td", {}, h("button", { onclick: () => update(() => api(`/api/cart/${product.id}`, { method: "DELETE" })) }, t("cart.remove"))),
+        h("td", { class: "price" }, money(sum)),
+        h("td", {}, h("button", { type: "button", onclick: () => update(() => api(`/api/cart/${product.id}`, { method: "DELETE" })) }, t("cart.remove"))),
       );
     });
     root.replaceChildren(
       h("h1", {}, t("cart.title")),
-      h("table", {}, h("tr", {}, h("th", {}, t("admin.products")), h("th", {}, t("admin.price")), h("th", {}, t("cart.quantity")), h("th", {}, t("common.sum")), h("th", {})), rows),
-      h("p", {}, t("cart.items_count", { count: cart.count }), " · ", h("b", {}, `${t("cart.total")}: ${money(cart.total)}`)),
-      h("button", { onclick: () => update(() => api("/api/cart", { method: "DELETE" })) }, t("cart.clear")),
-      checkoutForm(cart),
+      h(
+        "div",
+        { class: "columns" },
+        h(
+          "div",
+          { class: "section" },
+          h("div", { class: "table-box" }, h("table", {},
+            h("tr", {}, h("th", {}, t("admin.products")), h("th", {}, t("admin.price")), h("th", {}, t("cart.quantity")), h("th", {}, t("common.sum")), h("th", {})),
+            rows)),
+          h("div", { class: "section-head" },
+            h("span", {}, t("cart.items_count", { count: cart.count }), " · ", h("b", { class: "price" }, `${t("cart.total")}: ${money(cart.total)}`)),
+            h("button", { type: "button", onclick: () => update(() => api("/api/cart", { method: "DELETE" })) }, t("cart.clear"))),
+        ),
+        checkoutForm(cart),
+      ),
     );
   }
 
@@ -89,5 +100,5 @@ function checkoutForm(cart) {
     h("button", {}, t("checkout.place_order")),
     errors,
   );
-  return h("section", {}, h("h2", {}, t("checkout.title")), form);
+  return h("aside", { class: "sidebar" }, h("h2", {}, t("checkout.title")), form);
 }

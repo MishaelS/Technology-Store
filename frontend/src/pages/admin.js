@@ -1,7 +1,7 @@
 // Admin panel. Every section is shown only if the user has its permission (from the API).
 // The backend checks the same permissions, so hiding here is only for convenience.
 import { api, query as toQuery } from "../api.js";
-import { checksList, pager, statusName } from "../components.js";
+import { checksList, pager, statusName, statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { reload } from "../router.js";
 import { repairsSection, stockSection, systemSection } from "./staff.js";
@@ -34,9 +34,14 @@ export async function adminPage({ query }) {
   const allowed = SECTIONS.filter(([, permission]) => can(permission));
   const name = query.get("section");
   const [current, , render] = allowed.find(([key]) => key === name) || allowed[0];
-  const menu = h("div", { class: "row" }, allowed.map(([key]) =>
-    key === current ? h("b", {}, t(`admin.${key}`)) : link(`/admin?section=${key}`, t(`admin.${key}`))));
-  return h("div", {}, h("h1", {}, t("admin.title")), menu, h("hr"), await render(query));
+  const menu = h("nav", { class: "side-menu", "aria-label": t("admin.title") }, allowed.map(([key]) =>
+    key === current ? h("b", { "aria-current": "page" }, t(`admin.${key}`)) : link(`/admin?section=${key}`, t(`admin.${key}`))));
+  return h(
+    "div",
+    { class: "admin-layout" },
+    menu,
+    h("div", { class: "admin-content" }, h("h1", {}, t(`admin.${current}`)), await render(query)),
+  );
 }
 
 function go(section, params) {
@@ -92,8 +97,8 @@ async function orders(query) {
       h("td", {}, order.user.name, h("br"), h("span", { class: "muted" }, order.user.email), h("br"), order.phone, h("br"), order.address,
         order.comment ? [h("br"), h("i", {}, order.comment)] : null),
       h("td", {}, h("ul", {}, order.items.map((i) => h("li", {}, `${i.product_name} × ${i.quantity}`)))),
-      h("td", {}, money(order.total), order.bonus_used ? h("div", { class: "muted" }, `${t("checkout.bonus_used")}: ${order.bonus_used}`) : null),
-      h("td", {}, h("b", {}, statusName(order.status)), h("div", {}, NEXT_STATUSES[order.status].map((next) =>
+      h("td", { class: "price" }, money(order.total), order.bonus_used ? h("div", { class: "muted" }, `${t("checkout.bonus_used")}: ${order.bonus_used}`) : null),
+      h("td", {}, statusPill(order.status), h("div", { class: "row", style: "margin-top: 8px" }, NEXT_STATUSES[order.status].map((next) =>
         h("button", {
           onclick: async () => {
             const done = await attempt(() => api(`/api/admin/orders/${order.id}/status`, { method: "PATCH", body: { status: next } }));

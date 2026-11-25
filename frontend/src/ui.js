@@ -37,14 +37,15 @@ export function image(url, alt = "") {
   return h("img", { src: url, alt, loading: "lazy" });
 }
 
-/** Icon from resources/icons: icon("navigation/cart"). Without a label it is hidden from screen readers. */
+/** Icon from resources/icons: icon("navigation/cart").
+ *  Drawn as a mask, so it takes the text color (`color: ...`) like the design wants.
+ *  Without a label it is hidden from screen readers. */
 export function icon(name, label = "") {
-  return h("img", {
-    src: `/resources/icons/${name}.svg`,
-    alt: label,
+  return h("span", {
     class: "icon",
-    width: 18,
-    height: 18,
+    style: `--m: url(/resources/icons/${name}.svg)`,
+    role: label ? "img" : null,
+    "aria-label": label || null,
     "aria-hidden": label ? null : "true",
   });
 }

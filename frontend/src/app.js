@@ -60,27 +60,54 @@ function renderHeader() {
     { "aria-label": t("nav.language"), onchange: (e) => changeLanguage(e.target.value) },
     LANGUAGES.map((code) => h("option", { value: code, selected: code === getLanguage() }, code.toUpperCase())),
   );
+  const section = (location.hash.slice(1) || "/").split(/[/?]/)[1] || "";
+  const navLink = (path, text) => h("a", { href: `#${path}`, "aria-current": section === path.slice(1) ? "page" : null }, text);
+  const search = h("input", { type: "search", name: "search", placeholder: t("nav.search_placeholder"), "aria-label": t("common.search") });
+  const searchForm = h(
+    "form",
+    {
+      class: "header-search",
+      role: "search",
+      onsubmit: (event) => {
+        event.preventDefault();
+        navigate(`/catalog${search.value.trim() ? `?search=${encodeURIComponent(search.value.trim())}` : ""}`);
+      },
+    },
+    icon("actions/search"),
+    search,
+  );
   document.getElementById("header").replaceChildren(
     h(
-      "nav",
-      {},
-      link("/", h("img", { src: "/resources/icons/logo.svg", alt: "", width: 24, height: 24 }), h("b", {}, t("app.name"))),
-      link("/catalog", icon("navigation/catalog"), t("nav.catalog")),
-      link("/builder", icon("navigation/builder"), t("nav.builder")),
-      link("/news", icon("navigation/news"), t("nav.news")),
-      user ? link("/cart", icon("navigation/cart"), `${t("nav.cart")} (${session.cartCount})`) : null,
-      user ? link("/account", icon("navigation/account"), t("nav.account")) : null,
-      can("admin.access") ? link("/admin", icon("navigation/admin"), t("nav.admin")) : null,
-      h("span", { class: "spacer" }),
-      icon("navigation/language", t("nav.language")),
-      languageSelect,
-      user
-        ? [h("span", { class: "muted" }, icon(`roles/role-${user.role}`), ` ${user.name} (${t(`roles.${user.role}`)})`),
-           h("button", { onclick: onLogout }, icon("navigation/logout"), ` ${t("nav.logout")}`)]
-        : [link("/login", icon("navigation/login"), t("nav.login")), link("/register", icon("navigation/register"), t("nav.register"))],
+      "div",
+      { class: "header-inner" },
+      h("a", { href: "#/", class: "brand" }, h("img", { src: "/resources/icons/logo.svg", alt: "", width: 28, height: 28 }), t("app.name")),
+      h(
+        "nav",
+        { class: "main-nav", "aria-label": t("nav.home") },
+        navLink("/catalog", t("nav.catalog")),
+        navLink("/builder", t("nav.builder")),
+        navLink("/news", t("nav.news")),
+        can("admin.access") ? navLink("/admin", t("nav.admin")) : null,
+      ),
+      searchForm,
+      h(
+        "div",
+        { class: "header-actions" },
+        languageSelect,
+        user
+          ? [
+              h("a", { href: "#/cart" }, icon("navigation/cart"), t("nav.cart"), session.cartCount ? h("span", { class: "count" }, session.cartCount) : null),
+              h("a", { href: "#/account", title: t(`roles.${user.role}`) }, icon("navigation/account"), user.name),
+              h("button", { type: "button", onclick: onLogout }, t("nav.logout")),
+            ]
+          : [
+              h("a", { href: "#/login" }, icon("navigation/login"), t("nav.login")),
+              h("a", { href: "#/register", class: "btn primary" }, t("nav.register")),
+            ],
+      ),
     ),
   );
-  document.getElementById("footer").textContent = t("app.footer_note");
+  document.getElementById("footer").replaceChildren(h("div", { class: "footer-inner" }, t("app.footer_note")));
 }
 
 let renderCounter = 0;
