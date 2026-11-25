@@ -54,8 +54,27 @@ function match(parts) {
   return null;
 }
 
+let headerKey = "";
+
+/** Marks the current section in the header menu without redrawing the header. */
+function markCurrentSection() {
+  const section = (location.hash.slice(1) || "/").split(/[/?]/)[1] || "";
+  for (const a of document.querySelectorAll("#header .main-nav a")) {
+    const own = a.getAttribute("href").slice(2);
+    if (own === section) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  }
+}
+
+/** Draws the header only when something in it changed (user, cart, language), otherwise it would blink. */
 function renderHeader() {
   const user = session.user;
+  const key = JSON.stringify([user?.id, user?.name, user?.role, session.cartCount, getLanguage()]);
+  if (key === headerKey) {
+    markCurrentSection();
+    return;
+  }
+  headerKey = key;
   const languageSelect = h(
     "select",
     { "aria-label": t("nav.language"), onchange: (e) => changeLanguage(e.target.value) },
@@ -109,19 +128,21 @@ function renderHeader() {
     ),
   );
   document.getElementById("footer").replaceChildren(h("div", { class: "footer-inner" }, t("app.footer_note")));
+  markCurrentSection();
 }
 
 let renderCounter = 0;
 
 async function render() {
-  runLeave();
   renderHeader();
   const main = document.getElementById("main");
   const { parts, query } = parseHash();
+  const path = parts.join("/");
   const found = match(parts);
   const current = ++renderCounter;
 
   if (!found) {
+    runLeave();
     main.replaceChildren(h("h1", {}, "404"), link("/", t("nav.home")));
     return;
   }
@@ -130,24 +151,37 @@ async function render() {
     return;
   }
   if (found.rules.permission && !can(found.rules.permission)) {
+    runLeave();
     main.replaceChildren(h("p", { class: "error" }, t("errors.forbidden")));
     return;
   }
 
-  main.replaceChildren(loading());
+  // The current page stays on screen until the next one is ready, so nothing blinks.
+  // Only the very first page (nothing to keep yet) shows "Loading…".
+  if (!main.childElementCount) main.replaceChildren(loading());
+  const done = showLoading(current);
   try {
     const node = await found.page({ params: found.params, query });
     if (current !== renderCounter) return; // the user already went to another page
+    runLeave(); // stop the old page (observers, timers) right before swapping it
     main.replaceChildren(node);
+    if (path !== lastPath) window.scrollTo(0, 0); // new section: start at the top; same section (filters): stay
+    lastPath = path;
     runAfter();
   } catch (error) {
-    if (current === renderCounter) main.replaceChildren(h("p", { class: "error" }, error.message));
+    if (current === renderCounter) {
+      runLeave();
+      main.replaceChildren(h("p", { class: "error" }, error.message));
+    }
+  } finally {
+    done();
   }
 }
 
 async function changeLanguage(code) {
   await loadLanguage(code);
   if (isLoggedIn()) await loadUser(); // role names etc.
+  headerKey = ""; // texts changed: redraw the header
   render();
 }
 

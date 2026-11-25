@@ -55,6 +55,7 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - Catalog filters in a sticky panel on the left: categories, sort, price, brand and availability sections with icons;
   the panel and each section can be collapsed, the choice is remembered in the browser.
 - Home page categories in the same left panel.
+- Thin loading bar at the top while a slow page loads.
 
 ### Changed
 
@@ -65,6 +66,7 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - The JSON specs form in the admin products list is replaced by the product editor.
 - README now describes the project; technical guides moved to `docs/`.
 - Header: menu and account actions on the right, search on its own row under the logo.
+- Pages no longer blink on navigation: the old page stays until the new one is ready, the header is redrawn only when the user, cart or language changes.
 
 ### Removed
 

@@ -97,6 +97,14 @@ p { margin: 0; }
 #footer { border-top: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 13px; }
 .footer-inner { padding-block: 20px; }
 
+/* loading bar at the top while the next page loads (the current page stays visible) */
+body.is-loading::after {
+  content: ""; position: fixed; z-index: 50; top: env(safe-area-inset-top, 0px); left: 0; height: 3px; width: 40%;
+  background: var(--accent); border-radius: 0 3px 3px 0; animation: loading-bar 1s ease-in-out infinite;
+}
+body.is-loading #main { opacity: 0.7; transition: opacity 0.2s ease 0.1s; }
+@keyframes loading-bar { from { translate: -100% 0; } to { translate: 260% 0; } }
+
 #flash:empty { display: none; }
 #flash {
   position: fixed; z-index: 20; left: 50%; transform: translateX(-50%);
