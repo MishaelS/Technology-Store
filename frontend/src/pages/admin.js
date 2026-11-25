@@ -61,7 +61,7 @@ async function dashboard() {
     { class: "dashboard" },
     h("div", { class: "stat-grid" }, tiles.map(([key, value, iconName]) =>
       h("div", { class: `stat-tile${key === "low_stock" && s.low_stock ? " warn" : ""}` },
-        icon(iconName), h("span", { class: "stat-label" }, t(`admin.stats.${key}`)), h("strong", { class: "stat-value num" }, value)))),
+        h("span", { class: "stat-icon" }, icon(iconName)), h("span", { class: "stat-label" }, t(`admin.stats.${key}`)), h("strong", { class: "stat-value num" }, value)))),
     h("div", { class: "split" },
       h("section", { class: "panel" },
         h("h3", {}, t("admin.orders_by_status")),
