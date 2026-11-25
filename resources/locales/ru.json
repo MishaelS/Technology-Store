@@ -462,7 +462,10 @@
     "repair_price_required": "Сначала укажите стоимость ремонта",
     "upload_too_big": "Файл больше {mb} МБ",
     "upload_empty": "Файл пустой",
-    "upload_type": "Подходят только картинки PNG, JPEG, WebP или GIF"
+    "upload_type": "Подходят только картинки PNG, JPEG, WebP или GIF",
+    "backup_not_found": "Бэкап не найден",
+    "backup_broken": "Это не файл бэкапа магазина или он повреждён",
+    "backup_other_version": "Бэкап сделан для другой версии базы ({backup}), а сейчас {current}: восстановить его нельзя"
   },
   "repairs": {
     "status": {

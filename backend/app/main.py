@@ -1,17 +1,30 @@
+import asyncio
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import backups
 from app.config import settings
 from app.i18n import LanguageMiddleware, available_languages, load, pick_language, t
 from app.database import SessionLocal
 from app.models import ErrorLog
-from app.routers import admin, auth, builder, cart, catalog, orders, repairs, stock, system, uploads
+from app.routers import admin, auth, backups as backups_router, builder, cart, catalog, orders, repairs, stock, system, uploads
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    """While the server runs: the auto backup check (it does nothing until auto backups are on)."""
+    task = asyncio.create_task(auto_backup_loop()) if settings.backup_scheduler else None
+    yield
+    if task:
+        task.cancel()
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title="Technology-Store API",
     description="Educational online store for PC components. "
     "To call protected endpoints: log in via /api/auth/login, "
@@ -29,7 +42,7 @@ app.add_middleware(
 )
 app.add_middleware(LanguageMiddleware)
 
-for module in (auth, catalog, cart, orders, builder, admin, repairs, stock, system, uploads):
+for module in (auth, catalog, cart, orders, builder, admin, repairs, stock, system, uploads, backups_router):
     app.include_router(module.router)
 
 logger = logging.getLogger("app")
@@ -62,6 +75,28 @@ async def unexpected_error(request: Request, exc: Exception):
         logger.exception("Could not save the error to error_log")
     lang = pick_language(request.query_params.get("lang"), request.headers.get("accept-language"))
     return JSONResponse(status_code=500, content={"detail": t("errors.internal", lang=lang)})
+
+
+# ---------- auto backups ----------
+# Once a minute the task checks whether an auto backup is due (app/backups.py, auto.json).
+# Auto backups are off until turned on in the admin panel, so by default this does nothing.
+
+AUTO_BACKUP_CHECK_SECONDS = 60
+
+
+async def auto_backup_loop() -> None:
+    def tick() -> None:
+        with SessionLocal() as db:
+            made = backups.run_auto(db)
+            if made:
+                logger.info("auto backup %s", made["name"])
+
+    while True:
+        try:
+            await asyncio.to_thread(tick)
+        except Exception:  # a failed backup must not stop the next ones
+            logger.exception("auto backup failed")
+        await asyncio.sleep(AUTO_BACKUP_CHECK_SECONDS)
 
 
 @app.get("/api/health", tags=["Service"])

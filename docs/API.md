@@ -51,6 +51,7 @@
 | `builds.review` | сборки клиентов и комментарии | | ✓ | | | | ✓ |
 | `repairs.manage` | приём техники в ремонт, статусы ремонта | | | ✓ | ✓ | | ✓ |
 | `system.view` | техподдержка: сервер, база, ошибки | | | | ✓ | | ✓ |
+| `system.backup` | бэкапы: сделать, скачать, загрузить, восстановить; автобэкап (только администратор) | | | | | | ✓ |
 | `content.manage` | новости, акции, факты | | | | | ✓ | ✓ |
 | `users.manage` | пользователи, роли, блокировка, бонусы вручную | | | | | | ✓ |
 
@@ -112,6 +113,10 @@
 | `images` в товаре — список дополнительных фото (до 10) после главного `image_url`: передаётся в `POST/PATCH /api/admin/products`, отдаётся в каталоге и карточке товара | `products.manage` |
 | `GET/POST /api/admin/repairs`, `GET/PATCH /api/admin/repairs/{id}` — ремонт | `repairs.manage` |
 | `GET /api/admin/system`, `DELETE /api/admin/system/errors` — состояние сервера и базы, ошибки | `system.view` |
+| `GET /api/admin/backups` — список бэкапов и настройки автобэкапа; `POST /api/admin/backups` — сделать бэкап (вся база + загруженные картинки в один .zip) | `system.backup` |
+| `GET /api/admin/backups/{name}/download` — скачать; `POST /api/admin/backups/upload` — загрузить свой .zip (файл в теле запроса, проверяется); `DELETE /api/admin/backups/{name}` | `system.backup` |
+| `POST /api/admin/backups/{name}/restore` — заменить ВСЕ данные магазина и картинки данными бэкапа (только бэкап той же версии базы, всё в одной транзакции) | `system.backup` |
+| `PATCH /api/admin/backups/auto` — автобэкап: `enabled` (по умолчанию выключен), `every_hours`, `keep` — сколько автокопий хранить | `system.backup` |
 | `GET /api/admin/roles`, `GET /api/admin/users`, `PATCH /api/admin/users/{id}`, `POST /api/admin/users/{id}/bonus` | `users.manage` |
 
 ## Правила, которые стоит знать

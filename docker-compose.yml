@@ -23,10 +23,12 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
       SEED_PASSWORD: ${SEED_PASSWORD:-}
       UPLOAD_DIR: /uploads
+      BACKUP_DIR: /backups
     volumes:
       - ./backend:/app
       - ./resources:/resources:ro
       - ./uploads:/uploads          # pictures uploaded in the admin panel
+      - ./backups:/backups          # backups made in the admin panel (Backups section)
       - ./frontend:/frontend:ro   # only to check translation keys used by the frontend
     ports:
       - "8000:8000"

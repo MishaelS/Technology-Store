@@ -20,6 +20,7 @@ PERMISSIONS: dict[str, str] = {
     "stock.receive": "Receive deliveries: add stock and see the receipts log",
     "repairs.manage": "Accept devices for repair and lead them to the end",
     "system.view": "See the server state, database and recent errors",
+    "system.backup": "Make, download, upload and restore backups; auto backup settings",
 }
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {

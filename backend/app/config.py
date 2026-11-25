@@ -6,6 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 DEFAULT_LOCALES_DIR = Path(__file__).resolve().parents[2] / "resources" / "locales"
 # <repo>/uploads locally, /uploads in Docker: uploaded pictures, served by nginx at /uploads/
 DEFAULT_UPLOAD_DIR = Path(__file__).resolve().parents[2] / "uploads"
+# <repo>/backups locally, /backups in Docker
+DEFAULT_BACKUP_DIR = Path(__file__).resolve().parents[2] / "backups"
 
 
 class Settings(BaseSettings):
@@ -19,6 +21,8 @@ class Settings(BaseSettings):
     cors_origins:     str = "http://localhost:5173"
     locales_dir:      str = str(DEFAULT_LOCALES_DIR)
     upload_dir:       str = str(DEFAULT_UPLOAD_DIR)
+    backup_dir:       str = str(DEFAULT_BACKUP_DIR)
+    backup_scheduler: bool = True  # the background task that makes auto backups (they are off until enabled)
     seed_password:    str = ""   # password for seeded accounts; empty = random, printed to the log
 
     # Bonus system

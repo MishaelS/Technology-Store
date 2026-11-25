@@ -462,7 +462,10 @@
     "repair_price_required": "Set the repair price first",
     "upload_too_big": "The file is larger than {mb} MB",
     "upload_empty": "The file is empty",
-    "upload_type": "Only PNG, JPEG, WebP or GIF pictures are accepted"
+    "upload_type": "Only PNG, JPEG, WebP or GIF pictures are accepted",
+    "backup_not_found": "Backup not found",
+    "backup_broken": "This is not a store backup file, or it is damaged",
+    "backup_other_version": "The backup is for another database version ({backup}), the current one is {current}: it can't be restored"
   },
   "repairs": {
     "status": {
