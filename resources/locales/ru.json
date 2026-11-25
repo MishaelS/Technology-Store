@@ -74,7 +74,12 @@
     "build_check_socket": "процессор подходит к материнской плате",
     "build_check_ram": "память подходит по типу и слотам",
     "build_check_psu": "блока питания хватает на всю сборку",
-    "categories": "Категории"
+    "categories": "Категории",
+    "promo_more": "Подробнее",
+    "slider_label": "Акции и предложения",
+    "slide_prev": "Предыдущий слайд",
+    "slide_next": "Следующий слайд",
+    "slide_of": "Слайд {n} из {total}"
   },
   "catalog": {
     "title": "Каталог",

@@ -623,6 +623,54 @@ button.icon-only { padding: 0; width: 34px; }
   .chosen-part .price, .part-actions { grid-column: 2; }
   .build-step { padding: 14px; }
 }
+/* ---------- promo slider on the home page (promoSlider() in home.js) ---------- */
+.promo-slider { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.slider-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.slider-track::-webkit-scrollbar { display: none; }
+.slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; display: flex; }
+.slide > * { flex: 1; }
+.promo-slider .hero { border: 0; border-radius: 0; background: none; }
+.promo-slider:not(.single) .slide > * { padding-bottom: 56px; } /* room for the dots */
+.promo-slide {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: center;
+  padding: clamp(20px, 4vw, 40px);
+  background: linear-gradient(120deg, var(--surface) 40%, var(--error-soft));
+}
+.promo-slide .copy { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; min-width: 0; }
+.promo-slide .news-badge { --tone: var(--error); --tone-soft: var(--error-soft); }
+.promo-slide h2 { margin: 0; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.15; letter-spacing: -0.02em; }
+.promo-slide p { margin: 0; color: var(--muted); font-size: 17px; max-width: 520px; }
+.promo-art { display: grid; place-items: center; width: clamp(140px, 22vw, 240px); aspect-ratio: 1; border-radius: 50%; background: var(--surface); color: var(--error); box-shadow: 0 18px 40px rgb(201 42 42 / 0.12); overflow: hidden; }
+.promo-art .icon { width: 45%; height: 45%; }
+.promo-art img { width: 100%; height: 100%; object-fit: cover; }
+.slider-arrow {
+  position: absolute; top: 50%; translate: 0 -50%; width: 40px; height: 40px; padding: 0; justify-content: center;
+  border-radius: 50%; background: var(--surface); box-shadow: 0 4px 14px rgb(16 24 40 / 0.1);
+  opacity: 0; transition: opacity 0.2s ease;
+}
+.slider-arrow.prev { left: 12px; }
+.slider-arrow.next { right: 12px; }
+.promo-slider:hover .slider-arrow, .slider-arrow:focus-visible { opacity: 1; }
+.slider-dots { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; gap: 8px; }
+.slider-dot {
+  position: relative; width: 10px; min-height: 0; height: 10px; padding: 0; border: 0; border-radius: 999px;
+  background: var(--line-strong); transition: width 0.3s ease, background-color 0.3s ease;
+}
+.slider-dot[aria-current="true"] { width: 36px; background: var(--accent-soft); }
+/* the active dot fills up until the next slide comes; it stops while the slider is paused */
+.slider-dot[aria-current="true"]::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--accent);
+  transform-origin: left; scale: 1 1;
+}
+.promo-slider.autoplay .slider-dot[aria-current="true"]::after { animation: dot-fill var(--autoplay) linear both; }
+.promo-slider.paused .slider-dot[aria-current="true"]::after { animation-play-state: paused; }
+@keyframes dot-fill { from { scale: 0 1; } }
+@media (max-width: 640px) {
+  .promo-slide { grid-template-columns: minmax(0, 1fr); }
+  .promo-art { display: none; }
+  .slider-arrow { display: none; } /* a swipe does it on phones */
+}
+
 /* ---------- skeletons: grey cards while the real ones load (skeletons() in ui.js) ---------- */
 .skeleton {
   position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px; padding: 12px 12px 14px;

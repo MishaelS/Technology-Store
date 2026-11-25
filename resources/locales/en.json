@@ -74,7 +74,12 @@
     "build_check_socket": "the CPU fits the motherboard",
     "build_check_ram": "memory matches type and slots",
     "build_check_psu": "the power supply is enough for the build",
-    "categories": "Categories"
+    "categories": "Categories",
+    "promo_more": "Learn more",
+    "slider_label": "Offers and promotions",
+    "slide_prev": "Previous slide",
+    "slide_next": "Next slide",
+    "slide_of": "Slide {n} of {total}"
   },
   "catalog": {
     "title": "Catalog",
