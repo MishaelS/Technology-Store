@@ -3,7 +3,7 @@ import { api, uploadFile } from "../api.js";
 import { checksList, statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { headerChanged, reload } from "../router.js";
-import { logout, session } from "../session.js";
+import { can, logout, session } from "../session.js";
 import { attempt, avatar, date, emptyState, field, flash, formData, h, icon, link, money, navigate } from "../ui.js";
 import { openInBuilder } from "./builder.js";
 import { myRepairs } from "./staff.js";
@@ -38,7 +38,8 @@ function profile() {
       },
     },
     field(t("auth.email"), h("input", { value: user.email, disabled: true })),
-    field(t("account.role"), h("input", { value: t(`roles.${user.role}`), disabled: true })),
+    // roles are shown only to those who manage users (the admin), nobody else sees their own role
+    can("users.manage") ? field(t("account.role"), h("input", { value: t(`roles.${user.role}`), disabled: true })) : null,
     field(t("auth.name"), h("input", { name: "name", required: true, value: user.name })),
     field(t("auth.phone"), h("input", { name: "phone", type: "tel", value: user.phone || "" })),
     h("button", {}, t("account.save_profile")),
@@ -59,7 +60,7 @@ function profileCard() {
     photo,
     h("div", { class: "profile-info" },
       h("strong", { class: "profile-name" }, user.name),
-      h("span", { class: "muted" }, user.email, " · ", t(`roles.${user.role}`)),
+      h("span", { class: "muted" }, user.email, can("users.manage") ? ` · ${t(`roles.${user.role}`)}` : ""),
       h("div", { class: "row" },
         h("button", { type: "button", class: "small", onclick: () => picker.click() }, icon("content/image"), t("account.photo_upload")),
         user.avatar_url

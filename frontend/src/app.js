@@ -128,7 +128,7 @@ function renderHeader() {
                 ? h("span", { class: session.cartCount > shownCartCount ? "count bump" : "count" }, session.cartCount) // grew: the number jumps
                 : null),
               // own photo or initials; logging out is in the account
-              h("a", { href: "#/account", class: "avatar-link", title: `${user.name} · ${t(`roles.${user.role}`)}`, "aria-label": t("account.title") },
+              h("a", { href: "#/account", class: "avatar-link", title: user.name, "aria-label": t("account.title") },
                 avatar(user)),
             ]
           : [
