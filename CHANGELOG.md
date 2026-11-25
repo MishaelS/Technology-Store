@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Promo slider on the home page: the "build a PC" slide and the promotions, changes by itself
   with a progress bar on the active dot, pauses under the mouse, arrows and swipe on phones.
 
+### Fixed
+
+- The footer stays at the bottom of the screen on short pages.
+
 ## [0.1.0] - 2026-11-25
 
 First version: the store backend, the admin panel and the frontend with the new design.
