@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Phone header: one line (logo, language, cart icon with a badge, avatar) and the search under it;
+  the sections moved to a bar at the bottom of the screen; the narrowest phones show the logo alone.
 - The site calls the API on its own address (`/api/...`), nginx passes it to the backend: the site works
   through a tunnel or a forwarded port 5173 alone.
 - The header shows the user's avatar instead of the name and the logout button; logging out is in the account.

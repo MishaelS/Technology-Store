@@ -759,8 +759,6 @@ button.icon-only { padding: 0; width: 34px; }
 }
 @media (max-width: 560px) {
   h1 { font-size: 26px; }
-  .header-inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "brand" "actions" "nav" "search"; }
-  .header-actions { justify-content: flex-start; }
   .chosen-part { grid-template-columns: auto minmax(0, 1fr); }
   .chosen-part .price, .part-actions { grid-column: 2; }
   .build-step { padding: 14px; }
@@ -1014,3 +1012,50 @@ button.image-add {
   border: 2px dashed var(--line-strong); background: var(--surface); color: var(--accent); font-size: 13px;
 }
 button.image-add:hover:not(:disabled), button.image-add.over { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+/* ---------- phones: compact header + a bar of sections at the bottom ---------- */
+.tab-bar { display: none; }
+.header-actions .cart-link { position: relative; }
+@media (max-width: 640px) {
+  /* one line: logo · language, cart, avatar; the search under it */
+  .header-inner { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand actions" "search search"; gap: 8px 12px; padding-block: 8px 10px; }
+  .main-nav { display: none; }
+  .brand { font-size: 16px; gap: 8px; min-width: 0; }
+  .brand { overflow: hidden; }
+  .brand-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; } /* never runs into the buttons */
+  .header-actions { flex-wrap: nowrap; gap: 6px; }
+  .header-actions .label { display: none; } /* "Корзина", "Войти": the icon is enough */
+  .header-actions .cart-link, .header-actions .login-link { justify-content: center; width: 40px; height: 40px; border-radius: 50%; }
+  .header-actions .cart-link .icon, .header-actions .login-link .icon { width: 22px; height: 22px; }
+  .header-actions .cart-link .count {
+    position: absolute; top: 0; right: -2px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+    display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 11px; line-height: 1;
+    box-shadow: 0 0 0 2px var(--surface);
+  }
+  /* guest: "log in" and "sign up" are round icons too, sign up in the accent color */
+  .header-actions .register-link { width: 40px; height: 40px; min-height: 0; padding: 0; border-radius: 50%; }
+  .header-actions .register-link .icon { width: 20px; height: 20px; }
+  .header-actions .dropdown-button { padding: 0 2px; }
+  .header-search { height: 40px; }
+
+  .tab-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex;
+    padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));
+    background: rgb(255 255 255 / 0.92); border-top: 1px solid var(--line);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .tab-bar a {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px;
+    border-radius: 12px; color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 600;
+  }
+  .tab-bar a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tab-bar a .icon { width: 22px; height: 22px; }
+  .tab-bar a[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+  /* room for the bar under the page */
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  #to-top { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 380px) {
+  .brand-name { display: none; } /* the narrowest phones: the logo alone */
+}
+}

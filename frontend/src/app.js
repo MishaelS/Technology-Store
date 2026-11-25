@@ -63,7 +63,7 @@ let lastCartCount = null; // to see when the cart grew
 /** Marks the current section in the header menu without redrawing the header. */
 function markCurrentSection() {
   const section = (location.hash.slice(1) || "/").split(/[/?]/)[1] || "";
-  for (const a of document.querySelectorAll("#header .main-nav a")) {
+  for (const a of document.querySelectorAll("#header .main-nav a, #header .tab-bar a")) {
     const own = a.getAttribute("href").slice(2);
     if (own === section) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
@@ -108,7 +108,8 @@ function renderHeader() {
     h(
       "div",
       { class: "header-inner" },
-      h("a", { href: "#/", class: "brand" }, h("img", { src: "/resources/icons/logo.svg", alt: "", width: 28, height: 28 }), t("app.name")),
+      h("a", { href: "#/", class: "brand", "aria-label": t("app.name") },
+        h("img", { src: "/resources/icons/logo.svg", alt: "", width: 28, height: 28 }), h("span", { class: "brand-name" }, t("app.name"))),
       h(
         "nav",
         { class: "main-nav", "aria-label": t("nav.home") },
@@ -118,13 +119,24 @@ function renderHeader() {
         can("admin.access") ? navLink("/admin", t("nav.admin")) : null,
       ),
       searchForm,
+      // phones: the sections are a bar at the bottom of the screen, always under the thumb
+      h(
+        "nav",
+        { class: "tab-bar", "aria-label": t("nav.home") },
+        [["/", "navigation/home", t("nav.home")], ["/catalog", "navigation/catalog", t("nav.catalog")],
+          ["/builder", "navigation/builder", t("nav.builder")], ["/news", "navigation/news", t("nav.news")],
+          can("admin.access") ? ["/admin", "navigation/admin", t("nav.admin")] : null]
+          .filter(Boolean)
+          .map(([path, iconName, text]) => h("a", { href: `#${path}` }, icon(iconName), h("span", {}, text))),
+      ),
       h(
         "div",
         { class: "header-actions" },
         languageSelect,
         user
           ? [
-              h("a", { href: "#/cart" }, icon("navigation/cart"), t("nav.cart"), session.cartCount
+              h("a", { href: "#/cart", class: "cart-link", "aria-label": t("nav.cart") }, icon("navigation/cart"),
+                h("span", { class: "label" }, t("nav.cart")), session.cartCount
                 ? h("span", { class: session.cartCount > shownCartCount ? "count bump" : "count" }, session.cartCount) // grew: the number jumps
                 : null),
               // own photo or initials; logging out is in the account
@@ -132,8 +144,9 @@ function renderHeader() {
                 avatar(user)),
             ]
           : [
-              h("a", { href: "#/login" }, icon("navigation/login"), t("nav.login")),
-              h("a", { href: "#/register", class: "btn primary" }, t("nav.register")),
+              h("a", { href: "#/login", class: "login-link", "aria-label": t("nav.login") }, icon("navigation/login"), h("span", { class: "label" }, t("nav.login"))),
+              h("a", { href: "#/register", class: "btn primary register-link", "aria-label": t("nav.register") },
+                icon("navigation/register"), h("span", { class: "label" }, t("nav.register"))),
             ],
       ),
     ),
