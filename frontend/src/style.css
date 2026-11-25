@@ -1098,3 +1098,18 @@ button.image-add:hover:not(:disabled), button.image-add.over { border-color: var
 /* builder: the chosen part shows its photo when it has one */
 .part-thumb { overflow: hidden; }
 .part-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- admin: backups (pages/backups.js) ---------- */
+.backups.busy { opacity: 0.6; pointer-events: none; }
+.backup-drop {
+  display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; color: var(--muted);
+  border: 2px dashed var(--line-strong); border-radius: var(--radius); transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.backup-drop .icon { width: 22px; height: 22px; color: var(--accent); flex: none; }
+.backup-drop:hover, .backup-drop:focus-visible, .backup-drop.over { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
+.auto-fields { display: flex; flex-wrap: wrap; gap: 16px; }
+.auto-fields label { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; }
+.auto-fields.off { opacity: 0.45; }
+.pill.backup-auto { background: var(--ok-soft); color: var(--ok); }
+.pill.backup-upload { background: var(--warn-soft); color: var(--warn); }
+.icon-action.flip-down .icon { rotate: 180deg; }

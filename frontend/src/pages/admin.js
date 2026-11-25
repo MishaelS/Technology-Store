@@ -7,6 +7,7 @@ import { t } from "../i18n.js";
 import { imageDrop } from "../image-drop.js";
 import { infiniteList } from "../infinite.js";
 import { onLeave, reload } from "../router.js";
+import { backupsSection } from "./backups.js";
 import { repairsSection, stockSection, systemSection } from "./staff.js";
 import { can, session } from "../session.js";
 import { attempt, date, field, flash, formData, h, icon, link, money, select, skeletons } from "../ui.js";
@@ -21,6 +22,7 @@ const SECTIONS = [
   ["content", "content.manage", content],
   ["users", "users.manage", users],
   ["system", "system.view", systemSection],
+  ["backups", "system.backup", backupsSection],
 ];
 const STATUSES = ["new", "confirmed", "assembling", "shipped", "done", "cancelled"];
 // Same rules as the backend (services/orders.py): which status can follow which

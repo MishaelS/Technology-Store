@@ -388,7 +388,8 @@
     "list_end": "That's all",
     "product_search": "Name or brand",
     "user_search": "Name or email",
-    "fact_placeholder": "Text of a new fact"
+    "fact_placeholder": "Text of a new fact",
+    "backups": "Backups"
   },
   "editor": {
     "title_new": "New product",
@@ -530,5 +531,33 @@
     "uploading": "Uploading…",
     "remove": "Remove picture",
     "add_more": "Add photos"
+  },
+  "backups": {
+    "make": "Make a backup",
+    "what": "The whole database and the uploaded pictures in one .zip",
+    "drop_hint": "Drop a backup file (.zip) here or click to choose it — it appears in the list, restoring is a separate step",
+    "made": "Backup ready: {name}",
+    "uploaded": "Backup uploaded: {name}",
+    "auto": "Auto backup",
+    "auto_hint": "Makes a backup on a schedule and keeps the newest copies. Not needed now — off.",
+    "auto_on": "Auto backup on",
+    "auto_off": "Auto backup off",
+    "last_auto": "Last one: {date}.",
+    "every_hours": "Every, hours",
+    "keep": "Copies to keep",
+    "list": "Saved backups",
+    "empty": "No backups yet",
+    "kind": "Type",
+    "kind_backup": "Manual",
+    "kind_auto": "Auto",
+    "kind_upload": "Uploaded",
+    "size": "Size",
+    "contents": "Contents",
+    "rows": "Records: {count}",
+    "pictures": "Pictures: {count}",
+    "download": "Download",
+    "restore": "Restore",
+    "restore_confirm": "Restore the backup from {date}? ALL current store data (products, orders, users, pictures) will be replaced with the backup.",
+    "restored": "Data restored from the backup ({rows} records)"
   }
 }

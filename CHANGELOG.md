@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Backups (admin panel, permission `system.backup`, only for the admin): the whole database
+  and the uploaded pictures in one .zip; make, download, upload, restore (only the same database version,
+  in one transaction) and delete. Auto backup on a schedule with rotation, off by default (a checkbox).
+  Files in `backups/`.
 - More photos of a product (`images`, up to 10 after the main `image_url`): the card flips through them
   while the mouse rests on it, the product page shows them with thumbnails; resting the mouse on the big photo
   for a moment opens a lens that follows the mouse. In the editor several photos can be dropped at once.
