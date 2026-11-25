@@ -146,6 +146,9 @@ icon("categories/gpu", "Видеокарты"); // с подписью для э
 | `admin/content.svg` | Новости и факты |
 | `admin/roles.svg` | Роли и права |
 | `admin/low-stock.svg` | Заканчивается на складе |
+| `admin/repairs.svg` | Ремонт техники |
+| `admin/receipts.svg` | Приёмка товара |
+| `admin/system.svg` | Техподдержка: сервер и база |
 
 ### Роли (`roles/`)
 
@@ -153,7 +156,9 @@ icon("categories/gpu", "Видеокарты"); // с подписью для э
 |---|---|
 | `roles/role-client.svg` | Клиент |
 | `roles/role-manager.svg` | Менеджер |
-| `roles/role-engineer.svg` | Инженер |
+| `roles/role-employee.svg` | Сотрудник (продавец-консультант) |
+| `roles/role-engineer.svg` | Инженер (ремонт) |
+| `roles/role-senior_engineer.svg` | Старший инженер (сервер, база, ошибки) |
 | `roles/role-admin.svg` | Администратор |
 
 ### Уровни ПК (`tiers/`)
