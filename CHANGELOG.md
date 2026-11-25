@@ -23,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   can be dropped onto the field, chosen from a file or pasted.
 - "Nothing here yet" block with a button for an empty cart, orders, builds and repairs.
 - `content/image` icon.
+- Background of hex bytes like a memory dump (`10 AA 2A D2 ...`, `hex-background.js`): a wave runs over them
+  from the click point on every page change, the bytes light up and get new values (only a wave changes them).
+  At rest Perlin noise with a fixed seed sets the size and brightness of the bytes and slowly drifts
+  to the bottom right corner; the background is slightly blurred;
+  redrawn 15 times a second at rest, every frame during a wave, nothing in a hidden tab.
+- A change of filters (catalog, news) opens the new page with the same wave as a change of section;
+  a reload of the same page doesn't.
 
 ### Changed
 

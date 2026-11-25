@@ -2,6 +2,7 @@
 import { LANGUAGES } from "./config.js";
 import { watchSelects } from "./dropdown.js";
 import { installRipple, revealOnScroll } from "./effects.js";
+import { hexWave, installHexBackground } from "./hex-background.js";
 import { watchNumbers } from "./number-field.js";
 import { getLanguage, loadLanguage, t } from "./i18n.js";
 import { accountPage } from "./pages/account.js";
@@ -151,12 +152,16 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 /** Swaps the page with a View Transition: the old page fades away, the new one opens as a growing circle.
  *  Browsers without View Transitions (or with reduced motion) just swap. */
-function pageTransition(main, swap) {
-  if (!document.startViewTransition || reducedMotion.matches) return swap();
-  // a click a moment ago (link, arrow): start from it; "Back" button and others: from the middle of the screen
+/** Where a wave starts: a click a moment ago (link, arrow, filter), otherwise the middle of the screen ("Back"). */
+function wavePoint() {
   const fresh = Date.now() - lastClick.time < 3000;
-  const x = fresh ? lastClick.x : window.innerWidth / 2;
-  const y = fresh ? lastClick.y : window.innerHeight / 3;
+  return fresh ? { x: lastClick.x, y: lastClick.y } : { x: window.innerWidth / 2, y: window.innerHeight / 3 };
+}
+
+function pageTransition(main, swap) {
+  const { x, y } = wavePoint();
+  hexWave(x, y); // the hex bytes in the background run as a wave from the same point
+  if (!document.startViewTransition || reducedMotion.matches) return swap();
   const root = document.documentElement.style;
   // the swap must happen exactly once: by the transition, or by the safety timer below
   let swapped = false;
@@ -185,6 +190,7 @@ function pageTransition(main, swap) {
 }
 
 let lastPath = null;
+let lastQuery = ""; // filters of the shown page: a change of them is a new page too
 
 /** Thin loading bar at the top, only when the next page takes a noticeable time. */
 function showLoading(current) {
@@ -228,17 +234,22 @@ async function render() {
     const node = await found.page({ params: found.params, query });
     if (current !== renderCounter) return; // the user already went to another page
     const newSection = path !== lastPath;
+    const queryText = query.toString();
+    // same section, other filters (catalog, news): the page also changes, with the same wave;
+    // a reload of the same page (after cancelling an order and so on) changes nothing visible
+    const newFilters = !newSection && queryText !== lastQuery;
     const swap = () => {
       if (current !== renderCounter) return; // a newer page came while the transition was starting
       runLeave(); // stop the old page (observers, timers) right before swapping it
       main.replaceChildren(node);
       if (newSection) window.scrollTo(0, 0); // new section: start at the top; same section (filters): stay
       lastPath = path;
+      lastQuery = queryText;
       runAfter();
       revealOnScroll(main);
     };
-    // another section: the new page spreads like a wave from the place of the click
-    if (newSection && lastPath !== null) pageTransition(main, swap);
+    // another section or other filters: the new page spreads like a wave from the place of the click
+    if ((newSection || newFilters) && lastPath !== null) pageTransition(main, swap);
     else swap();
   } catch (error) {
     if (current === renderCounter) {
@@ -267,6 +278,7 @@ async function start() {
   watchSelects(document.body); // every <select> becomes the site's own dropdown
   watchNumbers(document.body); // every number field gets the site's own up/down arrows
   installRipple(); // click wave in buttons
+  installHexBackground(); // hex digits behind the page, a wave runs over them on page change
   try {
     await loadLanguage();
   } catch {

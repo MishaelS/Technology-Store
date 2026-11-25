@@ -30,7 +30,7 @@
 html { background: var(--bg); }
 body {
   margin: 0;
-  background: var(--bg);
+  background: transparent; /* the ground color is on <html>: the hex canvas (z-index -1) shows between them */
   color: var(--text);
   font: 15px/1.55 var(--font);
   -webkit-font-smoothing: antialiased;
@@ -839,6 +839,9 @@ button.icon-only { padding: 0; width: 34px; }
 .page-skeleton { display: flex; flex-direction: column; gap: 20px; }
 .bone.heading { width: min(320px, 60%); height: 30px; border-radius: 8px; animation: bone-pulse 1.4s ease-in-out infinite; }
 @keyframes bone-pulse { 50% { opacity: 0.5; } }
+
+/* hex digits behind the page (hex-background.js): fixed, under everything, never catches clicks */
+#hex-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; filter: blur(1.2px); }
 
 /* ---------- page transition (pageTransition() in app.js) ---------- */
 /* only the page content takes part; the header and footer stay still */
