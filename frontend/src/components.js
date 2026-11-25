@@ -26,6 +26,11 @@ export function productThumb(product, href) {
   return h("a", { href: `#${href}`, class: "thumb", "aria-hidden": "true", tabindex: -1 }, content);
 }
 
+/** Random delay for the pop-in animation of a card: they appear one by one, in a random order. */
+function popDelay() {
+  return `--delay: ${Math.round(Math.random() * 450)}ms`;
+}
+
 export function productCard(product) {
   const href = `/product/${product.id}`;
   const out = product.stock <= 0;
@@ -64,7 +69,7 @@ export function productCard(product) {
 
   return h(
     "article",
-    { class: `card product-card${out ? " is-out" : ""}` },
+    { class: `card product-card${out ? " is-out" : ""}`, style: popDelay() },
     thumb,
     h("span", { class: "card-category" }, icon(`categories/${product.category}`), product.category_name),
     h("a", { href: `#${href}`, class: "title" }, product.name),
@@ -99,7 +104,7 @@ export const NEWS_ICONS = { news: "navigation/news", promo: "content/promo", gam
 export function newsCard(news) {
   return h(
     "article",
-    { class: `news-tile news-${news.type}` },
+    { class: `news-tile news-${news.type}`, style: popDelay() },
     image(news.image_url, news.title),
     h(
       "div",
@@ -116,7 +121,7 @@ export function newsCard(news) {
 export function factCard(fact) {
   return h(
     "aside",
-    { class: "news-tile fact-tile" },
+    { class: "news-tile fact-tile", style: popDelay() },
     h("div", { class: "news-meta" }, h("span", { class: "news-badge" }, icon("content/fact"), t("home.fact"))),
     h("p", {}, fact.text),
   );

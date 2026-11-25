@@ -133,6 +133,46 @@ function renderHeader() {
 
 let renderCounter = 0;
 
+// Where the user clicked last: the page transition wave starts there.
+let lastClick = { x: 0, y: 0, time: 0 };
+document.addEventListener("pointerdown", (event) => {
+  lastClick = { x: event.clientX, y: event.clientY, time: Date.now() };
+});
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+/** Swaps the page with a View Transition: the old page fades away, the new one opens as a growing circle.
+ *  Browsers without View Transitions (or with reduced motion) just swap. */
+function pageTransition(main, swap) {
+  if (!document.startViewTransition || reducedMotion.matches) return swap();
+  // a click a moment ago (link, arrow): start from it; "Back" button and others: from the middle of the screen
+  const fresh = Date.now() - lastClick.time < 3000;
+  const x = fresh ? lastClick.x : window.innerWidth / 2;
+  const y = fresh ? lastClick.y : window.innerHeight / 3;
+  const root = document.documentElement.style;
+  document.startViewTransition(() => {
+    swap();
+    // the circle is drawn in #main's own box, so move the point into it
+    const box = main.getBoundingClientRect();
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    root.setProperty("--wave-x", `${x - box.left}px`);
+    root.setProperty("--wave-y", `${y - box.top}px`);
+    root.setProperty("--wave-r", `${Math.ceil(radius)}px`);
+  });
+}
+
+let lastPath = null;
+
+/** Thin loading bar at the top, only when the next page takes a noticeable time. */
+function showLoading(current) {
+  const timer = setTimeout(() => {
+    if (current === renderCounter) document.body.classList.add("is-loading");
+  }, 200);
+  return () => {
+    clearTimeout(timer);
+    if (current === renderCounter) document.body.classList.remove("is-loading");
+  };
+}
+
 async function render() {
   renderHeader();
   const main = document.getElementById("main");
@@ -163,11 +203,17 @@ async function render() {
   try {
     const node = await found.page({ params: found.params, query });
     if (current !== renderCounter) return; // the user already went to another page
-    runLeave(); // stop the old page (observers, timers) right before swapping it
-    main.replaceChildren(node);
-    if (path !== lastPath) window.scrollTo(0, 0); // new section: start at the top; same section (filters): stay
-    lastPath = path;
-    runAfter();
+    const newSection = path !== lastPath;
+    const swap = () => {
+      runLeave(); // stop the old page (observers, timers) right before swapping it
+      main.replaceChildren(node);
+      if (newSection) window.scrollTo(0, 0); // new section: start at the top; same section (filters): stay
+      lastPath = path;
+      runAfter();
+    };
+    // another section: the new page spreads like a wave from the place of the click
+    if (newSection && lastPath !== null) pageTransition(main, swap);
+    else swap();
   } catch (error) {
     if (current === renderCounter) {
       runLeave();
