@@ -20,7 +20,9 @@
     "register": "Sign up",
     "logout": "Log out",
     "search_placeholder": "Search components…",
-    "language": "Language"
+    "language": "Language",
+    "theme_dark": "Dark theme",
+    "theme_light": "Light theme"
   },
   "common": {
     "loading": "Loading…",

@@ -24,7 +24,8 @@ const BIG = 1.35; // ... and where it is highest
 const PEAK = 0.55; // brightness added on the crest of the wave
 const SPEED = 1.6; // px per ms the wave front moves
 const BAND = 220; // px, width of the lit band
-const COLOR = "59, 91, 219"; // --accent
+// color of the bytes: the --hex variable of the current theme (style.css), read again when the theme changes
+const hexColor = () => getComputedStyle(document.documentElement).getPropertyValue("--hex").trim() || "59, 91, 219";
 
 const SEED = 20260515; // one seed forever: the same clouds every time
 const SCALE = 260; // px per noise unit: bigger = larger clouds
@@ -112,6 +113,11 @@ export function installHexBackground() {
   document.body.prepend(canvas);
   ctx = canvas.getContext("2d");
   let resizeTimer = null;
+  // another theme: the same bytes in its color
+  window.addEventListener("theme:change", () => {
+    makeSprite();
+    draw();
+  });
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(setup, 150);
@@ -150,7 +156,7 @@ function makeSprite() {
   s.font = `600 ${FONT_SIZE * ratio * BIG}px "JetBrains Mono", ui-monospace, Menlo, monospace`;
   s.textAlign = "center";
   s.textBaseline = "middle";
-  s.fillStyle = `rgb(${COLOR})`;
+  s.fillStyle = `rgb(${hexColor()})`;
   for (let b = 0; b < 256; b++) {
     s.fillText(b.toString(16).toUpperCase().padStart(2, "0"), (b % 16) * w + w / 2, Math.floor(b / 16) * h + h / 2);
   }

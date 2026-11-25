@@ -1,4 +1,4 @@
-/* Light, simple theme (design concept "Светлая · простая").
+/* Light, simple theme (design concept "Светлая · простая") and a dark one (variables only, see below).
    Layout: white header bar, content in a 1200px column, white cards on a cool grey ground. */
 
 :root {
@@ -22,8 +22,48 @@
   --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --radius: 10px;
   --radius-sm: 8px;
+  /* colors that only some parts use; they change with the theme too */
+  --old-price: #8A91A0;
+  --pill-text: #2B3A80; --pill-ok-text: #1E6B30; --pill-warn-text: #7A4A00;
+  --thumb-icon: #A3AAB8;
+  --shimmer: rgb(255 255 255 / 0.7);
+  --glass: rgb(255 255 255 / 0.88);
+  --dot: rgb(22 24 29 / 0.25);
+  --shadow: rgb(16 24 40 / 0.1);
+  --hex: 59, 91, 219; /* the bytes of the background (hex-background.js) */
   color-scheme: light;
 }
+
+/* Dark theme: the same parts, other colors. Chosen with the switch in the header (theme.js),
+   by default the one the system uses. Only the variables change, the rules stay the same. */
+:root[data-theme="dark"] {
+  --bg: #0E1014;
+  --surface: #171A21;
+  --surface-2: #1F232C;
+  --line: #2A2F3A;
+  --line-strong: #3A4150;
+  --text: #E7E9EE;
+  --muted: #9AA3B2;
+  --accent: #6C8CFF;
+  --accent-hover: #8AA4FF;
+  --accent-soft: #1E2747;
+  --ok: #51CF66;    --ok-soft: #142B1C;
+  --warn: #FAB005;  --warn-soft: #2F2610;
+  --error: #FF6B6B; --error-soft: #361A1C;
+  --sale: #FF8A4C;  --sale-soft: #35210F;
+  --bonus: #FCC419; --bonus-soft: #30290F;
+  --old-price: #6B7383;
+  --pill-text: #B4C3FF; --pill-ok-text: #8CE99A; --pill-warn-text: #FFD43B;
+  --thumb-icon: #4A5262;
+  --shimmer: rgb(255 255 255 / 0.06);
+  --glass: rgb(23 26 33 / 0.88);
+  --dot: rgb(255 255 255 / 0.25);
+  --shadow: rgb(0 0 0 / 0.45);
+  --hex: 116, 143, 252;
+  color-scheme: dark;
+}
+/* pictures are drawn for a light page: a little dimmer, so they don't glare in the dark */
+:root[data-theme="dark"] :where(.thumb, .zoom-frame, .cart-thumb, .drop-preview, .image-tile, .promo-art, .news-tile, .gallery-thumb) img { filter: brightness(0.88); }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; } /* "hidden" always wins over display rules of components */
@@ -124,9 +164,9 @@ body.is-loading #main { opacity: 0.7; transition: opacity 0.2s ease 0.1s; }
   position: fixed; z-index: 20; left: 50%; transform: translateX(-50%);
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   max-width: min(560px, calc(100% - 32px)); padding: 12px 18px; border-radius: var(--radius);
-  background: var(--text); color: #FFFFFF; font-weight: 600; box-shadow: 0 8px 24px rgba(22, 24, 29, 0.18);
+  background: var(--text); color: var(--bg); font-weight: 600; box-shadow: 0 8px 24px var(--shadow);
 }
-#flash.error { background: var(--error); }
+#flash.error { background: var(--error); color: #FFFFFF; }
 
 /* ---------- controls ---------- */
 
@@ -299,14 +339,14 @@ code { font-family: var(--mono); font-size: 13px; }
   -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat;
 }
 .price, .num { font-family: var(--mono); font-weight: 600; font-variant-numeric: tabular-nums; }
-.old-price { color: #8A91A0; text-decoration: line-through; font-family: var(--mono); font-size: 13px; }
+.old-price { color: var(--old-price); text-decoration: line-through; font-family: var(--mono); font-size: 13px; }
 .badge, .discount { color: var(--sale); font: 600 13px/1 var(--mono); }
 .badge { padding: 4px 8px; border-radius: 6px; background: var(--sale-soft); }
 
-.pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: var(--accent-soft); color: #2B3A80; }
-.pill.s-done, .pill.s-issued, .pill.s-ready { background: var(--ok-soft); color: #1E6B30; }
+.pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: var(--accent-soft); color: var(--pill-text); }
+.pill.s-done, .pill.s-issued, .pill.s-ready { background: var(--ok-soft); color: var(--pill-ok-text); }
 .pill.s-cancelled { background: var(--surface-2); color: var(--muted); }
-.pill.s-assembling, .pill.s-shipped, .pill.s-repairing, .pill.s-diagnostics { background: var(--warn-soft); color: #7A4A00; }
+.pill.s-assembling, .pill.s-shipped, .pill.s-repairing, .pill.s-diagnostics { background: var(--warn-soft); color: var(--pill-warn-text); }
 
 .tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); }
 .tabs a, .tabs b { padding: 10px 14px; text-decoration: none; color: var(--muted); font-weight: 600; }
@@ -382,12 +422,12 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
 /* hover shadow: drawn once on a pseudo-element, the hover only fades it in (cheaper than animating box-shadow) */
 .product-card::before, .news-tile::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  box-shadow: 0 14px 30px rgb(16 24 40 / 0.1); opacity: 0; transition: opacity 0.2s ease;
+  box-shadow: 0 14px 30px var(--shadow); opacity: 0; transition: opacity 0.2s ease;
 }
 .product-card:hover::before, .news-tile:hover::before { opacity: 1; }
 .product-card .thumb {
   position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; max-width: 100%;
-  border-radius: var(--radius-sm); overflow: hidden; color: #A3AAB8;
+  border-radius: var(--radius-sm); overflow: hidden; color: var(--thumb-icon);
   background: radial-gradient(circle at 50% 40%, var(--surface) 0%, var(--surface-2) 70%);
 }
 .product-card .thumb img { width: 100%; height: 100%; object-fit: cover; transition: scale 0.35s ease; }
@@ -398,7 +438,7 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
   position: absolute; top: 10px; left: 10px; padding: 5px 9px; border-radius: 999px;
   background: var(--sale); color: #fff; font: 700 12px/1 var(--mono); box-shadow: 0 4px 10px rgb(194 65 12 / 0.3);
 }
-.card-badge.out { left: auto; right: 10px; background: var(--text); font-family: inherit; box-shadow: none; }
+.card-badge.out { left: auto; right: 10px; background: var(--text); color: var(--bg); font-family: inherit; box-shadow: none; }
 .product-card.is-out .thumb > :not(.card-badge) { filter: grayscale(1); opacity: 0.35; }
 .card-category { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
 .card-category .icon { width: 14px; height: 14px; }
@@ -678,7 +718,7 @@ button.icon-only { padding: 0; width: 34px; }
   animation: card-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, translate 0.15s ease;
 }
-.option-tile:hover:not(:disabled) { translate: 0 -2px; border-color: var(--accent); box-shadow: 0 8px 18px rgb(16 24 40 / 0.08); }
+.option-tile:hover:not(:disabled) { translate: 0 -2px; border-color: var(--accent); box-shadow: 0 8px 18px var(--shadow); }
 .option-tile.selected { border-color: var(--accent); background: var(--accent-soft); }
 .option-tile.misfit { opacity: 0.6; }
 .option-tile.misfit:hover { opacity: 1; }
@@ -822,7 +862,7 @@ button.icon-only { padding: 0; width: 34px; }
 /* a light sweep runs over the card; only translate is animated, so it stays on the GPU */
 .skeleton::after {
   content: ""; position: absolute; inset: 0; translate: -100% 0; pointer-events: none;
-  background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.7) 50%, transparent 70%);
+  background: linear-gradient(100deg, transparent 30%, var(--shimmer) 50%, transparent 70%);
   animation: shimmer 1.4s ease-in-out infinite;
 }
 @keyframes shimmer { to { translate: 100% 0; } }
@@ -971,7 +1011,7 @@ button.logout-button:hover:not(:disabled) { border-color: var(--error); color: v
   opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
 }
 .product-card:hover .thumb-dots { opacity: 1; }
-.thumb-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgb(22 24 29 / 0.25); transition: width 0.2s ease, background-color 0.2s ease; }
+.thumb-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--dot); transition: width 0.2s ease, background-color 0.2s ease; }
 .thumb-dots i.on { width: 16px; background: var(--accent); }
 
 /* product page: big photo with a lens and thumbnails */
@@ -981,7 +1021,7 @@ button.logout-button:hover:not(:disabled) { border-color: var(--error); color: v
 .zoom-frame.zoomed > img { scale: var(--zoom); cursor: zoom-in; }
 .zoom-hint {
   position: absolute; right: 10px; top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px;
-  border-radius: 999px; background: rgb(255 255 255 / 0.85); color: var(--muted); font-size: 12px; font-weight: 600;
+  border-radius: 999px; background: var(--glass); color: var(--muted); font-size: 12px; font-weight: 600;
   opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
 }
 .zoom-hint .icon { width: 14px; height: 14px; }
@@ -1006,7 +1046,7 @@ button.gallery-thumb.on { border-color: var(--accent); opacity: 1; }
 .image-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
 .image-tile { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); display: grid; place-items: center; }
 .image-tile img { width: 100%; height: 100%; object-fit: cover; }
-.image-tile > button { position: absolute; top: 6px; right: 6px; width: 28px; min-height: 28px; height: 28px; border-radius: 50%; background: rgb(255 255 255 / 0.9); }
+.image-tile > button { position: absolute; top: 6px; right: 6px; width: 28px; min-height: 28px; height: 28px; border-radius: 50%; background: var(--glass); }
 button.image-add {
   aspect-ratio: 4 / 3; height: auto; min-height: 0; flex-direction: column; gap: 6px; white-space: normal; text-align: center;
   border: 2px dashed var(--line-strong); background: var(--surface); color: var(--accent); font-size: 13px;
@@ -1042,7 +1082,7 @@ button.image-add:hover:not(:disabled), button.image-add.over { border-color: var
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex;
     padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));
     background: var(--surface); border-top: 1px solid var(--line); /* solid: a blur under it slows scrolling on phones */
-    box-shadow: 0 -6px 20px rgb(16 24 40 / 0.06);
+    box-shadow: 0 -6px 20px var(--shadow);
   }
   .tab-bar a {
     flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px;
@@ -1113,3 +1153,17 @@ button.image-add:hover:not(:disabled), button.image-add.over { border-color: var
 .pill.backup-auto { background: var(--ok-soft); color: var(--ok); }
 .pill.backup-upload { background: var(--warn-soft); color: var(--warn); }
 .icon-action.flip-down .icon { rotate: 180deg; }
+
+/* ---------- theme switch (theme.js) ---------- */
+button.theme-toggle { width: 38px; min-height: 38px; height: 38px; padding: 0; border-radius: 50%; border-color: transparent; background: none; color: var(--muted); }
+button.theme-toggle:hover:not(:disabled) { border-color: transparent; background: var(--surface-2); color: var(--text); }
+button.theme-toggle .icon { width: 20px; height: 20px; transition: rotate 0.4s ease; }
+button.theme-toggle:hover .icon { rotate: 20deg; }
+/* the new theme opens as a circle from the switch; the whole page takes part, not only #main */
+:root.theme-switching #main { view-transition-name: none; }
+:root.theme-switching::view-transition-old(root) { animation: none; }
+:root.theme-switching::view-transition-new(root) { animation: theme-wave 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes theme-wave {
+  from { clip-path: circle(0 at var(--theme-x, 90%) var(--theme-y, 0%)); }
+  to { clip-path: circle(var(--theme-r, 150%) at var(--theme-x, 90%) var(--theme-y, 0%)); }
+}

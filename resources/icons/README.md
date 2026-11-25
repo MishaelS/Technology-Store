@@ -35,6 +35,8 @@ icon("categories/gpu", "Видеокарты"); // с подписью для э
 | `navigation/logout.svg` | Выйти |
 | `navigation/register.svg` | Регистрация |
 | `navigation/language.svg` | Переключатель языка |
+| `navigation/theme-dark.svg` | Включить тёмную тему |
+| `navigation/theme-light.svg` | Включить светлую тему |
 | `navigation/menu.svg` | Меню (на телефоне) |
 | `navigation/arrow-up.svg` | Наверх |
 | `navigation/arrow-left.svg` | Назад |

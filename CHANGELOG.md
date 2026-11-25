@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Dark theme: a second set of color variables, a sun/moon switch in the header; the new theme opens as a circle
+  from the switch. The choice is remembered, until then the site follows the system theme; set before the first
+  paint, so a dark page never flashes white. The hex background and pictures follow the theme.
+- `navigation/theme-dark` and `navigation/theme-light` icons.
+
 ## [0.2.0] - 2026-11-25
 
 New design of the whole site, admin panel with infinite lists, picture uploads, product galleries,

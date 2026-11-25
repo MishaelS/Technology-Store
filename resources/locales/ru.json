@@ -20,7 +20,9 @@
     "register": "Регистрация",
     "logout": "Выйти",
     "search_placeholder": "Поиск комплектующих…",
-    "language": "Язык"
+    "language": "Язык",
+    "theme_dark": "Тёмная тема",
+    "theme_light": "Светлая тема"
   },
   "common": {
     "loading": "Загрузка…",

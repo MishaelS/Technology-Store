@@ -3,6 +3,7 @@ import { LANGUAGES } from "./config.js";
 import { watchSelects } from "./dropdown.js";
 import { installRipple, revealOnScroll } from "./effects.js";
 import { hexWave, installHexBackground } from "./hex-background.js";
+import { currentTheme, toggleTheme, watchSystemTheme } from "./theme.js";
 import { watchNumbers } from "./number-field.js";
 import { getLanguage, loadLanguage, t } from "./i18n.js";
 import { accountPage } from "./pages/account.js";
@@ -73,7 +74,7 @@ function markCurrentSection() {
 /** Draws the header only when something in it changed (user, cart, language), otherwise it would blink. */
 function renderHeader() {
   const user = session.user;
-  const key = JSON.stringify([user?.id, user?.name, user?.role, user?.avatar_url, session.cartCount, getLanguage()]);
+  const key = JSON.stringify([user?.id, user?.name, user?.role, user?.avatar_url, session.cartCount, getLanguage(), currentTheme()]);
   if (key === headerKey) {
     markCurrentSection();
     return;
@@ -132,6 +133,17 @@ function renderHeader() {
       h(
         "div",
         { class: "header-actions" },
+        // light / dark: the icon shows the theme you get by clicking
+        h("button", {
+          type: "button",
+          class: "theme-toggle",
+          title: currentTheme() === "dark" ? t("nav.theme_light") : t("nav.theme_dark"),
+          "aria-label": currentTheme() === "dark" ? t("nav.theme_light") : t("nav.theme_dark"),
+          onclick: (event) => {
+            const box = event.currentTarget.getBoundingClientRect();
+            toggleTheme(box.left + box.width / 2, box.top + box.height / 2);
+          },
+        }, icon(currentTheme() === "dark" ? "navigation/theme-light" : "navigation/theme-dark")),
         languageSelect,
         user
           ? [
@@ -288,6 +300,8 @@ async function start() {
   watchNumbers(document.body); // every number field gets the site's own up/down arrows
   installRipple(); // click wave in buttons
   installHexBackground(); // hex digits behind the page, a wave runs over them on page change
+  watchSystemTheme(); // light/dark follows the system until the user picks one
+  window.addEventListener("theme:change", () => renderHeader());
   try {
     await loadLanguage();
   } catch {
