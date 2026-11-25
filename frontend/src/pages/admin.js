@@ -4,6 +4,7 @@ import { api, query as toQuery } from "../api.js";
 import { adminList, cell, iconButton, pagedSource } from "../admin-list.js";
 import { checksList, statusName, statusPill } from "../components.js";
 import { t } from "../i18n.js";
+import { imageDrop } from "../image-drop.js";
 import { infiniteList } from "../infinite.js";
 import { onLeave, reload } from "../router.js";
 import { repairsSection, stockSection, systemSection } from "./staff.js";
@@ -196,7 +197,10 @@ async function content() {
     field(t("admin.type"), select("type", ["news", "promo", "game"].map((x) => [x, t(`news_types.${x}`)]), "news")),
     field(t("admin.title_field"), h("input", { name: "title", required: true })),
     field(t("admin.text"), h("textarea", { name: "text", required: true, rows: 4 })),
-    field(t("admin.image_url"), h("input", { name: "image_url" })),
+    (() => {
+      const url = h("input", { name: "image_url" });
+      return [imageDrop(url), field(t("admin.image_url"), url)];
+    })(),
     h("button", { class: "primary" }, t("common.create")),
     newsErrors,
   );

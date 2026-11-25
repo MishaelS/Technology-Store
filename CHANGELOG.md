@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New look of the admin panel: search bar with filters and a counter, tables with spacing and status labels,
   icon buttons for row actions, dashboard tiles, collapsible create forms.
 - Form fields show their name inside (floating label) instead of a line of text above.
+- Product editor: form split into blocks, fields side by side, suggestions as chips under the field,
+  checkboxes next to their text, a smaller picture preview, a quieter "save and create another" button.
 - Promo slider: arrows and dots in one bar under the slide; promotion pictures shown whole.
 
 ### Removed

@@ -178,6 +178,14 @@ label { font-weight: 600; font-size: 14px; }
 form.stack { display: grid; gap: 14px; max-width: 460px; }
 form.stack label { display: grid; gap: 6px; }
 form.stack.card { max-width: 640px; }
+/* a checkbox with its text on one line, also inside .stack forms */
+label.check-row, form.stack label.row { display: flex; align-items: center; gap: 10px; min-height: 40px; font-weight: 600; cursor: pointer; }
+/* the browser's own arrow and list of <datalist> suggestions don't match the site */
+input[list]::-webkit-calendar-picker-indicator { display: none !important; }
+/* a second, quieter submit button in a form */
+form button.secondary { background: var(--surface); border-color: var(--line-strong); color: var(--text); }
+form button.secondary:hover:not(:disabled) { background: var(--surface-2); border-color: var(--text); color: var(--text); }
+
 /* floating label (field() in ui.js): the name sits inside the empty field like a placeholder
    and moves up, small, when the field gets focus or a value */
 form.stack label.float-field, label.float-field { position: relative; display: grid; gap: 4px; font-weight: 500; font-size: 15px; }
@@ -870,6 +878,24 @@ button, .btn, .more-link { position: relative; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+/* ---------- product editor (pages/product-editor.js) ---------- */
+.editor-form { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.form-panel h2 { font-size: 17px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; align-items: start; }
+.spec-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.suggest-chips, .check-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+button.chip-btn {
+  min-height: 28px; padding: 0 10px; border-radius: 999px; border-color: transparent;
+  background: var(--surface-2); color: var(--muted); font-size: 13px; font-weight: 600;
+}
+button.chip-btn:hover:not(:disabled) { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
+.check-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-weight: 600; cursor: pointer; }
+.check-chip:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.form-grid fieldset { display: flex; flex-direction: column; gap: 10px; grid-column: 1 / -1; }
+.form-grid fieldset legend { padding: 0 6px; color: var(--muted); font-size: 13px; font-weight: 600; }
+.form-grid > .check-row { grid-column: 1 / -1; }
+.form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 
 /* picture field: drop a file or click to choose (image-drop.js) */
 .drop-zone {
