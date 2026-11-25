@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- More photos of a product (`images`, up to 10 after the main `image_url`): the card flips through them
+  while the mouse rests on it, the product page shows them with thumbnails; resting the mouse on the big photo
+  for a moment opens a lens that follows the mouse. In the editor several photos can be dropped at once.
+  The demo gives every product two more views (close-up and the box).
 - Own photo (avatar): `POST/DELETE /api/auth/me/avatar`, `avatar_url` in the user; set in the account by choosing
   a file or dropping it onto the avatar. Without a photo the avatar shows the initials on a color.
 - Skeleton placeholders in the shape of cards while the catalog, the news and the first page load.

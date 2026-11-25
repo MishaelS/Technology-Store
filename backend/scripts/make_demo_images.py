@@ -5,7 +5,8 @@ Run from the repository root, plain Python, no libraries needed:
 
 Product lists are read from backend/app/seed.py and backend/app/demo_data.py without importing them
 (so the database libraries aren't needed). Every product gets a picture in its category's color
-with the category icon, the brand and its main spec (large: the card shows it small). app.demo links products to these files.
+with the category icon, the brand and its main spec (large: the card shows it small),
+plus two more views (-2: close-up, -3: the box with the specs) for the gallery. app.demo links products to these files.
 """
 
 import ast
@@ -94,6 +95,45 @@ def product_svg(category: str, brand: str, name: str, specs: dict) -> str:
 '''
 
 
+def product_close_up(category: str, brand: str, name: str, specs: dict) -> str:
+    """Second view: a close-up, the icon big and cut by the frame, the brand in a corner."""
+    color, light = COLORS[category]
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<defs>
+<radialGradient id="bg" cx="0.65" cy="0.55" r="0.9"><stop offset="0" stop-color="{light}"/><stop offset="1" stop-color="#FFFFFF"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#bg)"/>
+<g transform="translate(560 330) rotate(-12) scale(22) translate(-12 -12)" fill="none" stroke="{color}" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">{icon_body(f"categories/{category}")}</g>
+<g transform="translate(560 330) rotate(-12) scale(30) translate(-12 -12)" fill="none" stroke="{color}" stroke-width="0.3" opacity="0.18">{icon_body(f"categories/{category}")}</g>
+<text x="40" y="80" fill="{color}" font-family="Manrope, system-ui, sans-serif" font-size="40" font-weight="800">{escape(brand)}</text>
+<text x="40" y="560" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="30" font-weight="600">{escape(main_spec(category, specs))}</text>
+</svg>
+'''
+
+
+def product_box(category: str, brand: str, name: str, specs: dict) -> str:
+    """Third view: "the box" — a colored panel with the model name and the specs listed."""
+    color, light = COLORS[category]
+    model = name[len(brand):].strip() if name.startswith(brand) else name
+    lines = [f"{key}: {', '.join(value) if isinstance(value, list) else value}" for key, value in specs.items()][:5]
+    rows = "".join(f'<text x="80" y="{330 + i * 40}" fill="#FFFFFF" opacity="0.85" font-family="JetBrains Mono, ui-monospace, monospace" font-size="24">{escape(line)}</text>'
+                   for i, line in enumerate(lines))
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<rect width="800" height="600" fill="{light}"/>
+<rect x="40" y="40" width="720" height="520" rx="28" fill="{color}"/>
+<rect x="40" y="40" width="720" height="520" rx="28" fill="url(#shine)"/>
+<defs><linearGradient id="shine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.18"/><stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>
+<g transform="translate(640 140) scale(4) translate(-12 -12)" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">{icon_body(f"categories/{category}")}</g>
+<text x="80" y="130" fill="#FFFFFF" font-family="Manrope, system-ui, sans-serif" font-size="30" font-weight="700" opacity="0.85">{escape(brand)}</text>
+<text x="80" y="200" fill="#FFFFFF" font-family="Manrope, system-ui, sans-serif" font-size="{44 if len(model) < 22 else 32}" font-weight="800">{escape(model[:34])}</text>
+{rows}
+</svg>
+'''
+
+
+VIEWS = {2: product_close_up, 3: product_box}  # file suffix -> drawing; 1 is the main picture
+
+
 def news_svg(news_type: str, variant: int) -> str:
     color, light = NEWS_COLORS[news_type]
     body = icon_body(NEWS_ICONS[news_type])
@@ -123,10 +163,12 @@ def main() -> None:
     (OUT / "news").mkdir(parents=True, exist_ok=True)
     for category, brand, name, _price, _old, _stock, specs in products:
         (OUT / "products" / f"{slug(name)}.svg").write_text(product_svg(category, brand, name, specs))
+        for suffix, view in VIEWS.items():
+            (OUT / "products" / f"{slug(name)}-{suffix}.svg").write_text(view(category, brand, name, specs))
     for news_type in NEWS_COLORS:
         for variant in range(1, 5):
             (OUT / "news" / f"{news_type}-{variant}.svg").write_text(news_svg(news_type, variant))
-    print(f"made {len(products)} product pictures and {len(NEWS_COLORS) * 4} news pictures in {OUT.relative_to(ROOT)}")
+    print(f"made {len(products) * (1 + len(VIEWS))} product pictures ({1 + len(VIEWS)} views each) and {len(NEWS_COLORS) * 4} news pictures in {OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

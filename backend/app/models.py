@@ -89,6 +89,8 @@ class Product(TimestampMixin, Base):
     old_price: Mapped[int | None] = mapped_column(Integer)      # price before discount
     stock: Mapped[int] = mapped_column(Integer, default=0)
     image_url: Mapped[str | None] = mapped_column(String(500))
+    # more photos after the main one (image_url): the card flips through them, the product page shows all
+    images: Mapped[list] = mapped_column(JSONB, default=list, server_default="[]")
     description: Mapped[str] = mapped_column(Text, default="")
     specs: Mapped[dict] = mapped_column(JSONB, default=dict)    # specs used by the PC builder
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)  # False = "deleted" from the catalog

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<rect width="800" height="600" fill="#FFF4E6"/>
+<rect x="40" y="40" width="720" height="520" rx="28" fill="#E8590C"/>
+<rect x="40" y="40" width="720" height="520" rx="28" fill="url(#shine)"/>
+<defs><linearGradient id="shine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.18"/><stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>
+<g transform="translate(640 140) scale(4) translate(-12 -12)" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"><rect x="2" y="7" width="20" height="9" rx="1"/><path d="M6 10v3M10 10v3M14 10v3M18 10v3"/><path d="M5 16v3M9 16v3M13 16v3M17 16v3"/></g>
+<text x="80" y="130" fill="#FFFFFF" font-family="Manrope, system-ui, sans-serif" font-size="30" font-weight="700" opacity="0.85">Corsair</text>
+<text x="80" y="200" fill="#FFFFFF" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="800">Vengeance 96GB (2x48) DDR5-6000</text>
+<text x="80" y="330" fill="#FFFFFF" opacity="0.85" font-family="JetBrains Mono, ui-monospace, monospace" font-size="24">ram_type: DDR5</text><text x="80" y="370" fill="#FFFFFF" opacity="0.85" font-family="JetBrains Mono, ui-monospace, monospace" font-size="24">size_gb: 96</text><text x="80" y="410" fill="#FFFFFF" opacity="0.85" font-family="JetBrains Mono, ui-monospace, monospace" font-size="24">sticks: 2</text>
+</svg>

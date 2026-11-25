@@ -1,5 +1,5 @@
 import { api } from "../api.js";
-import { addToCart, priceRow, productThumb, specsTable, stockText } from "../components.js";
+import { addToCart, priceRow, productGallery, specsTable, stockText } from "../components.js";
 import { t } from "../i18n.js";
 import { can } from "../session.js";
 import { h, icon, link } from "../ui.js";
@@ -14,7 +14,7 @@ export async function productPage({ params }) {
     h(
       "section",
       { class: "split product-page" },
-      h("div", { class: "card product-card" }, productThumb(product, `/product/${product.id}`)),
+      productGallery(product),
       h(
         "div",
         { class: "section" },

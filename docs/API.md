@@ -109,6 +109,7 @@
 | `POST /api/admin/news`, `PATCH/DELETE /api/admin/news/{id}`, `GET/POST /api/admin/facts`, `DELETE /api/admin/facts/{id}` | `content.manage` |
 | `GET/POST /api/admin/stock/receipts` — журнал поставок, принять поставку (остаток растёт) | `stock.receive` |
 | `POST /api/admin/uploads` — загрузить картинку: файл в теле запроса (PNG, JPEG, WebP, GIF до 5 МБ, тип проверяется по содержимому, SVG нельзя). Ответ `{"url": "/uploads/…"}` — подставить в `image_url` | `products.manage` или `content.manage` |
+| `images` в товаре — список дополнительных фото (до 10) после главного `image_url`: передаётся в `POST/PATCH /api/admin/products`, отдаётся в каталоге и карточке товара | `products.manage` |
 | `GET/POST /api/admin/repairs`, `GET/PATCH /api/admin/repairs/{id}` — ремонт | `repairs.manage` |
 | `GET /api/admin/system`, `DELETE /api/admin/system/errors` — состояние сервера и базы, ошибки | `system.view` |
 | `GET /api/admin/roles`, `GET /api/admin/users`, `PATCH /api/admin/users/{id}`, `POST /api/admin/users/{id}/bonus` | `users.manage` |

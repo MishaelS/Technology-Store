@@ -224,7 +224,7 @@ def update_product(product_id: int, data: ProductUpdate, db: Session = Depends(g
     if "category" in changes:
         product.category = _category(db, changes.pop("category"))
     for field, value in changes.items():
-        if field in {"name", "brand", "price", "stock", "description", "specs", "is_active"} and value is None:
+        if field in {"name", "brand", "price", "stock", "description", "specs", "is_active", "images"} and value is None:
             raise HTTPException(422, t("errors.field_required", field=field))
         setattr(product, field, value)
     _validate_product(product)

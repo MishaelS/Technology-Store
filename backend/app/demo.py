@@ -35,8 +35,22 @@ def slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 
 
-def picture(name: str) -> str:
-    return f"/resources/demo/products/{slug(name)}.svg"
+def picture(name: str, view: int = 1) -> str:
+    """Demo picture of a product; views 2 and 3 are the extra photos of the gallery."""
+    return f"/resources/demo/products/{slug(name)}{'' if view == 1 else f'-{view}'}.svg"
+
+
+def fill_pictures(db) -> int:
+    """Pictures for products that have none: the main one and two extra views. Returns how many changed."""
+    changed = 0
+    for product in db.scalars(select(Product)):
+        if not product.image_url:
+            product.image_url = picture(product.name)
+            changed += 1
+        if not product.images and product.image_url == picture(product.name):
+            product.images = [picture(product.name, 2), picture(product.name, 3)]
+            changed += 1
+    return changed
 
 
 def description(category: str, name: str, specs: dict) -> str:
@@ -73,7 +87,11 @@ def demo() -> None:
             print("demo: the database is empty — start the project first (./run.sh start)")
             return
         if db.scalar(select(Product.id).where(Product.name == DEMO_PRODUCTS[0][2])):
-            print("demo: demo data is already there — skipping (start over: ./run.sh reset, then ./run.sh demo)")
+            # already there: only add what newer versions of the demo have (extra photos)
+            changed = fill_pictures(db)
+            db.commit()
+            print(f"demo: demo data is already there — pictures added to {changed} products"
+                  if changed else "demo: demo data is already there — skipping (start over: ./run.sh reset, then ./run.sh demo)")
             return
 
         categories = {c.slug: c for c in db.scalars(select(Category))}
@@ -82,13 +100,13 @@ def demo() -> None:
         # ---------- products: new ones, pictures and descriptions for all ----------
         for cat, brand, name, price, old_price, stock, specs in DEMO_PRODUCTS:
             db.add(Product(category=categories[cat], brand=brand, name=name, price=price, old_price=old_price,
-                           stock=stock, specs=specs, image_url=picture(name), description=description(cat, name, specs),
+                           stock=stock, specs=specs, image_url=picture(name), images=[picture(name, 2), picture(name, 3)],
+                           description=description(cat, name, specs),
                            created_at=NOW - timedelta(days=rng.randint(0, 40))))
         db.flush()
         products = list(db.scalars(select(Product)))
+        fill_pictures(db)
         for product in products:
-            if not product.image_url:
-                product.image_url = picture(product.name)
             if product.description.endswith("в наличии в Technology-Store."):
                 product.description = description(product.category.slug, product.name, product.specs)
         by_category: dict[str, list[Product]] = {}

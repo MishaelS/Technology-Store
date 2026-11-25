@@ -960,3 +960,57 @@ button.avatar-drop:hover:not(:disabled) { border: 0; }
 .profile-name { font-size: 20px; }
 button.logout-button { align-self: flex-start; margin-left: auto; color: var(--error); border-color: color-mix(in srgb, var(--error) 35%, var(--line)); }
 button.logout-button:hover:not(:disabled) { border-color: var(--error); color: var(--error); background: var(--error-soft); }
+
+/* ---------- product photos ---------- */
+/* card: extra photos lie over the first one and fade in one by one while the mouse rests on it */
+.product-card .thumb img.flip { position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s ease, scale 0.35s ease; }
+.product-card .thumb img.flip.shown { opacity: 1; }
+/* only one photo visible at a time, also on faded "out of stock" cards */
+.product-card .thumb img.flip:not(.shown), .product-card .thumb.on-layer > img:not(.flip) { opacity: 0 !important; }
+.product-card.is-out .thumb img.flip.shown { opacity: 0.35; }
+.thumb-dots {
+  position: absolute; left: 50%; bottom: 8px; translate: -50% 0; display: flex; gap: 4px;
+  opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+}
+.product-card:hover .thumb-dots { opacity: 1; }
+.thumb-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgb(22 24 29 / 0.25); transition: width 0.2s ease, background-color 0.2s ease; }
+.thumb-dots i.on { width: 16px; background: var(--accent); }
+
+/* product page: big photo with a lens and thumbnails */
+.product-gallery { gap: 12px; padding: 12px; }
+.zoom-frame { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); cursor: crosshair; }
+.zoom-frame > img { width: 100%; height: 100%; object-fit: cover; transition: scale 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.zoom-frame.zoomed > img { scale: var(--zoom); cursor: zoom-in; }
+.zoom-hint {
+  position: absolute; right: 10px; top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px;
+  border-radius: 999px; background: rgb(255 255 255 / 0.85); color: var(--muted); font-size: 12px; font-weight: 600;
+  opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+}
+.zoom-hint .icon { width: 14px; height: 14px; }
+.zoom-frame.arming .zoom-hint { opacity: 1; }
+/* the bar at the bottom fills while the lens is about to open */
+.zoom-progress { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--accent); transform-origin: left; scale: 0 1; opacity: 0; }
+.zoom-frame.arming .zoom-progress { opacity: 1; animation: zoom-arm var(--zoom-delay) linear forwards; }
+@keyframes zoom-arm { to { scale: 1 1; } }
+.gallery-thumbs { display: flex; gap: 8px; overflow-x: auto; }
+button.gallery-thumb {
+  flex: none; width: 76px; height: 57px; min-height: 0; padding: 0; overflow: hidden;
+  border: 2px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); opacity: 0.7;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+button.gallery-thumb:hover:not(:disabled) { border-color: var(--line-strong); opacity: 1; }
+button.gallery-thumb.on { border-color: var(--accent); opacity: 1; }
+.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* editor: list of extra photos (imageList() in image-drop.js) */
+.form-subtitle { font-size: 15px; margin-top: 4px; }
+.image-list-box.busy { opacity: 0.6; pointer-events: none; }
+.image-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.image-tile { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); display: grid; place-items: center; }
+.image-tile img { width: 100%; height: 100%; object-fit: cover; }
+.image-tile > button { position: absolute; top: 6px; right: 6px; width: 28px; min-height: 28px; height: 28px; border-radius: 50%; background: rgb(255 255 255 / 0.9); }
+button.image-add {
+  aspect-ratio: 4 / 3; height: auto; min-height: 0; flex-direction: column; gap: 6px; white-space: normal; text-align: center;
+  border: 2px dashed var(--line-strong); background: var(--surface); color: var(--accent); font-size: 13px;
+}
+button.image-add:hover:not(:disabled), button.image-add.over { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }

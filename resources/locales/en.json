@@ -111,7 +111,9 @@
     "specs": "Specifications",
     "description": "Description",
     "old_price": "Old price",
-    "added": "Added to cart"
+    "added": "Added to cart",
+    "zoom_hint": "Rest the mouse here to look closer",
+    "photo_n": "Photo {n}"
   },
   "specs": {
     "socket": "Socket",
@@ -411,7 +413,9 @@
     "save_and_new": "Save and add another",
     "copy": "Make a copy",
     "open_on_site": "Open on the site",
-    "back_to_list": "Back to products"
+    "back_to_list": "Back to products",
+    "more_photos": "More photos",
+    "more_photos_hint": "The card flips through them on hover, the product page shows them all. You can drop several files at once."
   },
   "errors": {
     "auth_required": "Please log in",
@@ -521,6 +525,7 @@
     "hint": "Drop a picture here or click to choose a file",
     "types": "PNG, JPEG, WebP or GIF, up to {mb} MB",
     "uploading": "Uploading…",
-    "remove": "Remove picture"
+    "remove": "Remove picture",
+    "add_more": "Add photos"
   }
 }

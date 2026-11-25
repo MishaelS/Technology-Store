@@ -152,6 +152,7 @@ class ProductOut(ORM):
     discount_percent: int
     stock: int
     image_url: str | None
+    images: list[str] = []
     description: str
     specs: dict
     is_active: bool
@@ -307,6 +308,8 @@ class BuildCommentIn(BaseModel):
 
 # ---------- Admin ----------
 
+MAX_PRODUCT_IMAGES = 10  # extra photos of one product
+
 class ProductIn(BaseModel):
     category: str  # category slug
     name: Text_1_200
@@ -315,6 +318,7 @@ class ProductIn(BaseModel):
     old_price: int | None = Field(default=None, gt=0)
     stock: int = Field(default=0, ge=0)
     image_url: ImageUrl | None = None
+    images: list[ImageUrl] = Field(default_factory=list, max_length=MAX_PRODUCT_IMAGES)
     description: TextOptional = ""
     specs: dict = Field(default_factory=dict)
 
@@ -327,6 +331,7 @@ class ProductUpdate(BaseModel):
     old_price: int | None = Field(default=None, gt=0)
     stock: int | None = Field(default=None, ge=0)
     image_url: ImageUrl | None = None
+    images: list[ImageUrl] | None = Field(default=None, max_length=MAX_PRODUCT_IMAGES)
     description: TextOptional | None = None
     specs: dict | None = None
     is_active: bool | None = None

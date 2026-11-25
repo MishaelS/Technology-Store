@@ -8,7 +8,7 @@
 import { api } from "../api.js";
 import { priceRow, specsTable, stockText } from "../components.js";
 import { t } from "../i18n.js";
-import { imageDrop } from "../image-drop.js";
+import { imageDrop, imageList } from "../image-drop.js";
 import { attempt, field, flash, h, image, link, navigate, select } from "../ui.js";
 
 export async function productEditorPage({ params, query }) {
@@ -37,6 +37,8 @@ export async function productEditorPage({ params, query }) {
     is_active: h("input", { type: "checkbox", checked: source ? source.is_active : true }),
   };
   inputs.brand.setAttribute("list", "brand-list");
+  // extra photos after the main one: the card flips through them, the product page shows them all
+  const extraImages = imageList(source?.images || [], () => updatePreview());
   const brandList = h("datalist", { id: "brand-list" }, brands.map((b) => h("option", { value: b })));
 
   // ---------- specs ----------
@@ -143,6 +145,7 @@ export async function productEditorPage({ params, query }) {
       old_price: oldPrice,
       stock: Number(inputs.stock.value) || 0,
       image_url: inputs.image_url.value.trim() || null,
+      images: extraImages.read(),
       specs: readSpecs(),
     };
   }
@@ -206,7 +209,10 @@ export async function productEditorPage({ params, query }) {
         field(t("admin.stock"), inputs.stock))),
     panel(t("editor.image"),
       imageDrop(inputs.image_url),
-      field(t("admin.image_url"), h("span", {}, inputs.image_url, h("div", { class: "muted" }, t("editor.image_hint"))))),
+      field(t("admin.image_url"), h("span", {}, inputs.image_url, h("div", { class: "muted" }, t("editor.image_hint")))),
+      h("h3", { class: "form-subtitle" }, t("editor.more_photos")),
+      h("p", { class: "muted field-hint" }, t("editor.more_photos_hint")),
+      extraImages.node),
     panel(t("editor.specs"), specsBox),
     panel(t("editor.visibility"), h("label", { class: "check-row" }, inputs.is_active, t("editor.active"))),
     h("div", { class: "form-actions" },
