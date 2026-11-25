@@ -6,7 +6,7 @@ import { productCard } from "../components.js";
 import { t } from "../i18n.js";
 import { infiniteList, toTopButton } from "../infinite.js";
 import { afterRender, onLeave } from "../router.js";
-import { formData, h, icon, link, navigate, select } from "../ui.js";
+import { formData, h, icon, link, navigate, select, skeletons } from "../ui.js";
 
 // sort value -> icon
 const SORTS = [
@@ -172,6 +172,7 @@ export async function catalogPage({ query }) {
     container: grid,
     fetchPage,
     renderItem: productCard,
+    skeleton: () => skeletons("product", 4),
     state,
     onTotal: (total) => (found.textContent = t("catalog.found", { count: total })),
   });

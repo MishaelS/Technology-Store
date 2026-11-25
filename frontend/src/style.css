@@ -623,6 +623,31 @@ button.icon-only { padding: 0; width: 34px; }
   .chosen-part .price, .part-actions { grid-column: 2; }
   .build-step { padding: 14px; }
 }
+/* ---------- skeletons: grey cards while the real ones load (skeletons() in ui.js) ---------- */
+.skeleton {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px; padding: 12px 12px 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.news-skeleton { padding: 18px; border-top: 3px solid var(--surface-2); }
+/* a light sweep runs over the card; only translate is animated, so it stays on the GPU */
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; translate: -100% 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.7) 50%, transparent 70%);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer { to { translate: 100% 0; } }
+.bone { display: block; height: 12px; border-radius: 6px; background: var(--surface-2); }
+.bone.thumb { height: auto; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); }
+.bone.title { height: 16px; width: 85%; }
+.bone.short { width: 40%; }
+.bone.half { width: 60%; }
+.skeleton-foot { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line); }
+.bone.price { width: 38%; height: 20px; }
+.bone.button { width: 42px; height: 40px; border-radius: var(--radius-sm); }
+.page-skeleton { display: flex; flex-direction: column; gap: 20px; }
+.bone.heading { width: min(320px, 60%); height: 30px; border-radius: 8px; animation: bone-pulse 1.4s ease-in-out infinite; }
+@keyframes bone-pulse { 50% { opacity: 0.5; } }
+
 /* ---------- page transition (pageTransition() in app.js) ---------- */
 /* only the page content takes part; the header and footer stay still */
 #main { view-transition-name: page; }

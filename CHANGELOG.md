@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Skeleton placeholders in the shape of cards while the catalog, the news and the first page load.
+
 ## [0.1.0] - 2026-11-25
 
 First version: the store backend, the admin panel and the frontend with the new design.

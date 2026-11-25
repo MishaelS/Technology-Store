@@ -10,9 +10,10 @@ import { h, icon } from "./ui.js";
  * @param state       optional saved state {items, cursor, done, total} to continue from
  * @param onTotal     called with the total count
  * @param endText     text under a finished list (default: about products)
+ * @param skeleton    () => Node[]: placeholders shown in the list while the next chunk loads
  * @returns {{state, destroy}}
  */
-export function infiniteList({ container, fetchPage, renderItem, state, onTotal, endText = t("catalog.end_of_list") }) {
+export function infiniteList({ container, fetchPage, renderItem, state, onTotal, endText = t("catalog.end_of_list"), skeleton }) {
   state = state || { items: [], cursor: null, done: false, total: null };
   const status = h("p", { class: "muted" });
   const sentinel = h("div", { style: "height: 1px" });
@@ -27,7 +28,12 @@ export function infiniteList({ container, fetchPage, renderItem, state, onTotal,
   async function loadMore() {
     if (busy || state.done || destroyed) return;
     busy = true;
-    status.textContent = t("common.loading");
+    // placeholder cards where the next ones will appear; the text stays for screen readers only
+    const placeholders = skeleton?.() || [];
+    for (const node of placeholders) node.setAttribute("aria-hidden", "true");
+    container.append(...placeholders);
+    container.setAttribute("aria-busy", "true");
+    status.textContent = placeholders.length ? "" : t("common.loading");
     try {
       const page = await fetchPage(state.cursor);
       if (destroyed) return;
@@ -47,6 +53,8 @@ export function infiniteList({ container, fetchPage, renderItem, state, onTotal,
         h("button", { onclick: () => loadMore() }, t("common.retry")));
     } finally {
       busy = false;
+      for (const node of placeholders) node.remove();
+      container.removeAttribute("aria-busy");
     }
     // the screen may still not be full: keep loading
     if (nearEnd()) loadMore();

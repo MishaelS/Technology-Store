@@ -106,6 +106,23 @@ export function select(name, options, value) {
   );
 }
 
+/** Grey placeholders in the shape of cards, shown while the real cards load. kind: "product" | "news". */
+export function skeletons(kind, count) {
+  const bone = (extra = "") => h("span", { class: `bone ${extra}` });
+  const card = () =>
+    kind === "news"
+      ? h("div", { class: "skeleton news-skeleton" }, bone("short"), bone("title"), bone(), bone(), bone("half"))
+      : h("div", { class: "skeleton product-skeleton" }, bone("thumb"), bone("short"), bone("title"), bone("half"),
+          h("div", { class: "skeleton-foot" }, bone("price"), bone("button")));
+  return Array.from({ length: count }, card);
+}
+
+/** First page of the site while it loads: a title bar and a few cards. Screen readers hear "Loading…". */
 export function loading() {
-  return h("p", { class: "muted" }, t("common.loading"));
+  return h(
+    "div",
+    { class: "page-skeleton", role: "status", "aria-label": t("common.loading") },
+    h("span", { class: "bone heading" }),
+    h("div", { class: "grid", "aria-hidden": "true" }, skeletons("product", 4)),
+  );
 }

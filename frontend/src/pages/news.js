@@ -4,7 +4,7 @@ import { NEWS_ICONS, newsCard } from "../components.js";
 import { t } from "../i18n.js";
 import { infiniteList, toTopButton } from "../infinite.js";
 import { onLeave } from "../router.js";
-import { h, icon } from "../ui.js";
+import { h, icon, skeletons } from "../ui.js";
 
 const TYPES = ["news", "promo", "game"];
 
@@ -43,6 +43,7 @@ export async function newsPage({ query }) {
     container: grid,
     fetchPage,
     renderItem: newsCard,
+    skeleton: () => skeletons("news", 3),
     endText: t("home.news_end"),
     state: { items: first.items, cursor: first.next_cursor, done: first.next_cursor === null, total: null },
   });
