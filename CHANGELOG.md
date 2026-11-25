@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The site calls the API on its own address (`/api/...`), nginx passes it to the backend: the site works
+  through a tunnel or a forwarded port 5173 alone.
 - The header shows the user's avatar instead of the name and the logout button; logging out is in the account.
 - Only the admin (`users.manage`) sees roles: the account and the avatar tooltip no longer show the user's own role.
 - Admin panel lists (orders, products, client builds, users, repairs, stock receipts, news) load more rows
