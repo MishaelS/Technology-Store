@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<defs>
+<linearGradient id="bg" gradientTransform="rotate(195 .5 .5)"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFF9DB"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#E67700" stop-opacity="0.22"/><stop offset="1" stop-color="#E67700" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#bg)"/>
+<rect x="341" y="295" width="187" height="187" rx="28" transform="rotate(-17)" fill="#E67700" opacity="0.06"/><rect x="562" y="325" width="103" height="103" rx="28" transform="rotate(27)" fill="#E67700" opacity="0.06"/><rect x="194" y="14" width="153" height="153" rx="28" transform="rotate(3)" fill="#E67700" opacity="0.06"/><rect x="262" y="221" width="90" height="90" rx="28" transform="rotate(26)" fill="#E67700" opacity="0.06"/>
+<circle cx="438" cy="248" r="230" fill="url(#glow)"/>
+<circle cx="438" cy="248" r="150" fill="#FFFFFF" opacity="0.75"/>
+<g transform="translate(438 248) scale(8.5) translate(-12 -12)" fill="none" stroke="#E67700" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="10" cy="12" r="4"/><path d="M10 8v8M6 12h8"/><path d="M17.5 8.5v.01M17.5 15.5v-3"/></g>
+<text x="40" y="520" fill="#E67700" font-family="Manrope, system-ui, sans-serif" font-size="46" font-weight="800">Chieftec</text>
+<text x="40" y="568" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="600">550 Вт</text>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<defs>
+<linearGradient id="bg" gradientTransform="rotate(253 .5 .5)"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F1F3F5"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#495057" stop-opacity="0.22"/><stop offset="1" stop-color="#495057" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#bg)"/>
+<rect x="695" y="143" width="194" height="194" rx="28" transform="rotate(-1)" fill="#495057" opacity="0.06"/><rect x="-20" y="501" width="134" height="134" rx="28" transform="rotate(19)" fill="#495057" opacity="0.06"/><rect x="494" y="146" width="141" height="141" rx="28" transform="rotate(5)" fill="#495057" opacity="0.06"/><rect x="489" y="53" width="160" height="160" rx="28" transform="rotate(-6)" fill="#495057" opacity="0.06"/>
+<circle cx="452" cy="244" r="230" fill="url(#glow)"/>
+<circle cx="452" cy="244" r="150" fill="#FFFFFF" opacity="0.75"/>
+<g transform="translate(452 244) scale(8.5) translate(-12 -12)" fill="none" stroke="#495057" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="1"/><circle cx="12" cy="15" r="3"/><path d="M9 6h6M9 9h6"/></g>
+<text x="40" y="520" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="46" font-weight="800">Cooler Master</text>
+<text x="40" y="568" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="600">до 330 мм</text>
+</svg>

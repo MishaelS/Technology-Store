@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<defs>
+<linearGradient id="bg" gradientTransform="rotate(261 .5 .5)"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E3FAFC"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#0C8599" stop-opacity="0.22"/><stop offset="1" stop-color="#0C8599" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#bg)"/>
+<rect x="215" y="360" width="107" height="107" rx="28" transform="rotate(-1)" fill="#0C8599" opacity="0.06"/><rect x="139" y="436" width="172" height="172" rx="28" transform="rotate(9)" fill="#0C8599" opacity="0.06"/><rect x="81" y="239" width="200" height="200" rx="28" transform="rotate(-13)" fill="#0C8599" opacity="0.06"/><rect x="311" y="73" width="105" height="105" rx="28" transform="rotate(-27)" fill="#0C8599" opacity="0.06"/>
+<circle cx="430" cy="230" r="230" fill="url(#glow)"/>
+<circle cx="430" cy="230" r="150" fill="#FFFFFF" opacity="0.75"/>
+<g transform="translate(430 230) scale(8.5) translate(-12 -12)" fill="none" stroke="#0C8599" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="6" y="6" width="6" height="6"/><path d="M15 6h3M15 9h3M15 12h3M6 15.5h12M6 18.5h8"/></g>
+<text x="40" y="520" fill="#0C8599" font-family="Manrope, system-ui, sans-serif" font-size="46" font-weight="800">MSI</text>
+<text x="40" y="568" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="600">LGA1851 · DDR5 · ATX</text>
+</svg>

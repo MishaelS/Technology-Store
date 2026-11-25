@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<defs>
+<linearGradient id="bg" gradientTransform="rotate(303 .5 .5)"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E7F5FF"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#1971C2" stop-opacity="0.22"/><stop offset="1" stop-color="#1971C2" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#bg)"/>
+<rect x="542" y="63" width="139" height="139" rx="28" transform="rotate(-16)" fill="#1971C2" opacity="0.06"/><rect x="65" y="486" width="117" height="117" rx="28" transform="rotate(20)" fill="#1971C2" opacity="0.06"/><rect x="322" y="178" width="116" height="116" rx="28" transform="rotate(-10)" fill="#1971C2" opacity="0.06"/><rect x="108" y="30" width="116" height="116" rx="28" transform="rotate(9)" fill="#1971C2" opacity="0.06"/>
+<circle cx="441" cy="233" r="230" fill="url(#glow)"/>
+<circle cx="441" cy="233" r="150" fill="#FFFFFF" opacity="0.75"/>
+<g transform="translate(441 233) scale(8.5) translate(-12 -12)" fill="none" stroke="#1971C2" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 14h18"/><path d="M7 16.5v.01M17 16.5h-4"/></g>
+<text x="40" y="520" fill="#1971C2" font-family="Manrope, system-ui, sans-serif" font-size="46" font-weight="800">Samsung</text>
+<text x="40" y="568" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="600">SATA SSD · 500 ГБ</text>
+</svg>

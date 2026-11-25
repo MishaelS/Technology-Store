@@ -145,6 +145,8 @@ ${BOLD}Настройка и данные${RESET}
   setup        Только подготовка: проверить Docker, создать .env, сгенерировать пароль, собрать образы
   password     Показать пароль тестовых аккаунтов
   reset        Стереть базу и создать заново с тестовыми данными (спросит подтверждение)
+  demo         Наполнить базу демо-данными: ещё товары с картинками, новости и события,
+               клиенты с заказами, сборки, ремонт, поставки (один раз; заново — reset, потом demo)
   help         Эта справка
 
 ${BOLD}Примеры${RESET}
@@ -152,6 +154,7 @@ ${BOLD}Примеры${RESET}
   ./run.sh test -k cart        ${DIM}# только тесты корзины${RESET}
   ./run.sh rebuild test        ${DIM}# пересобрать и сразу прогнать тесты${RESET}
   ./run.sh reset -y            ${DIM}# стереть базу без вопроса${RESET}
+  ./run.sh reset -y demo       ${DIM}# чистая база, сразу с демо-данными${RESET}
 
 Команды можно писать подряд — они выполнятся по очереди.
 logs, test и migration забирают все аргументы после себя, поэтому ставьте их последними.
@@ -232,6 +235,12 @@ cmd_reset() {
     info "Удаляю контейнеры и базу…"
     compose down -v
     cmd_start
+}
+
+cmd_demo() {
+    ensure_running
+    info "Добавляю демо-данные…"
+    compose exec $TTY_FLAG backend python -m app.demo
 }
 
 cmd_test() {
@@ -321,6 +330,7 @@ main() {
             rebuild)        cmd_rebuild ;;
             reset)          cmd_reset ;;
             password)       cmd_password ;;
+            demo)           cmd_demo ;;
             locales)        cmd_locales ;;
             db)             cmd_db ;;
             shell)          cmd_shell ;;

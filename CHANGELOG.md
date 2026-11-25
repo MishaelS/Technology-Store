@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `actions/copy` icon.
 - Own up/down arrows for every number field (`number-field.js`): holding repeats the step,
   min/max are respected, `change` fires once when the button is released.
+- `./run.sh demo` (`app/demo.py`): demo data on top of the seed — 61 more products, 24 news and events,
+  facts, 12 clients with orders in every status, saved builds, repairs and stock receipts.
+- Demo pictures for every product and news (`resources/demo`, drawn by `scripts/make_demo_images.py`).
 
 ### Changed
 

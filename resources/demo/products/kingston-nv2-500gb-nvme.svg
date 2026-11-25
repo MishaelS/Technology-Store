@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<defs>
+<linearGradient id="bg" gradientTransform="rotate(22 .5 .5)"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E7F5FF"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#1971C2" stop-opacity="0.22"/><stop offset="1" stop-color="#1971C2" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#bg)"/>
+<rect x="-9" y="236" width="105" height="105" rx="28" transform="rotate(-12)" fill="#1971C2" opacity="0.06"/><rect x="260" y="-2" width="119" height="119" rx="28" transform="rotate(-5)" fill="#1971C2" opacity="0.06"/><rect x="99" y="486" width="189" height="189" rx="28" transform="rotate(-19)" fill="#1971C2" opacity="0.06"/><rect x="219" y="244" width="170" height="170" rx="28" transform="rotate(20)" fill="#1971C2" opacity="0.06"/>
+<circle cx="421" cy="248" r="230" fill="url(#glow)"/>
+<circle cx="421" cy="248" r="150" fill="#FFFFFF" opacity="0.75"/>
+<g transform="translate(421 248) scale(8.5) translate(-12 -12)" fill="none" stroke="#1971C2" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 14h18"/><path d="M7 16.5v.01M17 16.5h-4"/></g>
+<text x="40" y="520" fill="#1971C2" font-family="Manrope, system-ui, sans-serif" font-size="46" font-weight="800">Kingston</text>
+<text x="40" y="568" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="600">NVMe · 500 ГБ</text>
+</svg>
