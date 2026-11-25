@@ -60,6 +60,7 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - "Show all" links next to section titles are pills with an arrow that moves on hover; text links get an underline that grows on hover.
 - Product cards: lift on hover, discount and "out of stock" badges on the picture, category icon, stock with a colored dot (orange when 3 or less), the whole card opens the product, the cart button shows a check after adding.
 - Page transition between sections (View Transitions API): the old page fades away, the new one opens as a circle wave from the click point. Product cards and news tiles pop in from the center one by one in random order. Both are off with reduced motion.
+- PC builder redesign: a progress line of 7 steps, a card per step with a hint, parts as tiles with key specs and a "fits / doesn't fit" hint, the next step opens by itself; summary with a score ring, CPU/GPU bars and PSU load.
 
 ### Changed
 

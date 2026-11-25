@@ -252,6 +252,36 @@
       "error": "Error",
       "warning": "Warning",
       "skip": "Not checked"
+    },
+    "subtitle": "Build your computer step by step — we check right away that the parts fit together",
+    "progress": "{done} of {total} chosen",
+    "optional": "optional",
+    "search_in_list": "Search the list",
+    "close_list": "Collapse",
+    "fit_ok": "Fits",
+    "fit_bad": "Doesn't fit: {reason}",
+    "cpu_score": "CPU",
+    "gpu_score": "Graphics card",
+    "power_title": "Power",
+    "psu_load": "{draw} of {psu} W",
+    "start_hint": "Start with the CPU — the builder will show what fits next.",
+    "hints": {
+      "cpu": "The brain of the computer: speed in apps and games depends on it",
+      "motherboard": "Connects all parts: its socket must match the CPU",
+      "ram": "Memory for running apps: its type must suit the board",
+      "gpu": "Needed for games and 3D; without it the CPU graphics work",
+      "storage": "Keeps the system, games and files",
+      "psu": "Powers the whole build: take one with spare wattage",
+      "case": "The board and the graphics card must fit inside"
+    },
+    "spec": {
+      "cores": "{count} cores",
+      "watts": "{watts} W",
+      "gb": "{size} GB",
+      "tb": "{size} TB",
+      "sticks": "{sticks} × {size} GB",
+      "mm": "{mm} mm",
+      "gpu_up_to": "GPU up to {mm} mm"
     }
   },
   "auth": {
