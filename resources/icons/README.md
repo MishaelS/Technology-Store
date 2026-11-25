@@ -35,6 +35,8 @@ icon("categories/gpu", "Видеокарты"); // с подписью для э
 | `navigation/logout.svg` | Выйти |
 | `navigation/register.svg` | Регистрация |
 | `navigation/language.svg` | Переключатель языка |
+| `navigation/theme-dark.svg` | Включить тёмную тему |
+| `navigation/theme-light.svg` | Включить светлую тему |
 | `navigation/menu.svg` | Меню (на телефоне) |
 | `navigation/arrow-up.svg` | Наверх |
 | `navigation/arrow-left.svg` | Назад |
@@ -56,6 +58,7 @@ icon("categories/gpu", "Видеокарты"); // с подписью для э
 | `actions/minus.svg` | Уменьшить количество |
 | `actions/add-to-cart.svg` | В корзину |
 | `actions/edit.svg` | Изменить |
+| `actions/copy.svg` | Создать копию товара |
 | `actions/delete.svg` | Удалить, убрать |
 | `actions/save.svg` | Сохранить |
 | `actions/close.svg` | Закрыть, отмена |
@@ -124,6 +127,7 @@ icon("categories/gpu", "Видеокарты"); // с подписью для э
 | `content/fact.svg` | Интересный факт |
 | `content/comment.svg` | Комментарий инженера |
 | `content/calendar.svg` | Дата |
+| `content/image.svg` | Картинка товара или новости, загрузка файла |
 
 ### Личный кабинет (`account/`)
 

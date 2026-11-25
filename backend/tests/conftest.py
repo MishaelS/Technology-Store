@@ -16,6 +16,7 @@ TEST_DB = MAIN_URL.rsplit("/", 1)[1] + "_test"
 TEST_URL = MAIN_URL.rsplit("/", 1)[0] + "/" + TEST_DB
 os.environ["DATABASE_URL"] = TEST_URL
 os.environ["SEED_PASSWORD"] = SEED_PASSWORD = "seed-password-for-tests"
+os.environ["BACKUP_SCHEDULER"] = "0"  # no auto backup task while testing
 
 import pytest  # noqa: E402
 from alembic import command  # noqa: E402

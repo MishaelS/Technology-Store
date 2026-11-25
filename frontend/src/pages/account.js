@@ -1,10 +1,10 @@
 // Personal account: profile, orders, bonuses, saved builds (tabs in the address: ?tab=orders).
-import { api } from "../api.js";
+import { api, uploadFile } from "../api.js";
 import { checksList, statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { headerChanged, reload } from "../router.js";
-import { session } from "../session.js";
-import { attempt, date, field, flash, formData, h, link, money } from "../ui.js";
+import { can, logout, session } from "../session.js";
+import { attempt, avatar, date, emptyState, field, flash, formData, h, icon, link, money, navigate } from "../ui.js";
 import { openInBuilder } from "./builder.js";
 import { myRepairs } from "./staff.js";
 
@@ -38,18 +38,72 @@ function profile() {
       },
     },
     field(t("auth.email"), h("input", { value: user.email, disabled: true })),
-    field(t("account.role"), h("input", { value: t(`roles.${user.role}`), disabled: true })),
+    // roles are shown only to those who manage users (the admin), nobody else sees their own role
+    can("users.manage") ? field(t("account.role"), h("input", { value: t(`roles.${user.role}`), disabled: true })) : null,
     field(t("auth.name"), h("input", { name: "name", required: true, value: user.name })),
     field(t("auth.phone"), h("input", { name: "phone", type: "tel", value: user.phone || "" })),
     h("button", {}, t("account.save_profile")),
     errors,
   );
-  return form;
+  return h("div", { class: "profile" }, profileCard(), form);
+}
+
+/** Avatar with the photo controls, name, role and the logout button. */
+function profileCard() {
+  const user = session.user;
+  const picker = h("input", { type: "file", accept: "image/png,image/jpeg,image/webp,image/gif", hidden: true });
+  const photo = h("button", { type: "button", class: "avatar-drop", "aria-label": t("account.photo_upload"), onclick: () => picker.click() },
+    avatar(user, "big"), h("span", { class: "avatar-edit" }, icon("actions/edit")));
+  const card = h(
+    "section",
+    { class: "panel profile-card" },
+    photo,
+    h("div", { class: "profile-info" },
+      h("strong", { class: "profile-name" }, user.name),
+      h("span", { class: "muted" }, user.email, can("users.manage") ? ` · ${t(`roles.${user.role}`)}` : ""),
+      h("div", { class: "row" },
+        h("button", { type: "button", class: "small", onclick: () => picker.click() }, icon("content/image"), t("account.photo_upload")),
+        user.avatar_url
+          ? h("button", { type: "button", class: "small ghost", onclick: () => setPhoto(() => api("/api/auth/me/avatar", { method: "DELETE" })) },
+              icon("actions/delete"), t("account.photo_remove"))
+          : null),
+      h("span", { class: "muted field-hint" }, t("account.photo_hint"))),
+    h("button", { type: "button", class: "logout-button", onclick: () => {
+      logout();
+      headerChanged();
+      navigate("/");
+    } }, icon("navigation/logout"), t("account.logout")),
+    picker,
+  );
+
+  async function setPhoto(request) {
+    card.classList.add("busy");
+    const updated = await attempt(request);
+    card.classList.remove("busy");
+    if (!updated) return;
+    session.user = updated;
+    headerChanged();
+    card.replaceWith(profileCard());
+  }
+  const send = (file) => file && setPhoto(() => uploadFile("/api/auth/me/avatar", file));
+  picker.addEventListener("change", () => send(picker.files[0]));
+  // a photo can also be dropped onto the avatar
+  photo.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    photo.classList.add("over");
+  });
+  photo.addEventListener("dragleave", () => photo.classList.remove("over"));
+  photo.addEventListener("drop", (e) => {
+    e.preventDefault();
+    photo.classList.remove("over");
+    send(e.dataTransfer.files[0]);
+  });
+  return card;
 }
 
 async function orders() {
   const list = await api("/api/orders/my");
-  if (!list.length) return h("p", {}, t("orders.empty"));
+  if (!list.length) return emptyState("orders/order", t("orders.empty"), ["/catalog", t("cart.go_to_catalog")]);
   return h("div", {}, list.map((order) => h(
     "div",
     { class: "card" },
@@ -91,7 +145,7 @@ async function bonus() {
 
 async function builds() {
   const list = await api("/api/builds");
-  if (!list.length) return h("p", {}, t("account.no_builds"), " ", link("/builder", t("builder.title")));
+  if (!list.length) return emptyState("navigation/builder", t("account.no_builds"), ["/builder", t("builder.title")]);
   return h("div", {}, list.map((build) => h(
     "div",
     { class: "card" },

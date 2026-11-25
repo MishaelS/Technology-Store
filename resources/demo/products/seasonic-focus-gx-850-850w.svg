@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<defs>
+<linearGradient id="bg" gradientTransform="rotate(224 .5 .5)"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFF9DB"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#E67700" stop-opacity="0.22"/><stop offset="1" stop-color="#E67700" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#bg)"/>
+<rect x="685" y="104" width="177" height="177" rx="28" transform="rotate(3)" fill="#E67700" opacity="0.06"/><rect x="407" y="433" width="131" height="131" rx="28" transform="rotate(23)" fill="#E67700" opacity="0.06"/><rect x="647" y="283" width="165" height="165" rx="28" transform="rotate(2)" fill="#E67700" opacity="0.06"/><rect x="127" y="92" width="161" height="161" rx="28" transform="rotate(-15)" fill="#E67700" opacity="0.06"/>
+<circle cx="421" cy="222" r="230" fill="url(#glow)"/>
+<circle cx="421" cy="222" r="150" fill="#FFFFFF" opacity="0.75"/>
+<g transform="translate(421 222) scale(8.5) translate(-12 -12)" fill="none" stroke="#E67700" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="10" cy="12" r="4"/><path d="M10 8v8M6 12h8"/><path d="M17.5 8.5v.01M17.5 15.5v-3"/></g>
+<text x="40" y="520" fill="#E67700" font-family="Manrope, system-ui, sans-serif" font-size="46" font-weight="800">Seasonic</text>
+<text x="40" y="568" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="600">850 Вт</text>
+</svg>

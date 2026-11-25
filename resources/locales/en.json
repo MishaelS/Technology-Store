@@ -20,7 +20,9 @@
     "register": "Sign up",
     "logout": "Log out",
     "search_placeholder": "Search components…",
-    "language": "Language"
+    "language": "Language",
+    "theme_dark": "Dark theme",
+    "theme_light": "Light theme"
   },
   "common": {
     "loading": "Loading…",
@@ -45,8 +47,6 @@
     "to_top": "Back to top",
     "all": "All",
     "name": "Name",
-    "next": "Next →",
-    "prev": "← Previous",
     "saved": "Saved",
     "status": "Status",
     "sum": "Sum"
@@ -74,7 +74,20 @@
     "build_check_socket": "the CPU fits the motherboard",
     "build_check_ram": "memory matches type and slots",
     "build_check_psu": "the power supply is enough for the build",
-    "categories": "Categories"
+    "categories": "Categories",
+    "promo_more": "Learn more",
+    "slider_label": "Offers and promotions",
+    "slide_prev": "Previous slide",
+    "slide_next": "Next slide",
+    "slide_of": "Slide {n} of {total}",
+    "hero_build_title": "Build your PC",
+    "stat_products": "products in the catalog",
+    "stat_brands": "brands",
+    "stat_categories": "categories of parts",
+    "about_title": "About the store",
+    "about_text": "We sell PC parts and help to build a working computer from them: the builder checks that the CPU fits the board, the memory fits the slots and the power supply is enough for everything.",
+    "ask": "Not sure what to choose?",
+    "ask_link": "Build a PC in the builder — we will check that the parts fit."
   },
   "catalog": {
     "title": "Catalog",
@@ -108,7 +121,9 @@
     "specs": "Specifications",
     "description": "Description",
     "old_price": "Old price",
-    "added": "Added to cart"
+    "added": "Added to cart",
+    "zoom_hint": "Rest the mouse here to look closer",
+    "photo_n": "Photo {n}"
   },
   "specs": {
     "socket": "Socket",
@@ -306,7 +321,11 @@
     "save_profile": "Save profile",
     "role": "Role",
     "no_builds": "No saved builds yet",
-    "repairs": "Repairs"
+    "repairs": "Repairs",
+    "photo_upload": "Upload photo",
+    "photo_remove": "Remove photo",
+    "photo_hint": "PNG, JPEG, WebP or GIF up to 5 MB — you can drop a file onto the avatar",
+    "logout": "Log out"
   },
   "roles": {
     "client": "Client",
@@ -347,7 +366,6 @@
     "grant_bonus": "Grant points",
     "amount": "Amount",
     "reason": "Reason",
-    "page": "Page {page} of {pages}",
     "stats": {
       "orders_total": "Total orders",
       "revenue_done": "Revenue (completed)",
@@ -376,7 +394,12 @@
     "type": "Type",
     "repairs": "Repairs",
     "system": "Tech support",
-    "receipts": "Stock receipts"
+    "receipts": "Stock receipts",
+    "list_end": "That's all",
+    "product_search": "Name or brand",
+    "user_search": "Name or email",
+    "fact_placeholder": "Text of a new fact",
+    "backups": "Backups"
   },
   "editor": {
     "title_new": "New product",
@@ -401,7 +424,9 @@
     "save_and_new": "Save and add another",
     "copy": "Make a copy",
     "open_on_site": "Open on the site",
-    "back_to_list": "Back to products"
+    "back_to_list": "Back to products",
+    "more_photos": "More photos",
+    "more_photos_hint": "The card flips through them on hover, the product page shows them all. You can drop several files at once."
   },
   "errors": {
     "auth_required": "Please log in",
@@ -445,7 +470,13 @@
     "specs_invalid": "Invalid values in specs: {fields}",
     "client_not_found": "No client with email {email}",
     "repair_not_found": "Repair not found",
-    "repair_price_required": "Set the repair price first"
+    "repair_price_required": "Set the repair price first",
+    "upload_too_big": "The file is larger than {mb} MB",
+    "upload_empty": "The file is empty",
+    "upload_type": "Only PNG, JPEG, WebP or GIF pictures are accepted",
+    "backup_not_found": "Backup not found",
+    "backup_broken": "This is not a store backup file, or it is damaged",
+    "backup_other_version": "The backup is for another database version ({backup}), the current one is {current}: it can't be restored"
   },
   "repairs": {
     "status": {
@@ -462,7 +493,7 @@
     "client": "Client",
     "client_name": "Client name",
     "client_phone": "Client phone",
-    "client_email": "Client email if they have an account — the repair appears in their account",
+    "client_email": "Client email, if they have an account",
     "has_account": "Has an account",
     "device": "Device",
     "problem": "Problem",
@@ -503,5 +534,49 @@
     "no_errors": "No errors",
     "clear_errors": "Clear the error log",
     "refresh": "Refresh"
+  },
+  "upload": {
+    "hint": "Drop a picture here or click to choose a file",
+    "types": "PNG, JPEG, WebP or GIF, up to {mb} MB",
+    "uploading": "Uploading…",
+    "remove": "Remove picture",
+    "add_more": "Add photos"
+  },
+  "backups": {
+    "make": "Make a backup",
+    "what": "The whole database and the uploaded pictures in one .zip",
+    "drop_hint": "Drop a backup file (.zip) here or click to choose it — it appears in the list, restoring is a separate step",
+    "made": "Backup ready: {name}",
+    "uploaded": "Backup uploaded: {name}",
+    "auto": "Auto backup",
+    "auto_hint": "Makes a backup on a schedule and keeps the newest copies. Not needed now — off.",
+    "auto_on": "Auto backup on",
+    "auto_off": "Auto backup off",
+    "last_auto": "Last one: {date}.",
+    "every_hours": "Every, hours",
+    "keep": "Copies to keep",
+    "list": "Saved backups",
+    "empty": "No backups yet",
+    "kind": "Type",
+    "kind_backup": "Manual",
+    "kind_auto": "Auto",
+    "kind_upload": "Uploaded",
+    "size": "Size",
+    "contents": "Contents",
+    "rows": "Records: {count}",
+    "pictures": "Pictures: {count}",
+    "download": "Download",
+    "restore": "Restore",
+    "restore_confirm": "Restore the backup from {date}? ALL current store data (products, orders, users, pictures) will be replaced with the backup.",
+    "restored": "Data restored from the backup ({rows} records)"
+  },
+  "footer": {
+    "shop": "Shop",
+    "buyers": "For buyers",
+    "service": "Service",
+    "repairs": "Repairs",
+    "bonus": "Bonuses",
+    "orders": "My orders",
+    "builds": "My builds"
   }
 }

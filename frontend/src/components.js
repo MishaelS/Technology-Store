@@ -20,10 +20,107 @@ export async function addToCart(productId, quantity = 1) {
   return Boolean(cart);
 }
 
-/** Picture of a product, or its category icon while there is no photo. */
+/** All photos of a product: the main one first, then the extra ones; only links image() accepts. */
+export function productPictures(product) {
+  return [product.image_url, ...(product.images || [])].filter((url) => image(url));
+}
+
+const FLIP_MS = 650; // how long each photo stays while the mouse rests on a card
+
+/** Picture of a product, or its category icon while there is no photo. With several photos
+ *  they flip one after another while the mouse rests on the picture, and go back to the first when it leaves. */
 export function productThumb(product, href) {
-  const content = image(product.image_url, product.name) || icon(`categories/${product.category}`);
-  return h("a", { href: `#${href}`, class: "thumb", "aria-hidden": "true", tabindex: -1 }, content);
+  const pictures = productPictures(product);
+  const content = image(pictures[0], product.name) || icon(`categories/${product.category}`);
+  const thumb = h("a", { href: `#${href}`, class: "thumb", "aria-hidden": "true", tabindex: -1 }, content);
+  if (pictures.length < 2) return thumb;
+
+  const dots = h("span", { class: "thumb-dots" }, pictures.map(() => h("i")));
+  thumb.append(dots);
+  let layers = null; // the extra photos, laid over the first one; made on the first hover
+  let index = 0;
+  let timer = null;
+  const show = (i) => {
+    index = i;
+    layers.forEach((layer, k) => layer.classList.toggle("shown", k + 1 === i));
+    thumb.classList.toggle("on-layer", i > 0); // the first photo hides under the shown one (see-through cards too)
+    [...dots.children].forEach((dot, k) => dot.classList.toggle("on", k === i));
+  };
+  const start = () => {
+    if (!layers) {
+      layers = pictures.slice(1).map((url) => {
+        const layer = image(url, "");
+        layer.classList.add("flip");
+        thumb.insertBefore(layer, dots);
+        return layer;
+      });
+    }
+    clearInterval(timer);
+    show(0);
+    timer = setInterval(() => show((index + 1) % pictures.length), FLIP_MS);
+  };
+  const stop = () => {
+    clearInterval(timer);
+    if (layers) show(0);
+  };
+  thumb.addEventListener("pointerenter", start);
+  thumb.addEventListener("pointerleave", stop);
+  // in a card the link of the title covers the whole card: the card passes its hover on (productCard)
+  thumb.flip = { start, stop };
+  return thumb;
+}
+
+const ZOOM_DELAY = 1200; // ms the mouse has to rest on the photo before the lens opens
+const ZOOM = 2.4;
+
+/** Photos on the product page: the big one with thumbnails under it. Resting the mouse on the big photo
+ *  for a moment turns on a lens: the photo grows and follows the mouse, like a magnifying glass. */
+export function productGallery(product) {
+  const pictures = productPictures(product);
+  const fallback = h("div", { class: "card product-card" }, productThumb(product, `/product/${product.id}`));
+  if (!pictures.length) return fallback;
+
+  const big = image(pictures[0], product.name);
+  const hint = h("span", { class: "zoom-hint" }, icon("actions/search"), t("product.zoom_hint"));
+  const frame = h("div", { class: "zoom-frame" }, big, hint, h("span", { class: "zoom-progress" }));
+  let timer = null;
+  const place = (event) => {
+    const box = frame.getBoundingClientRect();
+    const x = ((event.clientX - box.left) / box.width) * 100;
+    const y = ((event.clientY - box.top) / box.height) * 100;
+    big.style.transformOrigin = `${Math.max(0, Math.min(100, x))}% ${Math.max(0, Math.min(100, y))}%`;
+  };
+  frame.style.setProperty("--zoom-delay", `${ZOOM_DELAY}ms`);
+  frame.style.setProperty("--zoom", ZOOM);
+  frame.addEventListener("pointerenter", (event) => {
+    if (event.pointerType === "touch") return;
+    place(event);
+    frame.classList.add("arming"); // the bar under the photo fills while we wait
+    timer = setTimeout(() => {
+      frame.classList.remove("arming");
+      frame.classList.add("zoomed");
+    }, ZOOM_DELAY);
+  });
+  frame.addEventListener("pointermove", place);
+  frame.addEventListener("pointerleave", () => {
+    clearTimeout(timer);
+    frame.classList.remove("arming", "zoomed");
+  });
+
+  const thumbs = pictures.length > 1
+    ? h("div", { class: "gallery-thumbs" }, pictures.map((url, i) => h("button", {
+        type: "button",
+        class: i === 0 ? "gallery-thumb on" : "gallery-thumb",
+        "aria-label": t("product.photo_n", { n: i + 1 }),
+        onclick: (event) => select(event.currentTarget, url),
+        onpointerenter: (event) => select(event.currentTarget, url),
+      }, image(url, ""))))
+    : null;
+  function select(button, url) {
+    big.src = url;
+    thumbs.querySelectorAll(".gallery-thumb").forEach((b) => b.classList.toggle("on", b === button));
+  }
+  return h("div", { class: "card product-gallery" }, frame, thumbs);
 }
 
 /** Random delay for the pop-in animation of a card: they appear one by one, in a random order. */
@@ -69,7 +166,12 @@ export function productCard(product) {
 
   return h(
     "article",
-    { class: `card product-card${out ? " is-out" : ""}`, style: popDelay() },
+    {
+      class: `card product-card${out ? " is-out" : ""}`,
+      style: popDelay(),
+      onpointerenter: () => thumb.flip?.start(),
+      onpointerleave: () => thumb.flip?.stop(),
+    },
     thumb,
     h("span", { class: "card-category" }, icon(`categories/${product.category}`), product.category_name),
     h("a", { href: `#${href}`, class: "title" }, product.name),
@@ -148,17 +250,6 @@ export function statusName(status) {
 /** Colored status label. `text` defaults to the order status name. */
 export function statusPill(status, text = statusName(status)) {
   return h("span", { class: `pill s-${status}` }, text);
-}
-
-/** "← Назад  Страница 1 из 3  Вперёд →" for admin tables. */
-export function pager({ page, pages }, go) {
-  return h(
-    "div",
-    { class: "row" },
-    h("button", { disabled: page <= 1, onclick: () => go(page - 1) }, t("common.prev")),
-    h("span", {}, t("admin.page", { page, pages })),
-    h("button", { disabled: page >= pages, onclick: () => go(page + 1) }, t("common.next")),
-  );
 }
 
 /** List of the build checks with status icons. */

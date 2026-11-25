@@ -8,6 +8,7 @@
 import { api } from "../api.js";
 import { priceRow, specsTable, stockText } from "../components.js";
 import { t } from "../i18n.js";
+import { imageDrop, imageList } from "../image-drop.js";
 import { attempt, field, flash, h, image, link, navigate, select } from "../ui.js";
 
 export async function productEditorPage({ params, query }) {
@@ -36,10 +37,12 @@ export async function productEditorPage({ params, query }) {
     is_active: h("input", { type: "checkbox", checked: source ? source.is_active : true }),
   };
   inputs.brand.setAttribute("list", "brand-list");
+  // extra photos after the main one: the card flips through them, the product page shows them all
+  const extraImages = imageList(source?.images || [], () => updatePreview());
   const brandList = h("datalist", { id: "brand-list" }, brands.map((b) => h("option", { value: b })));
 
   // ---------- specs ----------
-  const specsBox = h("div");
+  const specsBox = h("div", { class: "form-grid" });
   let specInputs = {}; // key -> {field, read()}
   let specValues = { ...(source?.specs || {}) }; // kept when the category changes
 
@@ -48,7 +51,7 @@ export async function productEditorPage({ params, query }) {
     const label = `${t(`specs.${spec.key}`)}${spec.required ? " *" : ""}`;
     if (spec.kind === "flag") {
       const box = h("input", { type: "checkbox", checked: value === true });
-      return { node: h("label", { class: "row" }, box, label), read: () => box.checked };
+      return { node: h("label", { class: "check-row" }, box, label), read: () => box.checked };
     }
     if (spec.kind === "text_list") {
       const current = Array.isArray(value) ? value : [];
@@ -59,7 +62,7 @@ export async function productEditorPage({ params, query }) {
       });
       return {
         node: h("fieldset", {}, h("legend", {}, label),
-          h("div", { class: "row" }, boxes.map((b) => h("label", {}, b, ` ${b.value}`))), other),
+          h("div", { class: "check-chips" }, boxes.map((b) => h("label", { class: "check-chip" }, b, b.value))), other),
         read: () => [
           ...boxes.filter((b) => b.checked).map((b) => b.value),
           ...other.value.split(",").map((v) => v.trim()).filter(Boolean),
@@ -67,13 +70,19 @@ export async function productEditorPage({ params, query }) {
       };
     }
     if (spec.kind === "text") {
-      const listId = `list-${spec.key}`;
       const input = h("input", { required: spec.required, value: value ?? "" });
-      input.setAttribute("list", listId);
-      return {
-        node: field(label, h("span", {}, input, h("datalist", { id: listId }, spec.suggestions.map((s) => h("option", { value: s }))))),
-        read: () => input.value.trim(),
-      };
+      // values other products already use, one click fills the field
+      const chips = spec.suggestions.length
+        ? h("div", { class: "suggest-chips" }, spec.suggestions.map((s) => h("button", {
+            type: "button",
+            class: "chip-btn",
+            onclick: () => {
+              input.value = s;
+              input.dispatchEvent(new Event("input", { bubbles: true }));
+            },
+          }, s)))
+        : null;
+      return { node: h("div", { class: "spec-field" }, field(label, input), chips), read: () => input.value.trim() };
     }
     // number or score
     const input = h("input", {
@@ -123,7 +132,6 @@ export async function productEditorPage({ params, query }) {
   // ---------- preview ----------
   const preview = h("div");
   const discountNote = h("div", { class: "muted" });
-  const imagePreview = h("div");
 
   function readProduct() {
     const price = Number(inputs.price.value) || 0;
@@ -137,6 +145,7 @@ export async function productEditorPage({ params, query }) {
       old_price: oldPrice,
       stock: Number(inputs.stock.value) || 0,
       image_url: inputs.image_url.value.trim() || null,
+      images: extraImages.read(),
       specs: readSpecs(),
     };
   }
@@ -145,7 +154,6 @@ export async function productEditorPage({ params, query }) {
     const p = readProduct();
     const discount = p.old_price && p.old_price > p.price && p.price > 0 ? Math.round(((p.old_price - p.price) * 100) / p.old_price) : 0;
     discountNote.textContent = discount ? t("editor.discount", { percent: discount }) : t("editor.old_price_hint");
-    imagePreview.replaceChildren(image(p.image_url, p.name) || h("span", { class: "muted" }, t("editor.no_image")));
     const card = { ...p, discount_percent: discount, category_name: categoryNames[p.category] };
     preview.replaceChildren(
       h("div", { class: "card" },
@@ -182,30 +190,34 @@ export async function productEditorPage({ params, query }) {
     else navigate(`/admin/products/${saved.id}`);
   }
 
+  const panel = (title, ...children) => h("section", { class: "panel form-panel" }, h("h2", {}, title), children);
   const form = h(
     "form",
-    { class: "stack", onsubmit: save, oninput: updatePreview, onchange: updatePreview, style: "max-width: none" },
+    { class: "editor-form", onsubmit: save, oninput: updatePreview, onchange: updatePreview },
     h("p", { class: "muted" }, t("editor.required_hint")),
-    h("h2", {}, t("editor.basics")),
-    field(`${t("catalog.category")} *`, inputs.category),
-    field(`${t("common.name")} *`, inputs.name),
-    field(`${t("catalog.brand")} *`, inputs.brand),
-    brandList,
-    field(t("product.description"), inputs.description),
-    h("h2", {}, t("editor.price_stock")),
-    field(`${t("admin.price")}, ₽ *`, inputs.price),
-    field(`${t("admin.old_price")}, ₽`, h("span", {}, inputs.old_price, discountNote)),
-    field(t("admin.stock"), inputs.stock),
-    h("h2", {}, t("editor.image")),
-    field(t("admin.image_url"), h("span", {}, inputs.image_url, h("div", { class: "muted" }, t("editor.image_hint")))),
-    imagePreview,
-    h("h2", {}, t("editor.specs")),
-    specsBox,
-    h("h2", {}, t("editor.visibility")),
-    h("label", { class: "row" }, inputs.is_active, t("editor.active")),
-    h("div", { class: "row" },
-      h("button", { onclick: () => (saveAndNew = false) }, t("common.save")),
-      h("button", { onclick: () => (saveAndNew = true) }, t("editor.save_and_new")),
+    panel(t("editor.basics"),
+      field(`${t("catalog.category")} *`, inputs.category),
+      h("div", { class: "form-grid" },
+        field(`${t("common.name")} *`, inputs.name),
+        field(`${t("catalog.brand")} *`, inputs.brand)),
+      brandList,
+      field(t("product.description"), inputs.description)),
+    panel(t("editor.price_stock"),
+      h("div", { class: "form-grid" },
+        field(`${t("admin.price")}, ₽ *`, inputs.price),
+        field(`${t("admin.old_price")}, ₽`, h("span", {}, inputs.old_price, discountNote)),
+        field(t("admin.stock"), inputs.stock))),
+    panel(t("editor.image"),
+      imageDrop(inputs.image_url),
+      field(t("admin.image_url"), h("span", {}, inputs.image_url, h("div", { class: "muted" }, t("editor.image_hint")))),
+      h("h3", { class: "form-subtitle" }, t("editor.more_photos")),
+      h("p", { class: "muted field-hint" }, t("editor.more_photos_hint")),
+      extraImages.node),
+    panel(t("editor.specs"), specsBox),
+    panel(t("editor.visibility"), h("label", { class: "check-row" }, inputs.is_active, t("editor.active"))),
+    h("div", { class: "form-actions" },
+      h("button", { class: "primary", onclick: () => (saveAndNew = false) }, t("common.save")),
+      h("button", { class: "secondary", onclick: () => (saveAndNew = true) }, t("editor.save_and_new")),
       link("/admin?section=products", t("editor.back_to_list"))),
     errors,
   );

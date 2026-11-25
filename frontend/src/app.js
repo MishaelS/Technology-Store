@@ -1,7 +1,11 @@
 // Entry point: header, routing (#/path?query) and page rendering.
 import { LANGUAGES } from "./config.js";
+import { api } from "./api.js";
 import { watchSelects } from "./dropdown.js";
 import { installRipple, revealOnScroll } from "./effects.js";
+import { hexWave, installHexBackground } from "./hex-background.js";
+import { currentTheme, toggleTheme, watchSystemTheme } from "./theme.js";
+import { watchNumbers } from "./number-field.js";
 import { getLanguage, loadLanguage, t } from "./i18n.js";
 import { accountPage } from "./pages/account.js";
 import { adminPage } from "./pages/admin.js";
@@ -15,7 +19,7 @@ import { productPage } from "./pages/product.js";
 import { productEditorPage } from "./pages/product-editor.js";
 import { runAfter, runLeave } from "./router.js";
 import { can, isLoggedIn, loadUser, logout, refreshCartCount, session } from "./session.js";
-import { flash, h, icon, link, loading, navigate } from "./ui.js";
+import { avatar, flash, h, icon, link, loading, navigate } from "./ui.js";
 
 // [path pattern, page, access rule]
 const ROUTES = [
@@ -61,7 +65,7 @@ let lastCartCount = null; // to see when the cart grew
 /** Marks the current section in the header menu without redrawing the header. */
 function markCurrentSection() {
   const section = (location.hash.slice(1) || "/").split(/[/?]/)[1] || "";
-  for (const a of document.querySelectorAll("#header .main-nav a")) {
+  for (const a of document.querySelectorAll("#header .main-nav a, #header .tab-bar a")) {
     const own = a.getAttribute("href").slice(2);
     if (own === section) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
@@ -71,7 +75,7 @@ function markCurrentSection() {
 /** Draws the header only when something in it changed (user, cart, language), otherwise it would blink. */
 function renderHeader() {
   const user = session.user;
-  const key = JSON.stringify([user?.id, user?.name, user?.role, session.cartCount, getLanguage()]);
+  const key = JSON.stringify([user?.id, user?.name, user?.role, user?.avatar_url, session.cartCount, getLanguage(), currentTheme()]);
   if (key === headerKey) {
     markCurrentSection();
     return;
@@ -106,7 +110,8 @@ function renderHeader() {
     h(
       "div",
       { class: "header-inner" },
-      h("a", { href: "#/", class: "brand" }, h("img", { src: "/resources/icons/logo.svg", alt: "", width: 28, height: 28 }), t("app.name")),
+      h("a", { href: "#/", class: "brand", "aria-label": t("app.name") },
+        h("img", { src: "/resources/icons/logo.svg", alt: "", width: 28, height: 28 }), h("span", { class: "brand-name" }, t("app.name"))),
       h(
         "nav",
         { class: "main-nav", "aria-label": t("nav.home") },
@@ -116,27 +121,82 @@ function renderHeader() {
         can("admin.access") ? navLink("/admin", t("nav.admin")) : null,
       ),
       searchForm,
+      // phones: the sections are a bar at the bottom of the screen, always under the thumb
+      h(
+        "nav",
+        { class: "tab-bar", "aria-label": t("nav.home") },
+        [["/", "navigation/home", t("nav.home")], ["/catalog", "navigation/catalog", t("nav.catalog")],
+          ["/builder", "navigation/builder", t("nav.builder")], ["/news", "navigation/news", t("nav.news")],
+          can("admin.access") ? ["/admin", "navigation/admin", t("nav.admin")] : null]
+          .filter(Boolean)
+          .map(([path, iconName, text]) => h("a", { href: `#${path}` }, icon(iconName), h("span", {}, text))),
+      ),
       h(
         "div",
         { class: "header-actions" },
+        // light / dark: the icon shows the theme you get by clicking
+        h("button", {
+          type: "button",
+          class: "theme-toggle",
+          title: currentTheme() === "dark" ? t("nav.theme_light") : t("nav.theme_dark"),
+          "aria-label": currentTheme() === "dark" ? t("nav.theme_light") : t("nav.theme_dark"),
+          onclick: (event) => {
+            const box = event.currentTarget.getBoundingClientRect();
+            toggleTheme(box.left + box.width / 2, box.top + box.height / 2);
+          },
+        }, icon(currentTheme() === "dark" ? "navigation/theme-light" : "navigation/theme-dark")),
         languageSelect,
         user
           ? [
-              h("a", { href: "#/cart" }, icon("navigation/cart"), t("nav.cart"), session.cartCount
+              h("a", { href: "#/cart", class: "cart-link", "aria-label": t("nav.cart") }, icon("navigation/cart"),
+                h("span", { class: "label" }, t("nav.cart")), session.cartCount
                 ? h("span", { class: session.cartCount > shownCartCount ? "count bump" : "count" }, session.cartCount) // grew: the number jumps
                 : null),
-              h("a", { href: "#/account", title: t(`roles.${user.role}`) }, icon("navigation/account"), user.name),
-              h("button", { type: "button", onclick: onLogout }, t("nav.logout")),
+              // own photo or initials; logging out is in the account
+              h("a", { href: "#/account", class: "avatar-link", title: user.name, "aria-label": t("account.title") },
+                avatar(user)),
             ]
           : [
-              h("a", { href: "#/login" }, icon("navigation/login"), t("nav.login")),
-              h("a", { href: "#/register", class: "btn primary" }, t("nav.register")),
+              h("a", { href: "#/login", class: "login-link", "aria-label": t("nav.login") }, icon("navigation/login"), h("span", { class: "label" }, t("nav.login"))),
+              h("a", { href: "#/register", class: "btn primary register-link", "aria-label": t("nav.register") },
+                icon("navigation/register"), h("span", { class: "label" }, t("nav.register"))),
             ],
       ),
     ),
   );
-  document.getElementById("footer").replaceChildren(h("div", { class: "footer-inner" }, t("app.footer_note")));
+  renderFooter();
   markCurrentSection();
+}
+
+let footerCategories = null; // loaded once: the footer lists the catalog sections
+
+/** Dark footer with columns of links: the store, the catalog sections, for buyers, service. */
+function renderFooter() {
+  const column = (title, links) => h("nav", { class: "footer-col", "aria-label": title },
+    h("h3", {}, title), h("ul", {}, links.map(([path, text]) => h("li", {}, h("a", { href: `#${path}` }, text)))));
+  const shop = h("div", { class: "footer-shop" });
+  const drawShop = () => shop.replaceChildren(column(t("footer.shop"), [["/catalog", t("catalog.all_categories")],
+    ...(footerCategories || []).map((c) => [`/catalog?category=${c.slug}`, c.name])]));
+  drawShop();
+  if (!footerCategories) {
+    api("/api/categories").then((list) => {
+      footerCategories = list;
+      drawShop();
+    }).catch(() => {});
+  }
+  document.getElementById("footer").replaceChildren(
+    h("div", { class: "footer-inner" },
+      h("div", { class: "footer-grid" },
+        h("div", { class: "footer-brand" },
+          h("a", { href: "#/", class: "brand" }, h("img", { src: "/resources/icons/logo.svg", alt: "", width: 28, height: 28 }), t("app.name")),
+          h("p", {}, `© 2026 ${t("app.name")}`),
+          h("p", { class: "footer-note" }, t("app.footer_note"))),
+        shop,
+        column(t("footer.buyers"), [["/catalog", t("nav.catalog")], ["/builder", t("nav.builder")], ["/news", t("nav.news")], ["/cart", t("nav.cart")]]),
+        column(t("footer.service"), [["/account?tab=orders", t("footer.orders")], ["/account?tab=builds", t("footer.builds")],
+          ["/account?tab=repairs", t("footer.repairs")], ["/account?tab=bonus", t("footer.bonus")]])),
+      h("div", { class: "footer-bottom" }, h("span", {}, t("app.tagline")), h("a", { href: "#/" }, t("app.name")))),
+  );
 }
 
 let renderCounter = 0;
@@ -150,12 +210,16 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 /** Swaps the page with a View Transition: the old page fades away, the new one opens as a growing circle.
  *  Browsers without View Transitions (or with reduced motion) just swap. */
-function pageTransition(main, swap) {
-  if (!document.startViewTransition || reducedMotion.matches) return swap();
-  // a click a moment ago (link, arrow): start from it; "Back" button and others: from the middle of the screen
+/** Where a wave starts: a click a moment ago (link, arrow, filter), otherwise the middle of the screen ("Back"). */
+function wavePoint() {
   const fresh = Date.now() - lastClick.time < 3000;
-  const x = fresh ? lastClick.x : window.innerWidth / 2;
-  const y = fresh ? lastClick.y : window.innerHeight / 3;
+  return fresh ? { x: lastClick.x, y: lastClick.y } : { x: window.innerWidth / 2, y: window.innerHeight / 3 };
+}
+
+function pageTransition(main, swap) {
+  const { x, y } = wavePoint();
+  hexWave(x, y); // the hex bytes in the background run as a wave from the same point
+  if (!document.startViewTransition || reducedMotion.matches) return swap();
   const root = document.documentElement.style;
   // the swap must happen exactly once: by the transition, or by the safety timer below
   let swapped = false;
@@ -183,7 +247,18 @@ function pageTransition(main, swap) {
   }, 1000);
 }
 
+/** Rows of tabs that scroll sideways on phones (account, admin): the current one is moved into view.
+ *  Only the row scrolls, the page stays where it is. */
+function centerCurrentTabs(root) {
+  for (const current of root.querySelectorAll(".tabs b, .side-menu b")) {
+    const row = current.parentElement;
+    if (row.scrollWidth <= row.clientWidth) continue;
+    row.scrollLeft = current.offsetLeft - (row.clientWidth - current.offsetWidth) / 2;
+  }
+}
+
 let lastPath = null;
+let lastQuery = ""; // filters of the shown page: a change of them is a new page too
 
 /** Thin loading bar at the top, only when the next page takes a noticeable time. */
 function showLoading(current) {
@@ -227,17 +302,23 @@ async function render() {
     const node = await found.page({ params: found.params, query });
     if (current !== renderCounter) return; // the user already went to another page
     const newSection = path !== lastPath;
+    const queryText = query.toString();
+    // same section, other filters (catalog, news): the page also changes, with the same wave;
+    // a reload of the same page (after cancelling an order and so on) changes nothing visible
+    const newFilters = !newSection && queryText !== lastQuery;
     const swap = () => {
       if (current !== renderCounter) return; // a newer page came while the transition was starting
       runLeave(); // stop the old page (observers, timers) right before swapping it
       main.replaceChildren(node);
       if (newSection) window.scrollTo(0, 0); // new section: start at the top; same section (filters): stay
       lastPath = path;
+      lastQuery = queryText;
       runAfter();
       revealOnScroll(main);
+      centerCurrentTabs(main);
     };
-    // another section: the new page spreads like a wave from the place of the click
-    if (newSection && lastPath !== null) pageTransition(main, swap);
+    // another section or other filters: the new page spreads like a wave from the place of the click
+    if ((newSection || newFilters) && lastPath !== null) pageTransition(main, swap);
     else swap();
   } catch (error) {
     if (current === renderCounter) {
@@ -256,15 +337,14 @@ async function changeLanguage(code) {
   render();
 }
 
-function onLogout() {
-  logout();
-  navigate("/");
-  render();
-}
 
 async function start() {
   watchSelects(document.body); // every <select> becomes the site's own dropdown
+  watchNumbers(document.body); // every number field gets the site's own up/down arrows
   installRipple(); // click wave in buttons
+  installHexBackground(); // hex digits behind the page, a wave runs over them on page change
+  watchSystemTheme(); // light/dark follows the system until the user picks one
+  window.addEventListener("theme:change", () => renderHeader());
   try {
     await loadLanguage();
   } catch {

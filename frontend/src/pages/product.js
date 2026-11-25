@@ -1,12 +1,12 @@
 import { api } from "../api.js";
-import { addToCart, priceRow, productThumb, specsTable, stockText } from "../components.js";
+import { addToCart, priceRow, productGallery, specsTable, stockText } from "../components.js";
 import { t } from "../i18n.js";
 import { can } from "../session.js";
 import { h, icon, link } from "../ui.js";
 
 export async function productPage({ params }) {
   const product = await api(`/api/products/${encodeURIComponent(params.id)}`);
-  const quantity = h("input", { type: "number", min: 1, max: Math.max(1, product.stock), value: 1, style: "width: 76px", "aria-label": t("cart.quantity") });
+  const quantity = h("input", { type: "number", min: 1, max: Math.max(1, product.stock), value: 1, style: "width: 96px", "aria-label": t("cart.quantity") });
   return h(
     "div",
     {},
@@ -14,7 +14,7 @@ export async function productPage({ params }) {
     h(
       "section",
       { class: "split product-page" },
-      h("div", { class: "card product-card" }, productThumb(product, `/product/${product.id}`)),
+      productGallery(product),
       h(
         "div",
         { class: "section" },

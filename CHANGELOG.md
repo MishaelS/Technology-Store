@@ -7,6 +7,106 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-25
+
+Dark theme, a new home page and a layout for phones on every page.
+
+### Added
+
+- Dark theme: a second set of color variables, a sun/moon switch in the header; the new theme opens as a circle
+  from the switch. The choice is remembered, until then the site follows the system theme; set before the first
+  paint, so a dark page never flashes white. The hex background and pictures follow the theme.
+- `navigation/theme-dark` and `navigation/theme-light` icons.
+
+### Changed
+
+- Phones: the catalog filters always start collapsed; rows of tabs (account) and admin sections scroll sideways
+  with the current one in view; admin tables become cards with column titles over the values;
+  the slider bars fit the narrowest screens.
+- New home page: a wide first screen (a big colored title, a product photo on two colored circles, bar indicators),
+  catalog sections as tiles, news in three columns under a thick line, a band of big numbers that count up,
+  an "about the store" block over a dark band, a question band; the categories sidebar is gone from the home page.
+- Dark footer with columns of links: the catalog sections, for buyers, service.
+
+### Fixed
+
+- The wrench icon (`navigation/builder`): its jaw was drawn crooked, visible at large sizes.
+
+## [0.2.0] - 2026-11-25
+
+New design of the whole site, admin panel with infinite lists, picture uploads, product galleries,
+avatars, backups, demo data and a phone layout.
+
+### Added
+
+- Backups (admin panel, permission `system.backup`, only for the admin): the whole database
+  and the uploaded pictures in one .zip; make, download, upload, restore (only the same database version,
+  in one transaction) and delete. Auto backup on a schedule with rotation, off by default (a checkbox).
+  Files in `backups/`.
+- More photos of a product (`images`, up to 10 after the main `image_url`): the card flips through them
+  while the mouse rests on it, the product page shows them with thumbnails; resting the mouse on the big photo
+  for a moment opens a lens that follows the mouse. In the editor several photos can be dropped at once.
+  The demo gives every product two more views (close-up and the box).
+- Own photo (avatar): `POST/DELETE /api/auth/me/avatar`, `avatar_url` in the user; set in the account by choosing
+  a file or dropping it onto the avatar. Without a photo the avatar shows the initials on a color.
+- Skeleton placeholders in the shape of cards while the catalog, the news and the first page load.
+- Promo slider on the home page: the "build a PC" slide and the promotions, changes by itself
+  with a progress bar on the active dot, pauses under the mouse, arrows and swipe on phones.
+- `actions/copy` icon.
+- Own up/down arrows for every number field (`number-field.js`): holding repeats the step,
+  min/max are respected, `change` fires once when the button is released.
+- `./run.sh demo` (`app/demo.py`): demo data on top of the seed — 61 more products, 24 news and events,
+  facts, 12 clients with orders in every status, saved builds, repairs and stock receipts.
+- Demo pictures for every product and news (`resources/demo`, drawn by `scripts/make_demo_images.py`).
+- Picture upload: `POST /api/admin/uploads` (the type is checked by the file's bytes, no SVG, up to 5 MB),
+  files in `uploads/` served by nginx at `/uploads/`; in the product editor and the news form a picture
+  can be dropped onto the field, chosen from a file or pasted.
+- "Nothing here yet" block with a button for an empty cart, orders, builds and repairs.
+- `content/image` icon.
+- Background of hex bytes like a memory dump (`10 AA 2A D2 ...`, `hex-background.js`): a wave runs over them
+  from the click point on every page change, the bytes light up and get new values (only a wave changes them).
+  At rest Perlin noise with a fixed seed sets the size and brightness of the bytes and slowly drifts
+  to the bottom right corner; the background is slightly blurred;
+  redrawn 15 times a second at rest, every frame during a wave, nothing in a hidden tab.
+- A change of filters (catalog, news) opens the new page with the same wave as a change of section;
+  a reload of the same page doesn't.
+
+### Changed
+
+- Cart items are small cards (photo, name, quantity, sum, remove) that fit a phone instead of a wide table.
+- Builder steps on a phone: seven circles in one line with the progress line; the chosen part shows its photo.
+- Faster background: drawn at a low resolution instead of a full-screen CSS blur, fewer redraws at rest
+  (10/s, 6/s on phones) and none while the page scrolls; the phone section bar has a solid background.
+- Phone header: one line (logo, language, cart icon with a badge, avatar) and the search under it;
+  the sections moved to a bar at the bottom of the screen; the narrowest phones show the logo alone.
+- The site calls the API on its own address (`/api/...`), nginx passes it to the backend: the site works
+  through a tunnel or a forwarded port 5173 alone.
+- The header shows the user's avatar instead of the name and the logout button; logging out is in the account.
+- Only the admin (`users.manage`) sees roles: the account and the avatar tooltip no longer show the user's own role.
+- Admin panel lists (orders, products, client builds, users, repairs, stock receipts, news) load more rows
+  while scrolling instead of page buttons; search works while typing, filters stay in the address,
+  a row is redrawn in place after a change.
+- New look of the admin panel: search bar with filters and a counter, tables with spacing and status labels,
+  icon buttons for row actions, dashboard tiles, collapsible create forms.
+- Form fields show their name inside (floating label) instead of a line of text above.
+- Product editor: form split into blocks, fields side by side, suggestions as chips under the field,
+  checkboxes next to their text, a smaller picture preview, a quieter "save and create another" button.
+- Promo slider: arrows and dots in one bar under the slide; promotion pictures shown whole.
+- Slightly darker page background, so the white cards and panels stand out.
+- The bonus limit in checkout is a hint under the field instead of a long label.
+
+### Removed
+
+- Page buttons of the admin tables and their texts (`common.prev`, `common.next`, `admin.page`).
+
+### Fixed
+
+- The footer stays at the bottom of the screen on short pages.
+- Pale icons on the admin dashboard tiles.
+- The promo slider stopped changing slides after a click on a dot or an arrow, and could stall on the last one.
+- The product page cut its picture (square frame for a 4:3 picture).
+- Parts of the account tabs (bonuses, orders, builds) had no space between them.
+
 ## [0.1.0] - 2026-11-25
 
 First version: the store backend, the admin panel and the frontend with the new design.
@@ -98,5 +198,7 @@ First version: the store backend, the admin panel and the frontend with the new 
 - A client cancel and a manager cancel at the same time could refund bonuses twice.
 - Admin stats skipped order statuses that had no orders.
 
-[Unreleased]: https://github.com/MishaelS/Technology-Store/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/MishaelS/Technology-Store/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/MishaelS/Technology-Store/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/MishaelS/Technology-Store/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/MishaelS/Technology-Store/releases/tag/v0.1.0

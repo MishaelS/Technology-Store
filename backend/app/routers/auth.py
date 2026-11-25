@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -10,6 +10,7 @@ from app.i18n import t
 from app.models import User
 from app.schemas import LoginIn, ProfileUpdate, RegisterIn, TokenOut, UserOut
 from app.security import create_token, hash_password, verify_password
+from app.routers.uploads import delete_upload, read_image, save_image
 from app.services.bonus import add_bonus
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
@@ -66,4 +67,28 @@ def update_me(data: ProfileUpdate, user: User = Depends(get_current_user), db: S
             continue
         setattr(user, field, value.strip() if isinstance(value, str) else value)
     db.commit()
+    return user
+
+
+# ---------- own photo ----------
+
+@router.post("/me/avatar", response_model=UserOut)
+async def upload_avatar(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Sets the user's photo: the file itself is the request body (PNG, JPEG, WebP or GIF, up to 5 MB).
+    The previous photo file is removed."""
+    data, extension = await read_image(request)
+    old = user.avatar_url
+    user.avatar_url = save_image(data, extension, "avatars")
+    db.commit()
+    delete_upload(old, "avatars")
+    return user
+
+
+@router.delete("/me/avatar", response_model=UserOut)
+def remove_avatar(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Removes the photo: the initials are shown again."""
+    old = user.avatar_url
+    user.avatar_url = None
+    db.commit()
+    delete_upload(old, "avatars")
     return user

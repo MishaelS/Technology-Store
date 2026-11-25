@@ -94,8 +94,18 @@ export function formData(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+/**
+ * Field with its name inside: grey text in the empty field that moves up and shrinks
+ * when the user types or picks something (a "floating label"), so no line of text above every field.
+ * `input` can be the control itself or a wrapper with it (and a hint under it).
+ */
 export function field(label, input) {
-  return h("label", {}, label, input);
+  const control = input.matches?.("input, textarea, select") ? input : input.querySelector?.("input, textarea, select");
+  if (!control || ["checkbox", "radio"].includes(control.type)) return h("label", {}, label, input);
+  // :placeholder-shown tells CSS the field is empty; a real placeholder only shows once the field is focused
+  if (control.tagName !== "SELECT" && !control.placeholder) control.placeholder = " ";
+  const kind = control.tagName === "SELECT" ? " is-select" : control.tagName === "TEXTAREA" ? " is-textarea" : "";
+  return h("label", { class: `float-field${kind}` }, input, h("span", { class: "float-label" }, label));
 }
 
 export function select(name, options, value) {
@@ -106,6 +116,51 @@ export function select(name, options, value) {
   );
 }
 
+/** First letters of the first two words of the name: "Пётр Покупатель" -> "ПП". */
+export function initials(name) {
+  const words = String(name || "").trim().split(/\s+/).filter(Boolean);
+  return (words.slice(0, 2).map((w) => w[0]).join("") || "?").toUpperCase();
+}
+
+// soft colors for circles with initials; a user always gets the same one (by id)
+const AVATAR_COLORS = ["#3B5BDB", "#0C8599", "#7048E8", "#E8590C", "#2B8A3E", "#C2255C", "#1971C2", "#E67700"];
+
+/** Round avatar: the user's photo, or the initials on a color. `size` is "" (header) or "big". */
+export function avatar(user, size = "") {
+  const cls = `avatar${size ? ` ${size}` : ""}`;
+  const photo = image(user.avatar_url, "");
+  if (photo) return h("span", { class: cls }, photo);
+  return h("span", { class: `${cls} initials`, style: `--avatar-color: ${AVATAR_COLORS[(user.id || 0) % AVATAR_COLORS.length]}` }, initials(user.name));
+}
+
+/** "Nothing here yet" block: an icon, a line of text and an optional button (path, text). */
+export function emptyState(iconName, text, action = null) {
+  return h(
+    "div",
+    { class: "empty-state" },
+    h("span", { class: "empty-icon" }, icon(iconName)),
+    h("p", {}, text),
+    action ? h("a", { href: `#${action[0]}`, class: "btn primary" }, action[1], icon("navigation/arrow-right")) : null,
+  );
+}
+
+/** Grey placeholders in the shape of cards, shown while the real cards load. kind: "product" | "news". */
+export function skeletons(kind, count) {
+  const bone = (extra = "") => h("span", { class: `bone ${extra}` });
+  const card = () =>
+    kind === "news"
+      ? h("div", { class: "skeleton news-skeleton" }, bone("short"), bone("title"), bone(), bone(), bone("half"))
+      : h("div", { class: "skeleton product-skeleton" }, bone("thumb"), bone("short"), bone("title"), bone("half"),
+          h("div", { class: "skeleton-foot" }, bone("price"), bone("button")));
+  return Array.from({ length: count }, card);
+}
+
+/** First page of the site while it loads: a title bar and a few cards. Screen readers hear "Loading…". */
 export function loading() {
-  return h("p", { class: "muted" }, t("common.loading"));
+  return h(
+    "div",
+    { class: "page-skeleton", role: "status", "aria-label": t("common.loading") },
+    h("span", { class: "bone heading" }),
+    h("div", { class: "grid", "aria-hidden": "true" }, skeletons("product", 4)),
+  );
 }

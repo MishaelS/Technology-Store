@@ -1,13 +1,10 @@
 // Admin sections for staff work: repairs (engineers), stock receipts (employees), tech support (senior engineer).
+import { adminList, cell, pagedSource } from "../admin-list.js";
 import { api, query as toQuery } from "../api.js";
-import { pager, statusPill } from "../components.js";
+import { statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { reload } from "../router.js";
-import { attempt, date, field, flash, formData, h, link, money, navigate, select } from "../ui.js";
-
-function go(section, params) {
-  navigate(`/admin${toQuery({ section, ...params })}`);
-}
+import { attempt, date, emptyState, field, flash, formData, h, icon, link, money, select } from "../ui.js";
 
 // ---------- repairs ----------
 
@@ -24,15 +21,13 @@ const REPAIR_NEXT = {
 
 export const repairStatus = (status) => t(`repairs.status.${status}`);
 
-export async function repairsSection(query) {
-  const params = { status: query.get("status") || "", search: query.get("search") || "", page: Number(query.get("page")) || 1 };
-  const data = await api(`/api/admin/repairs${toQuery({ ...params, page_size: 20 })}`);
+export function repairsSection(query) {
 
   const errors = h("div");
   const createForm = h(
     "form",
     {
-      class: "stack card",
+      class: "stack",
       onsubmit: async (event) => {
         event.preventDefault();
         const body = formData(createForm);
@@ -51,60 +46,57 @@ export async function repairsSection(query) {
     field(`${t("repairs.device")} *`, h("input", { name: "device", required: true })),
     field(`${t("repairs.problem")} *`, h("textarea", { name: "problem", required: true, rows: 3 })),
     field(t("repairs.price"), h("input", { name: "price", type: "number", min: 0 })),
-    h("button", {}, t("repairs.accept")),
+    h("button", { class: "primary" }, t("repairs.accept")),
     errors,
   );
 
-  const filters = h(
-    "form",
-    { class: "row", onsubmit: (e) => { e.preventDefault(); go("repairs", { ...formData(e.target), page: 1 }); } },
-    select("status", [["", t("admin.all_statuses")], ...REPAIR_STATUSES.map((s) => [s, repairStatus(s)])], params.status),
-    h("input", { name: "search", type: "search", value: params.search, placeholder: t("repairs.search") }),
-    h("button", {}, t("common.search")),
-  );
-
-  const rows = data.items.map((repair) => {
-    const price = h("input", { type: "number", min: 0, value: repair.price ?? "", style: "width: 90px" });
-    const comment = h("textarea", { rows: 2 }, repair.engineer_comment);
-    const save = (extra = {}) => async () => {
-      const body = { engineer_comment: comment.value, price: price.value === "" ? null : Number(price.value), ...extra };
-      if (await attempt(() => api(`/api/admin/repairs/${repair.id}`, { method: "PATCH", body }))) reload();
-    };
-    return h(
-      "tr",
-      {},
-      h("td", {}, `#${repair.id}`, h("div", { class: "muted" }, date(repair.created_at))),
-      h("td", {}, repair.client_name, h("br"), repair.client_phone,
-        repair.client_id ? h("div", { class: "muted" }, t("repairs.has_account")) : null),
-      h("td", {}, h("b", {}, repair.device), h("div", {}, repair.problem)),
-      h("td", {},
-        statusPill(repair.status, repairStatus(repair.status)),
-        repair.engineer ? h("div", { class: "muted" }, repair.engineer.name) : null,
-        h("div", {}, REPAIR_NEXT[repair.status].map((next) =>
-          h("button", { onclick: save({ status: next }) }, `→ ${repairStatus(next)}`)))),
-      h("td", {}, field(t("repairs.price"), price), field(t("repairs.comment"), comment),
-        h("button", { onclick: save() }, t("common.save"))),
-    );
+  const list = adminList({
+    section: "repairs",
+    source: (params) => pagedSource("/api/admin/repairs", params),
+    params: { status: query.get("status") || "", search: query.get("search") || "" },
+    search: t("repairs.search"),
+    filters: [{ name: "status", options: [["", t("admin.all_statuses")], ...REPAIR_STATUSES.map((s) => [s, repairStatus(s)])] }],
+    emptyText: t("repairs.empty"),
+    head: ["#", t("repairs.client"), t("repairs.device"), t("common.status"), t("repairs.comment")],
+    render: (repair, update) => {
+      const price = h("input", { type: "number", min: 0, value: repair.price ?? "", class: "input-small", placeholder: t("repairs.price") });
+      const comment = h("textarea", { rows: 2, placeholder: t("repairs.comment") }, repair.engineer_comment);
+      const save = (extra = {}) => async () => {
+        const body = { engineer_comment: comment.value, price: price.value === "" ? null : Number(price.value), ...extra };
+        const changed = await attempt(() => api(`/api/admin/repairs/${repair.id}`, { method: "PATCH", body }));
+        if (changed) {
+          update(changed);
+          flash(t("common.saved"));
+        }
+      };
+      return h(
+        "tr",
+        {},
+        h("td", {}, cell(`#${repair.id}`, date(repair.created_at))),
+        h("td", {}, cell(repair.client_name, repair.client_phone, repair.client_id ? t("repairs.has_account") : null)),
+        h("td", {}, cell(repair.device, repair.problem)),
+        h("td", {}, h("div", { class: "cell-actions" },
+          statusPill(repair.status, repairStatus(repair.status)),
+          repair.engineer ? h("span", { class: "cell-sub" }, repair.engineer.name) : null,
+          REPAIR_NEXT[repair.status].map((next) =>
+            h("button", { class: "small", onclick: save({ status: next }) }, `→ ${repairStatus(next)}`)))),
+        h("td", {}, h("div", { class: "edit-cell" }, price, comment, h("button", { class: "small", onclick: save() }, t("common.save")))),
+      );
+    },
   });
 
   return h(
     "div",
-    {},
-    h("details", {}, h("summary", {}, t("repairs.accept")), createForm),
-    filters,
-    data.items.length
-      ? h("table", {},
-          h("tr", {}, ["#", t("repairs.client"), t("repairs.device"), t("common.status"), ""].map((x) => h("th", {}, x))),
-          rows)
-      : h("p", {}, t("repairs.empty")),
-    pager(data, (page) => go("repairs", { ...params, page })),
+    { class: "admin-stack" },
+    h("details", { class: "panel create-box" }, h("summary", {}, icon("actions/plus"), t("repairs.accept")), createForm),
+    list,
   );
 }
 
 /** Repairs of the client in the personal account. */
 export async function myRepairs() {
   const list = await api("/api/repairs/my");
-  if (!list.length) return h("p", {}, t("repairs.empty"));
+  if (!list.length) return emptyState("admin/repairs", t("repairs.empty"));
   return h("div", {}, list.map((repair) => h(
     "div",
     { class: "card" },
@@ -118,12 +110,8 @@ export async function myRepairs() {
 
 // ---------- stock receipts ----------
 
-export async function stockSection(query) {
-  const params = { page: Number(query.get("page")) || 1 };
-  const [categories, log] = await Promise.all([
-    api("/api/categories"),
-    api(`/api/admin/stock/receipts${toQuery({ ...params, page_size: 20 })}`),
-  ]);
+export async function stockSection() {
+  const categories = await api("/api/categories");
 
   const productSelect = h("select", { name: "product_id", required: true }, h("option", { value: "" }, t("stock.choose_product")));
   async function loadProducts(category) {
@@ -141,7 +129,7 @@ export async function stockSection(query) {
   const form = h(
     "form",
     {
-      class: "stack card",
+      class: "stack",
       onsubmit: async (event) => {
         event.preventDefault();
         const data = formData(form);
@@ -153,34 +141,33 @@ export async function stockSection(query) {
         }
       },
     },
-    h("h3", {}, t("stock.receive")),
     field(t("catalog.category"), categorySelect),
     field(`${t("stock.product")} *`, productSelect),
     field(`${t("stock.quantity")} *`, h("input", { name: "quantity", type: "number", min: 1, required: true })),
     field(t("stock.supplier"), h("input", { name: "supplier" })),
     field(t("stock.comment"), h("input", { name: "comment" })),
-    h("button", {}, t("stock.receive")),
+    h("button", { class: "primary" }, t("stock.receive")),
     errors,
   );
 
+  const log = adminList({
+    section: "receipts",
+    source: (params) => pagedSource("/api/admin/stock/receipts", params),
+    params: {},
+    head: [t("admin.date"), t("stock.product"), t("stock.quantity"), t("stock.supplier"), t("stock.received_by")],
+    render: (r) => h("tr", {},
+      h("td", { class: "nowrap" }, date(r.created_at)),
+      h("td", {}, cell(link(`/admin/products/${r.product.id}`, r.product.name), r.comment)),
+      h("td", { class: "num ok" }, `+${r.quantity}`),
+      h("td", {}, r.supplier || "—"),
+      h("td", {}, r.received_by?.name || "—")),
+  });
+
   return h(
     "div",
-    {},
-    form,
-    h("h3", {}, t("stock.log")),
-    log.items.length
-      ? h("table", {},
-          h("tr", {}, [t("admin.date"), t("stock.product"), t("stock.quantity"), t("stock.supplier"), t("stock.comment"), t("stock.received_by")]
-            .map((x) => h("th", {}, x))),
-          log.items.map((r) => h("tr", {},
-            h("td", {}, date(r.created_at)),
-            h("td", {}, link(`/admin/products/${r.product.id}`, r.product.name)),
-            h("td", {}, `+${r.quantity}`),
-            h("td", {}, r.supplier),
-            h("td", {}, r.comment),
-            h("td", {}, r.received_by?.name || "—"))))
-      : h("p", {}, t("common.nothing_found")),
-    pager(log, (page) => go("receipts", { page })),
+    { class: "admin-stack" },
+    h("section", { class: "panel" }, h("h2", {}, t("stock.receive")), form),
+    h("section", { class: "admin-stack" }, h("h2", {}, t("stock.log")), log),
   );
 }
 
@@ -205,17 +192,19 @@ export async function systemSection() {
   ];
   return h(
     "div",
-    {},
-    h("button", { onclick: () => reload() }, t("system.refresh")),
-    h("table", {}, rows.map(([name, value]) => h("tr", {}, h("th", {}, name), h("td", {}, value)))),
-    h("h3", {}, t("system.errors")),
+    { class: "admin-stack" },
+    h("div", { class: "toolbar" }, h("button", { type: "button", onclick: () => reload() }, icon("actions/reset"), t("system.refresh"))),
+    h("table", { class: "admin-table kv-table" }, rows.map(([name, value]) => h("tr", {}, h("th", {}, name), h("td", {}, value)))),
+    h("h2", {}, t("system.errors")),
     info.recent_errors.length
       ? [
-          h("table", {}, info.recent_errors.map((e) => h("tr", {},
-            h("td", {}, date(e.created_at)),
-            h("td", {}, `${e.method} ${e.path}`),
+          h("table", { class: "admin-table" }, info.recent_errors.map((e) => h("tr", {},
+            h("td", { class: "nowrap" }, date(e.created_at)),
+            h("td", { class: "nowrap" }, `${e.method} ${e.path}`),
             h("td", {}, h("code", {}, e.error))))),
           h("button", {
+            type: "button",
+            class: "small",
             onclick: async () => {
               if (!confirm(`${t("system.clear_errors")}?`)) return;
               if ((await attempt(() => api("/api/admin/system/errors", { method: "DELETE" }))) !== undefined) reload();

@@ -1,12 +1,16 @@
 // Admin panel. Every section is shown only if the user has its permission (from the API).
 // The backend checks the same permissions, so hiding here is only for convenience.
 import { api, query as toQuery } from "../api.js";
-import { checksList, pager, statusName, statusPill } from "../components.js";
+import { adminList, cell, iconButton, labelCells, pagedSource } from "../admin-list.js";
+import { checksList, statusName, statusPill } from "../components.js";
 import { t } from "../i18n.js";
-import { reload } from "../router.js";
+import { imageDrop } from "../image-drop.js";
+import { infiniteList } from "../infinite.js";
+import { onLeave, reload } from "../router.js";
+import { backupsSection } from "./backups.js";
 import { repairsSection, stockSection, systemSection } from "./staff.js";
 import { can, session } from "../session.js";
-import { attempt, date, field, flash, formData, h, icon, link, money, navigate, select } from "../ui.js";
+import { attempt, date, field, flash, formData, h, icon, link, money, select, skeletons } from "../ui.js";
 
 const SECTIONS = [
   ["dashboard", "stats.view", dashboard],
@@ -18,6 +22,7 @@ const SECTIONS = [
   ["content", "content.manage", content],
   ["users", "users.manage", users],
   ["system", "system.view", systemSection],
+  ["backups", "system.backup", backupsSection],
 ];
 const STATUSES = ["new", "confirmed", "assembling", "shipped", "done", "cancelled"];
 // Same rules as the backend (services/orders.py): which status can follow which
@@ -44,142 +49,124 @@ export async function adminPage({ query }) {
   );
 }
 
-function go(section, params) {
-  navigate(`/admin${toQuery({ section, ...params })}`);
-}
-
 // ---------- dashboard ----------
 
 async function dashboard() {
   const s = await api("/api/admin/stats");
-  const rows = [
-    ["orders_total", s.orders_total], ["revenue_done", money(s.revenue_done)], ["revenue_active", money(s.revenue_active)],
-    ["users_total", s.users_total], ["new_users_7d", s.new_users_7d], ["builds_total", s.builds_total], ["low_stock", s.low_stock],
+  const tiles = [
+    ["orders_total", s.orders_total, "orders/order"], ["revenue_done", money(s.revenue_done), "shop/price"],
+    ["revenue_active", money(s.revenue_active), "orders/payment"], ["users_total", s.users_total, "admin/users"],
+    ["new_users_7d", s.new_users_7d, "navigation/register"], ["builds_total", s.builds_total, "navigation/builder"],
+    ["low_stock", s.low_stock, "admin/low-stock"],
   ];
   return h(
     "div",
-    {},
-    h("table", {}, rows.map(([key, value]) => h("tr", {}, h("th", {}, t(`admin.stats.${key}`)), h("td", {}, value)))),
-    h("h3", {}, t("admin.orders_by_status")),
-    h("table", {}, Object.entries(s.orders_by_status).map(([status, count]) => h("tr", {}, h("th", {}, statusName(status)), h("td", {}, count)))),
-    h("h3", {}, t("admin.stats.top_products")),
-    h("ol", {}, s.top_products.map((p) => h("li", {}, `${p.name} — ${t("common.pieces", { count: p.sold })}`))),
+    { class: "dashboard" },
+    h("div", { class: "stat-grid" }, tiles.map(([key, value, iconName]) =>
+      h("div", { class: `stat-tile${key === "low_stock" && s.low_stock ? " warn" : ""}` },
+        h("span", { class: "stat-icon" }, icon(iconName)), h("span", { class: "stat-label" }, t(`admin.stats.${key}`)), h("strong", { class: "stat-value num" }, value)))),
+    h("div", { class: "split" },
+      h("section", { class: "panel" },
+        h("h3", {}, t("admin.orders_by_status")),
+        h("ul", { class: "status-list" }, Object.entries(s.orders_by_status).map(([status, count]) =>
+          h("li", {}, statusPill(status), h("span", { class: "num" }, count))))),
+      h("section", { class: "panel" },
+        h("h3", {}, t("admin.stats.top_products")),
+        h("ol", { class: "top-list" }, s.top_products.map((p) =>
+          h("li", {}, h("span", {}, p.name), h("span", { class: "muted num" }, t("common.pieces", { count: p.sold }))))))),
   );
 }
 
 // ---------- orders ----------
 
-async function orders(query) {
-  const params = { status: query.get("status") || "", search: query.get("search") || "", page: Number(query.get("page")) || 1 };
-  const data = await api(`/api/admin/orders${toQuery({ ...params, page_size: 20 })}`);
-  const filters = h(
-    "form",
-    {
-      class: "row",
-      onsubmit: (e) => {
-        e.preventDefault();
-        go("orders", { ...formData(e.target), page: 1 });
-      },
-    },
-    select("status", [["", t("admin.all_statuses")], ...STATUSES.map((s) => [s, statusName(s)])], params.status),
-    h("input", { name: "search", type: "search", value: params.search, placeholder: t("admin.order_search") }),
-    h("button", {}, t("common.search")),
-  );
-  const table = h(
-    "table",
-    {},
-    h("tr", {}, ["#", t("admin.date"), t("admin.client"), t("orders.items"), t("orders.total"), t("common.status")].map((x) => h("th", {}, x))),
-    data.items.map((order) => h(
+function orders(query) {
+  return adminList({
+    section: "orders",
+    source: (params) => pagedSource("/api/admin/orders", params),
+    params: { status: query.get("status") || "", search: query.get("search") || "" },
+    search: t("admin.order_search"),
+    filters: [{ name: "status", options: [["", t("admin.all_statuses")], ...STATUSES.map((s) => [s, statusName(s)])] }],
+    head: ["#", t("admin.date"), t("admin.client"), t("orders.items"), t("orders.total"), t("common.status")],
+    render: (order, update) => h(
       "tr",
       {},
-      h("td", {}, order.id),
-      h("td", {}, date(order.created_at)),
-      h("td", {}, order.user.name, h("br"), h("span", { class: "muted" }, order.user.email), h("br"), order.phone, h("br"), order.address,
-        order.comment ? [h("br"), h("i", {}, order.comment)] : null),
-      h("td", {}, h("ul", {}, order.items.map((i) => h("li", {}, `${i.product_name} × ${i.quantity}`)))),
-      h("td", { class: "price" }, money(order.total), order.bonus_used ? h("div", { class: "muted" }, `${t("checkout.bonus_used")}: ${order.bonus_used}`) : null),
-      h("td", {}, statusPill(order.status), h("div", { class: "row", style: "margin-top: 8px" }, NEXT_STATUSES[order.status].map((next) =>
-        h("button", {
-          onclick: async () => {
-            const done = await attempt(() => api(`/api/admin/orders/${order.id}/status`, { method: "PATCH", body: { status: next } }));
-            if (done) reload();
-          },
-        }, `→ ${statusName(next)}`)))),
-    )),
-  );
-  return h("div", {}, filters, table, pager(data, (page) => go("orders", { ...params, page })));
+      h("td", { class: "num" }, order.id),
+      h("td", { class: "nowrap" }, date(order.created_at)),
+      h("td", {}, cell(order.user.name, order.user.email, order.phone, order.address),
+        order.comment ? h("p", { class: "cell-note" }, order.comment) : null),
+      h("td", {}, h("ul", { class: "plain-list" }, order.items.map((i) => h("li", {}, `${i.product_name} × ${i.quantity}`)))),
+      h("td", { class: "nowrap" }, cell(h("span", { class: "price" }, money(order.total)),
+        order.bonus_used ? `${t("checkout.bonus_used")}: ${order.bonus_used}` : null)),
+      h("td", {}, h("div", { class: "cell-actions" }, statusPill(order.status),
+        NEXT_STATUSES[order.status].map((next) =>
+          h("button", {
+            class: "small",
+            onclick: async () => {
+              const changed = await attempt(() => api(`/api/admin/orders/${order.id}/status`, { method: "PATCH", body: { status: next } }));
+              if (changed) update(changed);
+            },
+          }, `→ ${statusName(next)}`)))),
+    ),
+  });
 }
 
 // ---------- products ----------
 
 async function products(query) {
-  const params = { search: query.get("search") || "", category: query.get("category") || "", page: Number(query.get("page")) || 1 };
-  const [data, categories] = await Promise.all([
-    api(`/api/admin/products${toQuery({ ...params, page_size: 20 })}`),
-    api("/api/categories"),
-  ]);
-  const filters = h(
-    "form",
-    { class: "row", onsubmit: (e) => { e.preventDefault(); go("products", { ...formData(e.target), page: 1 }); } },
-    select("category", [["", t("catalog.all_categories")], ...categories.map((c) => [c.slug, c.name])], params.category),
-    h("input", { name: "search", type: "search", value: params.search, placeholder: t("common.search") }),
-    h("button", {}, t("common.search")),
-    link(`/admin/products/new${toQuery({ category: params.category })}`, icon("actions/plus"), ` ${t("admin.new_product")}`),
-  );
-  const table = h(
-    "table",
-    {},
-    h("tr", {}, ["#", t("common.name"), t("catalog.category"), t("admin.price"), t("admin.stock"), t("admin.active"), ""].map((x) => h("th", {}, x))),
-    data.items.map((p) => h(
+  const categories = await api("/api/categories");
+  const category = query.get("category") || "";
+  return adminList({
+    section: "products",
+    source: (params) => pagedSource("/api/admin/products", params),
+    params: { search: query.get("search") || "", category },
+    search: t("admin.product_search"),
+    filters: [{ name: "category", options: [["", t("catalog.all_categories")], ...categories.map((c) => [c.slug, c.name])] }],
+    actions: h("a", { href: `#/admin/products/new${toQuery({ category })}`, class: "btn primary" }, icon("actions/plus"), t("admin.new_product")),
+    head: ["#", t("common.name"), t("admin.price"), t("admin.stock"), t("common.status"), ""],
+    render: (p, update) => h(
       "tr",
-      {},
-      h("td", {}, p.id),
-      h("td", {}, p.name),
-      h("td", {}, p.category_name),
-      h("td", {}, money(p.price), p.old_price ? h("div", { class: "old-price" }, money(p.old_price)) : null),
-      h("td", {}, p.stock),
-      h("td", {}, p.is_active ? t("common.yes") : h("span", { class: "muted" }, t("admin.hidden"))),
-      h("td", {},
-        link(`/admin/products/${p.id}`, icon("actions/edit"), ` ${t("common.edit")}`), " ",
-        link(`/admin/products/new?copy=${p.id}`, t("editor.copy")), " ",
-        h("button", {
+      { class: p.is_active ? null : "is-hidden" },
+      h("td", { class: "num" }, p.id),
+      h("td", {}, cell(p.name, p.category_name)),
+      h("td", { class: "nowrap" }, cell(h("span", { class: "price" }, money(p.price)), p.old_price ? h("s", {}, money(p.old_price)) : null)),
+      h("td", { class: `num${p.stock <= 3 ? " warning" : ""}` }, p.stock),
+      h("td", {}, p.is_active ? h("span", { class: "pill s-done" }, t("admin.active")) : h("span", { class: "pill s-cancelled" }, t("admin.hidden"))),
+      h("td", { class: "shrink" }, h("div", { class: "cell-actions" },
+        iconButton("actions/edit", t("common.edit"), { href: `#/admin/products/${p.id}` }),
+        iconButton("actions/copy", t("editor.copy"), { href: `#/admin/products/new?copy=${p.id}` }),
+        iconButton(p.is_active ? "actions/hide" : "actions/show", p.is_active ? t("admin.hide") : t("admin.show"), {
           onclick: async () => {
             const action = p.is_active
               ? () => api(`/api/admin/products/${p.id}`, { method: "DELETE" })
               : () => api(`/api/admin/products/${p.id}`, { method: "PATCH", body: { is_active: true } });
-            if ((await attempt(action)) !== undefined) reload();
+            if ((await attempt(action)) !== undefined) update({ ...p, is_active: !p.is_active });
           },
-        }, p.is_active ? t("admin.hide") : t("admin.show"))),
-    )),
-  );
-  return h("div", {}, filters, table, pager(data, (page) => go("products", { ...params, page })));
+        }))),
+    ),
+  });
 }
 
 // ---------- client builds ----------
 
-async function builds(query) {
-  const params = { without_comment: query.get("without_comment") || "", page: Number(query.get("page")) || 1 };
-  const data = await api(`/api/admin/builds${toQuery({ ...params, page_size: 10 })}`);
-  const filter = h("label", {}, h("input", {
-    type: "checkbox",
-    checked: params.without_comment === "true",
-    onchange: (e) => go("builds", { without_comment: e.target.checked ? "true" : "", page: 1 }),
-  }), " ", t("admin.without_comment"));
-  return h(
-    "div",
-    {},
-    filter,
-    data.items.map((build) => {
+function builds(query) {
+  return adminList({
+    section: "builds",
+    source: (params) => pagedSource("/api/admin/builds", params, 10),
+    params: { without_comment: query.get("without_comment") || "" },
+    filters: [{ name: "without_comment", type: "checkbox", label: t("admin.without_comment") }],
+    skeleton: () => skeletons("news", 2),
+    render: (build) => {
       const comment = h("textarea", { rows: 3 }, build.engineer_comment || "");
       return h(
-        "div",
-        { class: "card" },
-        h("h3", {}, build.name),
-        h("div", { class: "muted" }, `${build.user.name} (${build.user.email}) · ${date(build.created_at)}`),
-        h("p", {}, h("b", {}, build.check.tier_name), " · ", money(build.check.total_price), " · ",
-          h("span", { class: build.check.is_compatible ? "ok" : "error" },
+        "article",
+        { class: "card admin-card" },
+        h("div", { class: "admin-card-head" },
+          h("h3", {}, build.name),
+          h("span", { class: build.check.is_compatible ? "pill s-done" : "pill s-cancelled" },
             build.check.is_compatible ? t("builder.compatible") : t("builder.incompatible"))),
-        h("ul", {}, build.items.map((p) => h("li", {}, `${p.category_name}: ${p.name}`))),
+        h("p", { class: "muted" }, `${build.user.name} · ${build.user.email} · ${date(build.created_at)}`),
+        h("p", {}, h("b", {}, build.check.tier_name), " · ", h("span", { class: "price" }, money(build.check.total_price))),
+        h("ul", { class: "plain-list" }, build.items.map((p) => h("li", {}, h("span", { class: "muted" }, `${p.category_name}: `), p.name))),
         h("details", {}, h("summary", {}, t("builder.checks_title")), checksList(build.check.checks)),
         field(t("builder.engineer_comment"), comment),
         h("button", {
@@ -189,20 +176,19 @@ async function builds(query) {
           },
         }, t("admin.save_comment")),
       );
-    }),
-    data.items.length ? pager(data, (page) => go("builds", { ...params, page })) : h("p", {}, t("common.nothing_found")),
-  );
+    },
+  });
 }
 
 // ---------- news and facts ----------
 
 async function content() {
-  const [news, facts] = await Promise.all([api("/api/news?limit=50"), api("/api/admin/facts")]);
+  const facts = await api("/api/admin/facts");
   const newsErrors = h("div");
   const newsForm = h(
     "form",
     {
-      class: "stack card",
+      class: "stack",
       onsubmit: async (event) => {
         event.preventDefault();
         const data = formData(newsForm);
@@ -210,106 +196,116 @@ async function content() {
         if (await attempt(() => api("/api/admin/news", { method: "POST", body: data }), newsErrors)) reload();
       },
     },
-    h("h3", {}, t("admin.new_news")),
     field(t("admin.type"), select("type", ["news", "promo", "game"].map((x) => [x, t(`news_types.${x}`)]), "news")),
     field(t("admin.title_field"), h("input", { name: "title", required: true })),
-    field(t("admin.text"), h("textarea", { name: "text", required: true })),
-    field(t("admin.image_url"), h("input", { name: "image_url" })),
-    h("button", {}, t("common.create")),
+    field(t("admin.text"), h("textarea", { name: "text", required: true, rows: 4 })),
+    (() => {
+      const url = h("input", { name: "image_url" });
+      return [imageDrop(url), field(t("admin.image_url"), url)];
+    })(),
+    h("button", { class: "primary" }, t("common.create")),
     newsErrors,
   );
-  const factInput = h("input", { required: true, style: "width: 400px" });
+  const remove = (url, node) => async () => {
+    if (!confirm(`${t("common.delete")}?`)) return;
+    if ((await attempt(() => api(url, { method: "DELETE" }))) !== undefined) node().remove();
+  };
+
+  // news come from the public cursor API: the same infinite list as on the news page
+  const newsHead = [t("admin.date"), t("admin.type"), t("admin.title_field"), ""];
+  const newsTable = h("table", { class: "admin-table" },
+    h("thead", {}, h("tr", {}, newsHead.map((x) => h("th", {}, x)))));
+  const newsList = infiniteList({
+    container: newsTable,
+    fetchPage: (cursor) => api(`/api/news${toQuery({ limit: 20, cursor })}`),
+    endText: t("admin.list_end"),
+    emptyText: t("common.nothing_found"),
+    renderItem: (n) => {
+      const row = h(
+        "tr",
+        {},
+        h("td", { class: "nowrap" }, date(n.created_at)),
+        h("td", {}, h("span", { class: `news-badge news-${n.type}` }, t(`news_types.${n.type}`))),
+        h("td", {}, cell(n.title, n.text)),
+        h("td", { class: "shrink" }, iconButton("actions/delete", t("common.delete"), { class: "danger", onclick: remove(`/api/admin/news/${n.id}`, () => row) })),
+      );
+      labelCells(row, newsHead);
+      return row;
+    },
+  });
+  onLeave(() => newsList.destroy());
+
+  const factInput = h("input", { required: true, placeholder: t("admin.fact_placeholder") });
   const factForm = h(
     "form",
     {
-      class: "row",
+      class: "inline-form",
       onsubmit: async (event) => {
         event.preventDefault();
         if (await attempt(() => api("/api/admin/facts", { method: "POST", body: { text: factInput.value } }))) reload();
       },
     },
     factInput,
-    h("button", {}, t("admin.new_fact")),
+    h("button", { class: "primary" }, icon("actions/plus"), t("admin.new_fact")),
   );
-  const remove = (url) => async () => {
-    if (!confirm(`${t("common.delete")}?`)) return;
-    if ((await attempt(() => api(url, { method: "DELETE" }))) !== undefined) reload();
-  };
   return h(
     "div",
-    {},
-    h("h2", {}, t("admin.news")),
-    newsForm,
-    h("table", {}, news.items.map((n) => h(
-      "tr",
-      {},
-      h("td", {}, date(n.created_at)),
-      h("td", {}, t(`news_types.${n.type}`)),
-      h("td", {}, h("b", {}, n.title), h("div", {}, n.text)),
-      h("td", {}, h("button", { onclick: remove(`/api/admin/news/${n.id}`) }, t("common.delete"))),
-    ))),
-    h("h2", {}, t("admin.facts")),
-    factForm,
-    h("table", {}, facts.map((f) => h(
-      "tr",
-      {},
-      h("td", {}, f.text),
-      h("td", {}, h("button", { onclick: remove(`/api/admin/facts/${f.id}`) }, t("common.delete"))),
-    ))),
+    { class: "admin-stack" },
+    h("details", { class: "panel create-box" }, h("summary", {}, icon("actions/plus"), t("admin.new_news")), newsForm),
+    h("section", { class: "admin-stack" }, h("h2", {}, t("admin.news")), newsTable),
+    h("section", { class: "admin-stack" },
+      h("h2", {}, t("admin.facts")),
+      factForm,
+      h("table", { class: "admin-table" }, h("tbody", {}, facts.map((f) => {
+        const row = h("tr", {},
+          h("td", {}, f.text),
+          h("td", { class: "shrink" }, iconButton("actions/delete", t("common.delete"), { class: "danger", onclick: remove(`/api/admin/facts/${f.id}`, () => row) })));
+        return row;
+      })))),
   );
 }
 
 // ---------- users ----------
 
 async function users(query) {
-  const params = { search: query.get("search") || "", role: query.get("role") || "", page: Number(query.get("page")) || 1 };
-  const [data, roles] = await Promise.all([
-    api(`/api/admin/users${toQuery({ ...params, page_size: 20 })}`),
-    api("/api/admin/roles"),
-  ]);
+  const roles = await api("/api/admin/roles");
   const roleNames = roles.map((r) => [r.role, t(`roles.${r.role}`)]);
-  const filters = h(
-    "form",
-    { class: "row", onsubmit: (e) => { e.preventDefault(); go("users", { ...formData(e.target), page: 1 }); } },
-    select("role", [["", t("admin.all_roles")], ...roleNames], params.role),
-    h("input", { name: "search", type: "search", value: params.search, placeholder: t("common.search") }),
-    h("button", {}, t("common.search")),
-  );
-  const patch = (user, body) => async () => {
-    if (await attempt(() => api(`/api/admin/users/${user.id}`, { method: "PATCH", body }))) reload();
-  };
-
-  const table = h(
-    "table",
-    {},
-    h("tr", {}, ["#", t("auth.name"), t("account.role"), t("admin.bonus_balance"), ""].map((x) => h("th", {}, x))),
-    data.items.map((user) => {
+  return adminList({
+    section: "users",
+    source: (params) => pagedSource("/api/admin/users", params),
+    params: { search: query.get("search") || "", role: query.get("role") || "" },
+    search: t("admin.user_search"),
+    filters: [{ name: "role", options: [["", t("admin.all_roles")], ...roleNames] }],
+    head: ["#", t("auth.name"), t("account.role"), t("admin.bonus_balance"), ""],
+    render: (user, update) => {
       const isMe = user.id === session.user.id;
+      const patch = (body) => async () => {
+        const changed = await attempt(() => api(`/api/admin/users/${user.id}`, { method: "PATCH", body }));
+        if (changed) update(changed);
+      };
       const roleSelect = select("role", roleNames, user.role);
       roleSelect.disabled = isMe;
-      roleSelect.addEventListener("change", patch(user, { role: roleSelect.value }));
-      const amount = h("input", { type: "number", placeholder: t("admin.amount"), style: "width: 80px", required: true });
+      roleSelect.addEventListener("change", patch({ role: roleSelect.value }));
+      const amount = h("input", { type: "number", placeholder: t("admin.amount"), class: "input-small", required: true });
       const reason = h("input", { placeholder: t("admin.reason"), required: true });
       return h(
         "tr",
-        {},
-        h("td", {}, user.id),
-        h("td", {}, user.name, h("br"), h("span", { class: "muted" }, user.email),
-          user.is_blocked ? h("div", { class: "error" }, t("admin.blocked")) : null),
-        h("td", {}, roleSelect, h("div", { class: "muted" }, user.permissions.join(", "))),
-        h("td", {}, user.bonus_balance, h("form", {
-          class: "row",
+        { class: user.is_blocked ? "is-hidden" : null },
+        h("td", { class: "num" }, user.id),
+        h("td", {}, cell(user.name, user.email), user.is_blocked ? h("span", { class: "pill s-cancelled" }, t("admin.blocked")) : null),
+        h("td", {}, roleSelect),
+        h("td", {}, h("div", { class: "num bonus-value" }, user.bonus_balance), h("form", {
+          class: "inline-form",
           onsubmit: async (e) => {
             e.preventDefault();
             const body = { amount: Number(amount.value), reason: reason.value };
-            if (await attempt(() => api(`/api/admin/users/${user.id}/bonus`, { method: "POST", body }))) reload();
+            const changed = await attempt(() => api(`/api/admin/users/${user.id}/bonus`, { method: "POST", body }));
+            if (changed) update(changed);
           },
-        }, amount, reason, h("button", {}, t("admin.grant_bonus")))),
-        h("td", {}, isMe ? null : h("button", { onclick: patch(user, { is_blocked: !user.is_blocked }) },
-          user.is_blocked ? t("admin.unblock") : t("admin.block"))),
+        }, amount, reason, h("button", { class: "small" }, t("admin.grant_bonus")))),
+        h("td", { class: "shrink" }, isMe ? null : iconButton(user.is_blocked ? "actions/unlock" : "actions/block",
+          user.is_blocked ? t("admin.unblock") : t("admin.block"), { class: user.is_blocked ? "" : "danger", onclick: patch({ is_blocked: !user.is_blocked }) })),
       );
-    }),
-  );
-  return h("div", {}, filters, table, pager(data, (page) => go("users", { ...params, page })));
+    },
+  });
 }
-

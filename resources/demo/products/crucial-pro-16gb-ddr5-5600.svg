@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<defs>
+<linearGradient id="bg" gradientTransform="rotate(259 .5 .5)"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFF4E6"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#E8590C" stop-opacity="0.22"/><stop offset="1" stop-color="#E8590C" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#bg)"/>
+<rect x="402" y="296" width="188" height="188" rx="28" transform="rotate(-9)" fill="#E8590C" opacity="0.06"/><rect x="47" y="-19" width="157" height="157" rx="28" transform="rotate(17)" fill="#E8590C" opacity="0.06"/><rect x="32" y="-2" width="189" height="189" rx="28" transform="rotate(-4)" fill="#E8590C" opacity="0.06"/><rect x="695" y="335" width="184" height="184" rx="28" transform="rotate(9)" fill="#E8590C" opacity="0.06"/>
+<circle cx="498" cy="221" r="230" fill="url(#glow)"/>
+<circle cx="498" cy="221" r="150" fill="#FFFFFF" opacity="0.75"/>
+<g transform="translate(498 221) scale(8.5) translate(-12 -12)" fill="none" stroke="#E8590C" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="9" rx="1"/><path d="M6 10v3M10 10v3M14 10v3M18 10v3"/><path d="M5 16v3M9 16v3M13 16v3M17 16v3"/></g>
+<text x="40" y="520" fill="#E8590C" font-family="Manrope, system-ui, sans-serif" font-size="46" font-weight="800">Crucial</text>
+<text x="40" y="568" fill="#495057" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="600">DDR5 · 16 ГБ</text>
+</svg>
