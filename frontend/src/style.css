@@ -81,7 +81,6 @@ p { margin: 0; }
 .header-search input { flex: 1; min-width: 0; height: 100%; border: 0; padding: 0; background: transparent; outline: none; }
 .header-search:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
 .header-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 16px; font-weight: 600; }
-.header-actions select { height: 36px; border: 0; background: transparent; color: var(--muted); font-weight: 600; padding: 0 4px; }
 .header-actions .count { color: var(--accent); font-family: var(--mono); }
 .header-actions .who { color: var(--muted); font-weight: 500; }
 
@@ -142,7 +141,60 @@ form.stack label { display: grid; gap: 6px; }
 form.stack.card { max-width: 640px; }
 form.row label, .filters label { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
 fieldset { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px; margin: 0; }
-details summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
+/* ---------- dropdowns (frontend/src/dropdown.js) ---------- */
+
+/* the native <select> stays for forms and page code, hidden behind our button */
+.dropdown { position: relative; display: inline-flex; max-width: 100%; vertical-align: middle; }
+.dropdown-native { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+.dropdown-button {
+  width: 100%; min-height: 44px; padding: 0 12px; justify-content: space-between; gap: 10px;
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); font-weight: 500;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.dropdown-button:hover:not(:disabled) { border-color: var(--text); }
+.dropdown-button[aria-expanded="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.dropdown-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dropdown-chevron { color: var(--muted); transition: rotate 0.2s ease; }
+.dropdown-button[aria-expanded="true"] .dropdown-chevron { rotate: 180deg; color: var(--accent); }
+.dropdown-list {
+  position: absolute; z-index: 40; top: calc(100% + 6px); left: 0;
+  min-width: 100%; width: max-content; max-width: min(560px, calc(100vw - 32px)); max-height: 300px; overflow: auto;
+  margin: 0; padding: 6px; list-style: none;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 12px 28px rgba(22, 24, 29, 0.14);
+  opacity: 0; translate: 0 -6px; transition: opacity 0.16s ease, translate 0.16s ease;
+}
+.dropdown.open .dropdown-list { opacity: 1; translate: 0 0; }
+.dropdown-list:focus { outline: none; }
+.dropdown-list li {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 9px 10px; border-radius: 6px; cursor: pointer; line-height: 1.35;
+}
+.dropdown-list li.active { background: var(--surface-2); }
+.dropdown-list li[aria-selected="true"] { color: var(--accent); font-weight: 700; }
+.dropdown-list li[aria-selected="true"]::after {
+  content: ""; flex: none; width: 16px; height: 16px; background: currentColor;
+  -webkit-mask: url(/resources/icons/actions/check.svg) center / contain no-repeat;
+  mask: url(/resources/icons/actions/check.svg) center / contain no-repeat;
+}
+.dropdown-list li[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+/* compact variant in the header (language) */
+.header-actions .dropdown-button { min-height: 36px; padding: 0 4px; border: 0; background: transparent; color: var(--muted); font-weight: 600; box-shadow: none; }
+.header-actions .dropdown-list { left: auto; right: 0; }
+.slots .dropdown { flex: 1; min-width: 0; }
+
+/* Collapsible blocks (<details>): the same arrow, turns when open, content fades in */
+details summary { cursor: pointer; font-weight: 700; padding: 6px 0; list-style: none; display: flex; align-items: center; gap: 8px; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: ""; flex: none; width: 16px; height: 16px; background: var(--muted);
+  -webkit-mask: url(/resources/icons/navigation/chevron-down.svg) center / contain no-repeat;
+  mask: url(/resources/icons/navigation/chevron-down.svg) center / contain no-repeat;
+  rotate: -90deg; transition: rotate 0.2s ease;
+}
+details[open] > summary::before { rotate: 0deg; }
+details[open] > :not(summary) { animation: dropdown-in 0.2s ease; }
+@keyframes dropdown-in { from { opacity: 0; translate: 0 -4px; } to { opacity: 1; translate: 0 0; } }
 progress { width: 100%; height: 8px; border: 0; border-radius: 4px; background: var(--line); overflow: hidden; appearance: none; }
 progress::-webkit-progress-bar { background: var(--line); border-radius: 4px; }
 progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
@@ -270,5 +322,5 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
   .header-actions { justify-content: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) {
-  * { scroll-behavior: auto !important; transition: none !important; }
+  * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }

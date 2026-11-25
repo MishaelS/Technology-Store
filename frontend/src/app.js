@@ -1,5 +1,6 @@
 // Entry point: header, routing (#/path?query) and page rendering.
 import { LANGUAGES } from "./config.js";
+import { watchSelects } from "./dropdown.js";
 import { getLanguage, loadLanguage, t } from "./i18n.js";
 import { accountPage } from "./pages/account.js";
 import { adminPage } from "./pages/admin.js";
@@ -157,6 +158,7 @@ function onLogout() {
 }
 
 async function start() {
+  watchSelects(document.body); // every <select> becomes the site's own dropdown
   try {
     await loadLanguage();
   } catch {
