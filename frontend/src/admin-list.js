@@ -37,6 +37,14 @@ export function iconButton(iconName, text, props = {}) {
   return h(tag, { type: tag === "button" ? "button" : null, ...props, class: `${cls} ${props.class || ""}`.trim(), title: text, "aria-label": text }, icon(iconName));
 }
 
+/** Every cell gets the title of its column (data-label): on a phone a row becomes a card
+ *  and shows these titles above the values instead of the table head. */
+export function labelCells(row, head) {
+  [...row.children].forEach((cell, i) => {
+    if (head[i]) cell.dataset.label = head[i];
+  });
+}
+
 /**
  * section     admin section name, for the address bar
  * source      (params) => fetchPage: where the rows come from
@@ -57,6 +65,7 @@ export function adminList({ section, source, params, search, filters = [], head,
   // an item can redraw itself after a change without reloading the whole list
   const renderItem = (item) => {
     const node = render(item, (next) => node.replaceWith(renderItem(next)));
+    if (head) labelCells(node, head);
     return node;
   };
 

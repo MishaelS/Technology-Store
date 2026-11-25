@@ -74,8 +74,10 @@ export async function catalogPage({ query }) {
   const currentSort = params.sort || "new";
 
   const ui = loadUi();
-  // on phones the panel starts collapsed, so the products are visible right away
-  const collapsed = ui.collapsed ?? window.matchMedia("(max-width: 860px)").matches;
+  // on phones the panel always starts collapsed, so the products are visible right away;
+  // on a computer it stays the way the user left it
+  const phone = window.matchMedia("(max-width: 860px)").matches;
+  const collapsed = phone || (ui.collapsed ?? false);
 
   const body = h(
     "div",
@@ -122,7 +124,7 @@ export async function catalogPage({ query }) {
         const open = toggle.getAttribute("aria-expanded") !== "true";
         toggle.setAttribute("aria-expanded", String(open));
         body.hidden = !open;
-        ui.collapsed = !open;
+        if (!phone) ui.collapsed = !open;
         saveUi(ui);
       },
     },

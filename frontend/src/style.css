@@ -791,7 +791,10 @@ button.icon-only { padding: 0; width: 34px; }
   .header-inner { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "brand actions" "nav nav" "search search"; }
   .columns, .admin-layout { grid-template-columns: minmax(0, 1fr); }
   .sidebar { position: static; }
-  .side-menu { position: static; flex-direction: row; flex-wrap: wrap; }
+  /* the admin sections are one row that scrolls sideways, the current one in view */
+  .side-menu { position: static; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .side-menu::-webkit-scrollbar { display: none; }
+  .side-menu a, .side-menu b { flex: none; white-space: nowrap; }
   .toolbar > select, .toolbar > .dropdown { flex: 1 1 200px; }
 }
 @media (max-width: 560px) {
@@ -1094,6 +1097,7 @@ button.image-add:hover:not(:disabled), button.image-add.over { border-color: var
 }
 @media (max-width: 380px) {
   .brand-name { display: none; } /* the narrowest phones: the logo alone */
+  .hero-band .slider-arrow { display: none; } /* a swipe changes the slides there */
 }
 @media (max-width: 640px) {
   /* builder steps on a phone: seven small circles in one line with the progress line, no scrolling;
@@ -1276,7 +1280,8 @@ body { overflow-x: clip; } /* full-width bands use 100vw, which includes the scr
 }
 @media (max-width: 560px) {
   .home { gap: 36px; }
-  .hero-band .slider-dot, .hero-band .slider-dot[aria-current="true"] { width: 36px; }
+  .hero-band .slider-dot, .hero-band .slider-dot[aria-current="true"] { width: 28px; }
+  .hero-band .slider-dots { gap: 6px; }
   .stats-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding-block: 28px; }
   .stat { font-size: 12px; line-height: 1.3; }
   .stat-number { font-size: 34px; }
@@ -1287,4 +1292,33 @@ body { overflow-x: clip; } /* full-width bands use 100vw, which includes the scr
   .about-card { margin-top: -90px; padding: 28px 20px; }
   .footer-grid { grid-template-columns: minmax(0, 1fr); }
   .ask-band p { padding-block: 36px; }
+}
+
+/* ---------- phones: rows of tabs scroll sideways instead of wrapping ---------- */
+@media (max-width: 640px) {
+  .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 12px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs a, .tabs b { flex: none; white-space: nowrap; }
+}
+
+/* ---------- phones: admin tables become a list of cards (labels from data-label, see labelCells()) ---------- */
+@media (max-width: 640px) {
+  .admin-table { min-width: 0; }
+  .admin-table thead { display: none; }
+  .admin-table tr { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 18px; padding: 14px; border-bottom: 1px solid var(--line); }
+  .admin-table tbody tr:last-child { border-bottom: 0; }
+  .admin-table td { display: block; padding: 0; border: 0; min-width: 0; }
+  .admin-table td:has(> .cell), .admin-table td:has(> .edit-cell), .admin-table td:has(> .plain-list) { flex-basis: 100%; }
+  .admin-table td.shrink { margin-left: auto; width: auto; }
+  .admin-table td[data-label]::before {
+    content: attr(data-label); display: block; margin-bottom: 3px;
+    color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .admin-table tr:not(.skeleton-row):hover td { background: none; }
+  /* the number of the record: small and on one line, "#12" */
+  .admin-table td[data-label="#"] { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+  .admin-table td[data-label="#"]::before { display: inline; margin: 0; font-size: 12px; letter-spacing: 0; }
+  .admin-list-body { overflow-x: visible; background: var(--surface); border: 1px solid var(--line); }
+  .admin-list-body .admin-table { border: 0; }
+  .toolbar-end { width: 100%; justify-content: space-between; margin-left: 0; }
 }

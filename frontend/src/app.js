@@ -247,6 +247,16 @@ function pageTransition(main, swap) {
   }, 1000);
 }
 
+/** Rows of tabs that scroll sideways on phones (account, admin): the current one is moved into view.
+ *  Only the row scrolls, the page stays where it is. */
+function centerCurrentTabs(root) {
+  for (const current of root.querySelectorAll(".tabs b, .side-menu b")) {
+    const row = current.parentElement;
+    if (row.scrollWidth <= row.clientWidth) continue;
+    row.scrollLeft = current.offsetLeft - (row.clientWidth - current.offsetWidth) / 2;
+  }
+}
+
 let lastPath = null;
 let lastQuery = ""; // filters of the shown page: a change of them is a new page too
 
@@ -305,6 +315,7 @@ async function render() {
       lastQuery = queryText;
       runAfter();
       revealOnScroll(main);
+      centerCurrentTabs(main);
     };
     // another section or other filters: the new page spreads like a wave from the place of the click
     if ((newSection || newFilters) && lastPath !== null) pageTransition(main, swap);

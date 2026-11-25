@@ -6,7 +6,7 @@ import { t } from "../i18n.js";
 import { reload } from "../router.js";
 import { loadUser } from "../session.js";
 import { attempt, date, emptyState, flash, h, icon } from "../ui.js";
-import { iconButton } from "../admin-list.js";
+import { iconButton, labelCells } from "../admin-list.js";
 
 const size = (bytes) =>
   bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -99,9 +99,10 @@ export async function backupsSection() {
     if (!confirm(`${t("common.delete")}: ${backup.name}?`)) return;
     if ((await attempt(() => api(`/api/admin/backups/${encodeURIComponent(backup.name)}`, { method: "DELETE" }))) !== undefined) row.remove();
   };
+  const head = [t("admin.date"), t("backups.kind"), t("backups.size"), t("backups.contents"), ""];
   const list = data.items.length
     ? h("div", { class: "admin-list-body" }, h("table", { class: "admin-table" },
-        h("thead", {}, h("tr", {}, [t("admin.date"), t("backups.kind"), t("backups.size"), t("backups.contents"), ""].map((x) => h("th", {}, x)))),
+        h("thead", {}, h("tr", {}, head.map((x) => h("th", {}, x)))),
         h("tbody", {}, data.items.map((backup) => {
           const row = h("tr", { class: backup.ok ? null : "is-hidden" },
             h("td", { class: "nowrap" }, h("div", { class: "cell" }, h("span", { class: "cell-main" }, date(backup.created_at)), h("span", { class: "cell-sub" }, backup.name))),
@@ -115,6 +116,7 @@ export async function backupsSection() {
               backup.ok ? iconButton("actions/reset", t("backups.restore"), { onclick: () => restore(backup) }) : null,
               iconButton("actions/delete", t("common.delete"), { class: "danger", onclick: () => remove(backup, row) }))),
           );
+          labelCells(row, head);
           return row;
         }))))
     : emptyState("actions/save", t("backups.empty"));

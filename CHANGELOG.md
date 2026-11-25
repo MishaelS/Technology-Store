@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Phones: the catalog filters always start collapsed; rows of tabs (account) and admin sections scroll sideways
+  with the current one in view; admin tables become cards with column titles over the values;
+  the slider bars fit the narrowest screens.
 - New home page: a wide first screen (a big colored title, a product photo on two colored circles, bar indicators),
   catalog sections as tiles, news in three columns under a thick line, a band of big numbers that count up,
   an "about the store" block over a dark band, a question band; the categories sidebar is gone from the home page.

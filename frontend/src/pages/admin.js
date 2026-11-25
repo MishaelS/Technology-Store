@@ -1,7 +1,7 @@
 // Admin panel. Every section is shown only if the user has its permission (from the API).
 // The backend checks the same permissions, so hiding here is only for convenience.
 import { api, query as toQuery } from "../api.js";
-import { adminList, cell, iconButton, pagedSource } from "../admin-list.js";
+import { adminList, cell, iconButton, labelCells, pagedSource } from "../admin-list.js";
 import { checksList, statusName, statusPill } from "../components.js";
 import { t } from "../i18n.js";
 import { imageDrop } from "../image-drop.js";
@@ -212,8 +212,9 @@ async function content() {
   };
 
   // news come from the public cursor API: the same infinite list as on the news page
+  const newsHead = [t("admin.date"), t("admin.type"), t("admin.title_field"), ""];
   const newsTable = h("table", { class: "admin-table" },
-    h("thead", {}, h("tr", {}, [t("admin.date"), t("admin.type"), t("admin.title_field"), ""].map((x) => h("th", {}, x)))));
+    h("thead", {}, h("tr", {}, newsHead.map((x) => h("th", {}, x)))));
   const newsList = infiniteList({
     container: newsTable,
     fetchPage: (cursor) => api(`/api/news${toQuery({ limit: 20, cursor })}`),
@@ -228,6 +229,7 @@ async function content() {
         h("td", {}, cell(n.title, n.text)),
         h("td", { class: "shrink" }, iconButton("actions/delete", t("common.delete"), { class: "danger", onclick: remove(`/api/admin/news/${n.id}`, () => row) })),
       );
+      labelCells(row, newsHead);
       return row;
     },
   });
