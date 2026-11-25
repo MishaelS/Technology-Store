@@ -451,7 +451,10 @@
     "specs_invalid": "Invalid values in specs: {fields}",
     "client_not_found": "No client with email {email}",
     "repair_not_found": "Repair not found",
-    "repair_price_required": "Set the repair price first"
+    "repair_price_required": "Set the repair price first",
+    "upload_too_big": "The file is larger than {mb} MB",
+    "upload_empty": "The file is empty",
+    "upload_type": "Only PNG, JPEG, WebP or GIF pictures are accepted"
   },
   "repairs": {
     "status": {
@@ -509,5 +512,11 @@
     "no_errors": "No errors",
     "clear_errors": "Clear the error log",
     "refresh": "Refresh"
+  },
+  "upload": {
+    "hint": "Drop a picture here or click to choose a file",
+    "types": "PNG, JPEG, WebP or GIF, up to {mb} MB",
+    "uploading": "Uploading…",
+    "remove": "Remove picture"
   }
 }

@@ -9,7 +9,7 @@ from app.config import settings
 from app.i18n import LanguageMiddleware, available_languages, load, pick_language, t
 from app.database import SessionLocal
 from app.models import ErrorLog
-from app.routers import admin, auth, builder, cart, catalog, orders, repairs, stock, system
+from app.routers import admin, auth, builder, cart, catalog, orders, repairs, stock, system, uploads
 
 app = FastAPI(
     title="Technology-Store API",
@@ -29,7 +29,7 @@ app.add_middleware(
 )
 app.add_middleware(LanguageMiddleware)
 
-for module in (auth, catalog, cart, orders, builder, admin, repairs, stock, system):
+for module in (auth, catalog, cart, orders, builder, admin, repairs, stock, system, uploads):
     app.include_router(module.router)
 
 logger = logging.getLogger("app")

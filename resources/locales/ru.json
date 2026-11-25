@@ -451,7 +451,10 @@
     "specs_invalid": "Неверные значения в specs: {fields}",
     "client_not_found": "Клиент с email {email} не найден",
     "repair_not_found": "Заявка на ремонт не найдена",
-    "repair_price_required": "Сначала укажите стоимость ремонта"
+    "repair_price_required": "Сначала укажите стоимость ремонта",
+    "upload_too_big": "Файл больше {mb} МБ",
+    "upload_empty": "Файл пустой",
+    "upload_type": "Подходят только картинки PNG, JPEG, WebP или GIF"
   },
   "repairs": {
     "status": {
@@ -509,5 +512,11 @@
     "no_errors": "Ошибок нет",
     "clear_errors": "Очистить журнал ошибок",
     "refresh": "Обновить"
+  },
+  "upload": {
+    "hint": "Перетащите картинку сюда или нажмите, чтобы выбрать файл",
+    "types": "PNG, JPEG, WebP или GIF, до {mb} МБ",
+    "uploading": "Загружаю…",
+    "remove": "Убрать картинку"
   }
 }

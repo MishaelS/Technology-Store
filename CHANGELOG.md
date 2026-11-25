@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `./run.sh demo` (`app/demo.py`): demo data on top of the seed — 61 more products, 24 news and events,
   facts, 12 clients with orders in every status, saved builds, repairs and stock receipts.
 - Demo pictures for every product and news (`resources/demo`, drawn by `scripts/make_demo_images.py`).
+- Picture upload: `POST /api/admin/uploads` (the type is checked by the file's bytes, no SVG, up to 5 MB),
+  files in `uploads/` served by nginx at `/uploads/`; in the product editor and the news form a picture
+  can be dropped onto the field, chosen from a file or pasted.
+- `content/image` icon.
 
 ### Changed
 

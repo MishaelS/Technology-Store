@@ -870,3 +870,23 @@ button, .btn, .more-link { position: relative; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+/* picture field: drop a file or click to choose (image-drop.js) */
+.drop-zone {
+  position: relative; display: flex; align-items: center; gap: 18px; padding: 14px; cursor: pointer;
+  border: 2px dashed var(--line-strong); border-radius: var(--radius); background: var(--surface);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.drop-zone:hover, .drop-zone:focus-visible { border-color: var(--accent); }
+.drop-zone.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop-zone.busy { opacity: 0.7; pointer-events: none; }
+.drop-preview { flex: none; width: 160px; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); display: grid; place-items: center; }
+.drop-preview img { width: 100%; height: 100%; object-fit: cover; }
+.drop-empty .icon { width: 36px; height: 36px; color: var(--line-strong); }
+.drop-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.drop-text > .icon { width: 22px; height: 22px; color: var(--accent); }
+.drop-text strong { font-size: 15px; }
+.drop-text .muted { font-size: 13px; }
+.drop-status { color: var(--accent); font-size: 13px; font-weight: 600; }
+.drop-zone > button { position: absolute; top: 8px; right: 8px; }
+@media (max-width: 560px) { .drop-zone { flex-direction: column; align-items: flex-start; } .drop-preview { width: 100%; } }

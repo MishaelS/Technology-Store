@@ -125,6 +125,7 @@ icon("categories/gpu", "Видеокарты"); // с подписью для э
 | `content/fact.svg` | Интересный факт |
 | `content/comment.svg` | Комментарий инженера |
 | `content/calendar.svg` | Дата |
+| `content/image.svg` | Картинка товара или новости, загрузка файла |
 
 ### Личный кабинет (`account/`)
 
