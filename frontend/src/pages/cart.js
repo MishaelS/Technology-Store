@@ -21,7 +21,7 @@ export async function cartPage() {
       return;
     }
     const rows = cart.items.map(({ product, quantity, sum }) => {
-      const input = h("input", { type: "number", min: 0, max: 99, value: quantity, style: "width: 60px" });
+      const input = h("input", { type: "number", min: 0, max: 99, value: quantity, style: "width: 88px" });
       input.addEventListener("change", () =>
         update(() => api(`/api/cart/${product.id}`, { method: "PATCH", body: { quantity: Number(input.value) } })),
       );

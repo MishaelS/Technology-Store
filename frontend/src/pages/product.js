@@ -6,7 +6,7 @@ import { h, icon, link } from "../ui.js";
 
 export async function productPage({ params }) {
   const product = await api(`/api/products/${encodeURIComponent(params.id)}`);
-  const quantity = h("input", { type: "number", min: 1, max: Math.max(1, product.stock), value: 1, style: "width: 76px", "aria-label": t("cart.quantity") });
+  const quantity = h("input", { type: "number", min: 1, max: Math.max(1, product.stock), value: 1, style: "width: 96px", "aria-label": t("cart.quantity") });
   return h(
     "div",
     {},

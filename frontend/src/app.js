@@ -2,6 +2,7 @@
 import { LANGUAGES } from "./config.js";
 import { watchSelects } from "./dropdown.js";
 import { installRipple, revealOnScroll } from "./effects.js";
+import { watchNumbers } from "./number-field.js";
 import { getLanguage, loadLanguage, t } from "./i18n.js";
 import { accountPage } from "./pages/account.js";
 import { adminPage } from "./pages/admin.js";
@@ -264,6 +265,7 @@ function onLogout() {
 
 async function start() {
   watchSelects(document.body); // every <select> becomes the site's own dropdown
+  watchNumbers(document.body); // every number field gets the site's own up/down arrows
   installRipple(); // click wave in buttons
   try {
     await loadLanguage();

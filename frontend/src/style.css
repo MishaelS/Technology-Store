@@ -133,6 +133,25 @@ input, select, textarea, button { font: inherit; color: inherit; }
   min-height: 44px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
   background: var(--surface); color: var(--text); max-width: 100%;
 }
+/* number fields: the browser's spinner is hidden, number-field.js puts the site's own arrows inside */
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.number-field { position: relative; display: inline-flex; max-width: 100%; min-width: 0; vertical-align: middle; }
+.number-field > input { width: 100%; padding-right: 34px; }
+.number-field:has(> .input-small) { flex: 0 0 96px; width: 96px; }
+.number-arrows {
+  position: absolute; top: 5px; right: 5px; bottom: 5px; display: flex; flex-direction: column; gap: 2px; width: 24px;
+}
+button.number-arrow {
+  flex: 1; min-height: 0; width: 100%; padding: 0; border: 0; border-radius: 5px;
+  background: var(--surface-2); color: var(--text); transition: background-color 0.15s ease, color 0.15s ease;
+}
+button.number-arrow:hover:not(:disabled) { background: var(--accent-soft); color: var(--accent); }
+button.number-arrow:active:not(:disabled) { background: var(--accent); color: #fff; }
+button.number-arrow:disabled { opacity: 0.35; }
+.number-arrow .icon { width: 13px; height: 13px; }
+.number-arrow.up .icon { rotate: 180deg; }
+.number-field:has(> input:disabled) .number-arrows { display: none; }
 textarea { padding: 10px 12px; min-height: 88px; width: 100%; line-height: 1.5; }
 :where(input[type="checkbox"], input[type="radio"]) { width: 18px; height: 18px; accent-color: var(--accent); }
 :where(input:disabled) { background: var(--surface-2); color: var(--muted); }
