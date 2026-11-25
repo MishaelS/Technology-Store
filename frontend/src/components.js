@@ -57,14 +57,33 @@ export function stockText(product) {
   return product.stock > 0 ? t("product.in_stock", { count: product.stock }) : t("product.out_of_stock");
 }
 
+// news type -> icon of its badge
+export const NEWS_ICONS = { news: "navigation/news", promo: "content/promo", game: "content/game" };
+
+/** A news tile: colored badge with the type, date, title and text. */
 export function newsCard(news) {
   return h(
     "article",
-    { class: "card" },
+    { class: `news-tile news-${news.type}` },
     image(news.image_url, news.title),
-    h("div", { class: "muted" }, `${t(`news_types.${news.type}`)} · ${date(news.created_at)}`),
+    h(
+      "div",
+      { class: "news-meta" },
+      h("span", { class: "news-badge" }, icon(NEWS_ICONS[news.type] || "navigation/news"), t(`news_types.${news.type}`)),
+      h("time", { datetime: news.created_at }, date(news.created_at)),
+    ),
     h("h3", {}, news.title),
     h("p", {}, news.text),
+  );
+}
+
+/** "Interesting fact" tile. */
+export function factCard(fact) {
+  return h(
+    "aside",
+    { class: "news-tile fact-tile" },
+    h("div", { class: "news-meta" }, h("span", { class: "news-badge" }, icon("content/fact"), t("home.fact"))),
+    h("p", {}, fact.text),
   );
 }
 

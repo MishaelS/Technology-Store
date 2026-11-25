@@ -9,9 +9,10 @@ import { h } from "./ui.js";
  * @param renderItem  (item) => Node
  * @param state       optional saved state {items, cursor, done, total} to continue from
  * @param onTotal     called with the total count
+ * @param endText     text under a finished list (default: about products)
  * @returns {{state, destroy}}
  */
-export function infiniteList({ container, fetchPage, renderItem, state, onTotal }) {
+export function infiniteList({ container, fetchPage, renderItem, state, onTotal, endText = t("catalog.end_of_list") }) {
   state = state || { items: [], cursor: null, done: false, total: null };
   const status = h("p", { class: "muted" });
   const sentinel = h("div", { style: "height: 1px" });
@@ -40,7 +41,7 @@ export function infiniteList({ container, fetchPage, renderItem, state, onTotal 
         state.total = page.total;
         onTotal?.(page.total);
       }
-      status.textContent = state.done ? (state.items.length ? t("catalog.end_of_list") : t("catalog.empty")) : "";
+      status.textContent = state.done ? (state.items.length ? endText : t("catalog.empty")) : "";
     } catch (error) {
       status.replaceChildren(h("span", { class: "error" }, error.message), " ",
         h("button", { onclick: () => loadMore() }, t("common.retry")));
@@ -63,7 +64,7 @@ export function infiniteList({ container, fetchPage, renderItem, state, onTotal 
   const onScroll = () => nearEnd() && loadMore();
   window.addEventListener("scroll", onScroll, { passive: true });
   if (!state.items.length) loadMore();
-  else status.textContent = state.done ? t("catalog.end_of_list") : "";
+  else status.textContent = state.done ? endText : "";
 
   return {
     state,

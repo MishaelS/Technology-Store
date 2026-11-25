@@ -55,6 +55,7 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - Catalog filters in a sticky panel on the left: categories, sort, price, brand and availability sections with icons;
   the panel and each section can be collapsed, the choice is remembered in the browser.
 - Home page categories in the same left panel.
+- News page with tiles (colored badge per type) and a left panel to pick the type; the home page shows news tiles at the bottom with the fact of the day.
 - Thin loading bar at the top while a slow page loads.
 
 ### Changed

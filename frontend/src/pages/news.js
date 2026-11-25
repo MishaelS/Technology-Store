@@ -1,28 +1,62 @@
+// News page: tiles with news, promos and game news + a sticky panel on the left to pick the type.
 import { api, query as toQuery } from "../api.js";
-import { newsCard } from "../components.js";
+import { NEWS_ICONS, newsCard } from "../components.js";
 import { t } from "../i18n.js";
 import { infiniteList, toTopButton } from "../infinite.js";
 import { onLeave } from "../router.js";
-import { h, navigate, select } from "../ui.js";
+import { h, icon } from "../ui.js";
 
 const TYPES = ["news", "promo", "game"];
 
-export function newsPage({ query }) {
-  const type = query.get("type") || "";
-  const filter = select("type", [["", t("common.all")], ...TYPES.map((x) => [x, t(`news_types.${x}`)])], type);
-  filter.addEventListener("change", () => navigate(`/news${toQuery({ type: filter.value })}`));
+export async function newsPage({ query }) {
+  const type = TYPES.includes(query.get("type")) ? query.get("type") : "";
 
-  const list = h("div", { class: "grid" });
-  const box = h("div", {}, list);
+  const typeLink = (value, iconName, text) =>
+    h(
+      "a",
+      { href: `#/news${toQuery({ type: value })}`, class: "filter-option", "aria-current": value === type ? "page" : null },
+      icon(iconName),
+      h("span", { class: "filter-text" }, text),
+    );
+  const sidebar = h(
+    "aside",
+    { class: "filters-panel" },
+    h(
+      "section",
+      { class: "filter-section" },
+      h("h2", { class: "filter-title" }, icon("actions/filter"), h("span", {}, t("catalog.filters"))),
+      h(
+        "nav",
+        { class: "filter-body scroll-row", "aria-label": t("nav.news") },
+        typeLink("", "navigation/news", t("common.all")),
+        TYPES.map((x) => typeLink(x, NEWS_ICONS[x], t(`news_types.${x}`))),
+      ),
+    ),
+  );
+
+  const fetchPage = (cursor) => api(`/api/news${toQuery({ type, limit: 12, cursor })}`);
+  // first tiles are loaded before the page is shown, so it doesn't open with "Loading…"
+  const first = await fetchPage(null);
+  const grid = h("div", { class: "news-grid" });
+  const box = h("div", {}, grid);
   const scroll = infiniteList({
-    container: list,
-    fetchPage: (cursor) => api(`/api/news${toQuery({ type, limit: 10, cursor })}`),
+    container: grid,
+    fetchPage,
     renderItem: newsCard,
+    endText: t("home.news_end"),
+    state: { items: first.items, cursor: first.next_cursor, done: first.next_cursor === null, total: null },
   });
   const removeTopButton = toTopButton();
   onLeave(() => {
     scroll.destroy();
     removeTopButton();
   });
-  return h("div", {}, h("h1", {}, t("nav.news")), filter, box);
+
+  const title = type ? t(`news_types.${type}`) : t("nav.news");
+  return h(
+    "div",
+    { class: "catalog-layout" },
+    sidebar,
+    h("section", { class: "section catalog-results" }, h("div", { class: "section-head" }, h("h1", {}, title)), box),
+  );
 }

@@ -1,7 +1,7 @@
 import { api } from "../api.js";
-import { productCard } from "../components.js";
+import { factCard, newsCard, productCard } from "../components.js";
 import { t } from "../i18n.js";
-import { date, h, icon, link } from "../ui.js";
+import { h, icon, link } from "../ui.js";
 
 function section(title, content, more = null) {
   return h("section", { class: "section" }, h("div", { class: "section-head" }, h("h2", {}, title), more), content);
@@ -78,23 +78,12 @@ export async function homePage() {
           link("/catalog?discount=true", t("catalog.discount")))
       : null,
     section(t("home.hits"), h("div", { class: "grid" }, data.hits.slice(0, 4).map(productCard)), link("/catalog", t("nav.catalog"))),
-    h(
-      "div",
-      { class: "split" },
-      section(
-        t("home.news"),
-        h("div", { class: "news-list" }, news.map((n) => h(
-          "article",
-          {},
-          h("span", { class: "muted", style: "font-size: 13px" }, `${t(`news_types.${n.type}`)} · ${date(n.created_at)}`),
-          h("strong", {}, n.title),
-          h("span", { class: "muted" }, n.text),
-        ))),
-        link("/news", t("nav.news")),
-      ),
-      data.fact
-        ? h("aside", { class: "card" }, h("span", { class: "muted" }, t("home.fact")), h("p", { style: "font-size: 17px; font-weight: 600" }, data.fact.text))
-        : null,
+    // news at the bottom: a row of tiles, the fact of the day is the last tile
+    section(
+      t("home.news"),
+      h("div", { class: "news-grid" }, news.slice(0, data.fact ? 5 : 6).map(newsCard), data.fact ? factCard(data.fact) : null),
+      link("/news", t("home.all_news")),
+    ),
     ),
   );
 }
