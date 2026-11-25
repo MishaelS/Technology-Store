@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   an "about the store" block over a dark band, a question band; the categories sidebar is gone from the home page.
 - Dark footer with columns of links: the catalog sections, for buyers, service.
 
+### Fixed
+
+- The wrench icon (`navigation/builder`): its jaw was drawn crooked, visible at large sizes.
+
 ## [0.2.0] - 2026-11-25
 
 New design of the whole site, admin panel with infinite lists, picture uploads, product galleries,
