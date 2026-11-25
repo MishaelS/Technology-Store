@@ -36,12 +36,18 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - Icon set in `resources/icons`: 90 outline SVG icons in 11 groups (navigation, buttons, states, categories,
   orders, shop, content, account, admin, roles, PC tiers), a logo and favicon, a preview page and a list.
 - Header shows icons; `icon()` helper in the frontend; nginx serves the `resources` folder.
+- Product editor page (`#/admin/products/new`, `#/admin/products/:id`): a form with typed spec fields for each
+  category, suggestions from existing products, live preview, discount hint, "save and add another",
+  copy of a product and an edit link on the product page.
+- `GET /api/admin/products/spec-schema` (spec fields per category) and `GET /api/admin/products/{id}` (also hidden ones).
 - `run.sh`: one script to set up, start, stop, test and maintain the project (`./run.sh help`). It checks Docker, creates `.env` and generates the seed password.
 
 ### Changed
 
 - All code comments and docstrings are written in English.
 - Access checks use permissions instead of hard-coded role lists.
+- Managers can create and edit products (`products.manage`), like engineers and admins.
+- The JSON specs form in the admin products list is replaced by the product editor.
 - README now describes the project; technical guides moved to `docs/`.
 
 ### Removed
