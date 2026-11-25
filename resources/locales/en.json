@@ -103,6 +103,7 @@
     "in_cart": "In cart",
     "in_stock": "In stock: {count} pcs",
     "out_of_stock": "Out of stock",
+    "added_short": "Added",
     "discount_badge": "−{percent}%",
     "specs": "Specifications",
     "description": "Description",

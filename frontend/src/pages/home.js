@@ -1,7 +1,7 @@
 import { api } from "../api.js";
 import { factCard, newsCard, productCard } from "../components.js";
 import { t } from "../i18n.js";
-import { h, icon, link } from "../ui.js";
+import { h, icon, moreLink } from "../ui.js";
 
 function section(title, content, more = null) {
   return h("section", { class: "section" }, h("div", { class: "section-head" }, h("h2", {}, title), more), content);
@@ -75,14 +75,14 @@ export async function homePage() {
     hero,
     data.discounts.length
       ? section(t("home.discounts"), h("div", { class: "grid" }, data.discounts.slice(0, 4).map(productCard)),
-          link("/catalog?discount=true", t("catalog.discount")))
+          moreLink("/catalog?discount=true", t("catalog.discount")))
       : null,
-    section(t("home.hits"), h("div", { class: "grid" }, data.hits.slice(0, 4).map(productCard)), link("/catalog", t("nav.catalog"))),
+    section(t("home.hits"), h("div", { class: "grid" }, data.hits.slice(0, 4).map(productCard)), moreLink("/catalog", t("nav.catalog"))),
     // news at the bottom: a row of tiles, the fact of the day is the last tile
     section(
       t("home.news"),
       h("div", { class: "news-grid" }, news.slice(0, data.fact ? 5 : 6).map(newsCard), data.fact ? factCard(data.fact) : null),
-      link("/news", t("home.all_news")),
+      moreLink("/news", t("home.all_news")),
     ),
     ),
   );

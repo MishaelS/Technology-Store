@@ -23,6 +23,11 @@ export function link(path, ...children) {
   return h("a", { href: `#${path}` }, ...children);
 }
 
+/** "Show all" link with an arrow, for the right side of a section title. */
+export function moreLink(path, text) {
+  return h("a", { href: `#${path}`, class: "more-link" }, text, icon("navigation/arrow-right"));
+}
+
 export function money(amount) {
   return t("common.price", { amount: Number(amount).toLocaleString(getLanguage()) });
 }

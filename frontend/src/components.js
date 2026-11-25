@@ -17,6 +17,7 @@ export async function addToCart(productId, quantity = 1) {
     headerChanged();
     flash(t("product.added"));
   }
+  return Boolean(cart);
 }
 
 /** Picture of a product, or its category icon while there is no photo. */
@@ -27,29 +28,63 @@ export function productThumb(product, href) {
 
 export function productCard(product) {
   const href = `/product/${product.id}`;
+  const out = product.stock <= 0;
+  const few = !out && product.stock <= 3;
+  const thumb = productThumb(product, href);
+  if (product.discount_percent > 0) {
+    thumb.append(h("span", { class: "card-badge" }, t("product.discount_badge", { percent: product.discount_percent })));
+  }
+  if (out) thumb.append(h("span", { class: "card-badge out" }, t("product.out_of_stock")));
+
+  const label = h("span", {}, t("product.add_to_cart"));
+  const buy = h(
+    "button",
+    {
+      type: "button",
+      class: "primary buy",
+      disabled: out,
+      "aria-label": `${t("product.add_to_cart")}: ${product.name}`,
+      onclick: async () => {
+        buy.disabled = true;
+        const added = await addToCart(product.id);
+        buy.disabled = false;
+        if (!added) return;
+        // short "added" state with a check mark
+        buy.classList.add("added");
+        label.textContent = t("product.added_short");
+        setTimeout(() => {
+          buy.classList.remove("added");
+          label.textContent = t("product.add_to_cart");
+        }, 1500);
+      },
+    },
+    h("span", { class: "buy-icons" }, icon("actions/add-to-cart"), icon("actions/check")),
+    label,
+  );
+
   return h(
     "article",
-    { class: "card product-card" },
-    productThumb(product, href),
-    h("span", { class: "muted", style: "font-size: 13px" }, product.category_name),
+    { class: `card product-card${out ? " is-out" : ""}` },
+    thumb,
+    h("span", { class: "card-category" }, icon(`categories/${product.category}`), product.category_name),
     h("a", { href: `#${href}`, class: "title" }, product.name),
-    priceRow(product),
+    h("span", { class: `stock${out ? " out" : few ? " few" : ""}` }, stockText(product)),
     h(
       "div",
       { class: "foot" },
-      h("span", { class: product.stock > 0 ? "stock" : "stock out" }, stockText(product)),
-      h("button", { type: "button", class: "primary", disabled: product.stock <= 0, onclick: () => addToCart(product.id) }, t("product.add_to_cart")),
+      priceRow(product, false),
+      buy,
     ),
   );
 }
 
-export function priceRow(product) {
+export function priceRow(product, withBadge = true) {
   return h(
     "div",
     { class: "row price-row" },
     h("span", { class: "price" }, money(product.price)),
     product.old_price ? h("span", { class: "old-price" }, money(product.old_price)) : null,
-    product.discount_percent > 0 ? h("span", { class: "discount" }, t("product.discount_badge", { percent: product.discount_percent })) : null,
+    withBadge && product.discount_percent > 0 ? h("span", { class: "discount" }, t("product.discount_badge", { percent: product.discount_percent })) : null,
   );
 }
 

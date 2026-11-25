@@ -103,6 +103,7 @@
     "in_cart": "В корзине",
     "in_stock": "В наличии: {count} шт.",
     "out_of_stock": "Нет в наличии",
+    "added_short": "Добавлено",
     "discount_badge": "−{percent}%",
     "specs": "Характеристики",
     "description": "Описание",
