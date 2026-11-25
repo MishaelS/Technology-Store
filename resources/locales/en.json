@@ -45,8 +45,6 @@
     "to_top": "Back to top",
     "all": "All",
     "name": "Name",
-    "next": "Next →",
-    "prev": "← Previous",
     "saved": "Saved",
     "status": "Status",
     "sum": "Sum"
@@ -352,7 +350,6 @@
     "grant_bonus": "Grant points",
     "amount": "Amount",
     "reason": "Reason",
-    "page": "Page {page} of {pages}",
     "stats": {
       "orders_total": "Total orders",
       "revenue_done": "Revenue (completed)",
@@ -381,7 +378,11 @@
     "type": "Type",
     "repairs": "Repairs",
     "system": "Tech support",
-    "receipts": "Stock receipts"
+    "receipts": "Stock receipts",
+    "list_end": "That's all",
+    "product_search": "Name or brand",
+    "user_search": "Name or email",
+    "fact_placeholder": "Text of a new fact"
   },
   "editor": {
     "title_new": "New product",

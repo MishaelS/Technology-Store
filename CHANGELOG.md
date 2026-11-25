@@ -12,6 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skeleton placeholders in the shape of cards while the catalog, the news and the first page load.
 - Promo slider on the home page: the "build a PC" slide and the promotions, changes by itself
   with a progress bar on the active dot, pauses under the mouse, arrows and swipe on phones.
+- `actions/copy` icon.
+
+### Changed
+
+- Admin panel lists (orders, products, client builds, users, repairs, stock receipts, news) load more rows
+  while scrolling instead of page buttons; search works while typing, filters stay in the address,
+  a row is redrawn in place after a change.
+- New look of the admin panel: search bar with filters and a counter, tables with spacing and status labels,
+  icon buttons for row actions, dashboard tiles, collapsible create forms.
+
+### Removed
+
+- Page buttons of the admin tables and their texts (`common.prev`, `common.next`, `admin.page`).
 
 ### Fixed
 

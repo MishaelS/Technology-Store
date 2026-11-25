@@ -10,12 +10,13 @@ import { h, icon } from "./ui.js";
  * @param state       optional saved state {items, cursor, done, total} to continue from
  * @param onTotal     called with the total count
  * @param endText     text under a finished list (default: about products)
+ * @param emptyText   text when the list has nothing at all
  * @param skeleton    () => Node[]: placeholders shown in the list while the next chunk loads
  * @returns {{state, destroy}}
  */
-export function infiniteList({ container, fetchPage, renderItem, state, onTotal, endText = t("catalog.end_of_list"), skeleton }) {
+export function infiniteList({ container, fetchPage, renderItem, state, onTotal, endText = t("catalog.end_of_list"), emptyText = t("catalog.empty"), skeleton }) {
   state = state || { items: [], cursor: null, done: false, total: null };
-  const status = h("p", { class: "muted" });
+  const status = h("p", { class: "list-status muted" });
   const sentinel = h("div", { style: "height: 1px" });
   container.after(status, sentinel);
 
@@ -47,7 +48,7 @@ export function infiniteList({ container, fetchPage, renderItem, state, onTotal,
         state.total = page.total;
         onTotal?.(page.total);
       }
-      status.textContent = state.done ? (state.items.length ? endText : t("catalog.empty")) : "";
+      status.textContent = state.done ? (state.items.length ? endText : emptyText) : "";
     } catch (error) {
       status.replaceChildren(h("span", { class: "error" }, error.message), " ",
         h("button", { onclick: () => loadMore() }, t("common.retry")));

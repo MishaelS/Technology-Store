@@ -56,6 +56,7 @@ icon("categories/gpu", "Видеокарты"); // с подписью для э
 | `actions/minus.svg` | Уменьшить количество |
 | `actions/add-to-cart.svg` | В корзину |
 | `actions/edit.svg` | Изменить |
+| `actions/copy.svg` | Создать копию товара |
 | `actions/delete.svg` | Удалить, убрать |
 | `actions/save.svg` | Сохранить |
 | `actions/close.svg` | Закрыть, отмена |

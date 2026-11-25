@@ -150,17 +150,6 @@ export function statusPill(status, text = statusName(status)) {
   return h("span", { class: `pill s-${status}` }, text);
 }
 
-/** "← Назад  Страница 1 из 3  Вперёд →" for admin tables. */
-export function pager({ page, pages }, go) {
-  return h(
-    "div",
-    { class: "row" },
-    h("button", { disabled: page <= 1, onclick: () => go(page - 1) }, t("common.prev")),
-    h("span", {}, t("admin.page", { page, pages })),
-    h("button", { disabled: page >= pages, onclick: () => go(page + 1) }, t("common.next")),
-  );
-}
-
 /** List of the build checks with status icons. */
 export function checksList(checks) {
   const icons = { ok: "feedback/success", error: "feedback/error", warning: "feedback/warning", skip: "feedback/skip" };

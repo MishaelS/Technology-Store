@@ -45,8 +45,6 @@
     "to_top": "Наверх",
     "all": "Все",
     "name": "Название",
-    "next": "Вперёд →",
-    "prev": "← Назад",
     "saved": "Сохранено",
     "status": "Статус",
     "sum": "Сумма"
@@ -352,7 +350,6 @@
     "grant_bonus": "Начислить бонусы",
     "amount": "Сумма",
     "reason": "Причина",
-    "page": "Страница {page} из {pages}",
     "stats": {
       "orders_total": "Всего заказов",
       "revenue_done": "Выручка (выполненные)",
@@ -381,7 +378,11 @@
     "type": "Тип",
     "repairs": "Ремонт",
     "system": "Техподдержка",
-    "receipts": "Приёмка товара"
+    "receipts": "Приёмка товара",
+    "list_end": "Это всё",
+    "product_search": "Название или бренд",
+    "user_search": "Имя или email",
+    "fact_placeholder": "Текст нового факта"
   },
   "editor": {
     "title_new": "Новый товар",
