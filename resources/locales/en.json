@@ -92,7 +92,9 @@
     "sort_price_desc": "Price: high to low",
     "sort_name": "By name",
     "end_of_list": "No more products",
-    "empty": "Nothing matches your search"
+    "empty": "Nothing matches your search",
+    "price": "Price, ₽",
+    "availability": "Availability"
   },
   "product": {
     "add_to_cart": "Add to cart",

@@ -52,6 +52,9 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - `GET /api/admin/products/spec-schema` (spec fields per category) and `GET /api/admin/products/{id}` (also hidden ones).
 - `run.sh`: one script to set up, start, stop, test and maintain the project (`./run.sh help`). It checks Docker, creates `.env` and generates the seed password.
 - Custom dropdown in the site's style for every `<select>` (`frontend/src/dropdown.js`): arrow icon, open animation, keyboard support.
+- Catalog filters in a sticky panel on the left: categories, sort, price, brand and availability sections with icons;
+  the panel and each section can be collapsed, the choice is remembered in the browser.
+- Home page categories in the same left panel.
 
 ### Changed
 

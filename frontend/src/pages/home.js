@@ -35,18 +35,44 @@ export async function homePage() {
     ),
   );
 
-  const chips = h(
-    "div",
-    { class: "chips" },
-    categories.map((c) => h("a", { href: `#/catalog?category=${c.slug}`, class: "chip" }, icon(`categories/${c.slug}`), c.name)),
+  // Categories in a sticky panel on the left, like in the catalog. The list can be collapsed;
+  // the choice is kept in the browser.
+  let closed = false;
+  try {
+    closed = localStorage.getItem("homeCategoriesClosed") === "1";
+  } catch {
+    /* storage blocked: the list just starts open */
+  }
+  const categoryList = h(
+    "details",
+    { class: "filter-section", open: !closed },
+    h("summary", {}, icon("navigation/catalog"), h("span", {}, t("home.categories"))),
+    h(
+      "nav",
+      { class: "filter-body scroll-row", "aria-label": t("home.categories") },
+      h("a", { href: "#/catalog", class: "filter-option" }, icon("navigation/catalog"), h("span", { class: "filter-text" }, t("catalog.all_categories"))),
+      categories.map((c) =>
+        h("a", { href: `#/catalog?category=${c.slug}`, class: "filter-option" }, icon(`categories/${c.slug}`), h("span", { class: "filter-text" }, c.name))),
+    ),
   );
+  categoryList.addEventListener("toggle", () => {
+    try {
+      localStorage.setItem("homeCategoriesClosed", categoryList.open ? "0" : "1");
+    } catch {
+      /* not remembered, still works */
+    }
+  });
+  const sidebar = h("aside", { class: "filters-panel" }, categoryList);
 
   const news = data.promos.concat(data.news);
   return h(
     "div",
-    {},
+    { class: "catalog-layout" },
+    sidebar,
+    h(
+    "div",
+    { class: "section home-content" },
     hero,
-    section(t("home.categories"), chips),
     data.discounts.length
       ? section(t("home.discounts"), h("div", { class: "grid" }, data.discounts.slice(0, 4).map(productCard)),
           link("/catalog?discount=true", t("catalog.discount")))
