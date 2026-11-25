@@ -1,6 +1,7 @@
 // Entry point: header, routing (#/path?query) and page rendering.
 import { LANGUAGES } from "./config.js";
 import { watchSelects } from "./dropdown.js";
+import { installRipple, revealOnScroll } from "./effects.js";
 import { getLanguage, loadLanguage, t } from "./i18n.js";
 import { accountPage } from "./pages/account.js";
 import { adminPage } from "./pages/admin.js";
@@ -55,6 +56,7 @@ function match(parts) {
 }
 
 let headerKey = "";
+let lastCartCount = null; // to see when the cart grew
 
 /** Marks the current section in the header menu without redrawing the header. */
 function markCurrentSection() {
@@ -75,6 +77,10 @@ function renderHeader() {
     return;
   }
   headerKey = key;
+  const previousCount = lastCartCount;
+  lastCartCount = session.cartCount;
+  // the first drawing of the header is not "the cart grew"
+  const shownCartCount = previousCount ?? session.cartCount;
   const languageSelect = h(
     "select",
     { "aria-label": t("nav.language"), onchange: (e) => changeLanguage(e.target.value) },
@@ -116,7 +122,9 @@ function renderHeader() {
         languageSelect,
         user
           ? [
-              h("a", { href: "#/cart" }, icon("navigation/cart"), t("nav.cart"), session.cartCount ? h("span", { class: "count" }, session.cartCount) : null),
+              h("a", { href: "#/cart" }, icon("navigation/cart"), t("nav.cart"), session.cartCount
+                ? h("span", { class: session.cartCount > shownCartCount ? "count bump" : "count" }, session.cartCount) // grew: the number jumps
+                : null),
               h("a", { href: "#/account", title: t(`roles.${user.role}`) }, icon("navigation/account"), user.name),
               h("button", { type: "button", onclick: onLogout }, t("nav.logout")),
             ]
@@ -226,6 +234,7 @@ async function render() {
       if (newSection) window.scrollTo(0, 0); // new section: start at the top; same section (filters): stay
       lastPath = path;
       runAfter();
+      revealOnScroll(main);
     };
     // another section: the new page spreads like a wave from the place of the click
     if (newSection && lastPath !== null) pageTransition(main, swap);
@@ -255,6 +264,7 @@ function onLogout() {
 
 async function start() {
   watchSelects(document.body); // every <select> becomes the site's own dropdown
+  installRipple(); // click wave in buttons
   try {
     await loadLanguage();
   } catch {

@@ -7,6 +7,7 @@ import { checksList, goToLogin } from "../components.js";
 import { t } from "../i18n.js";
 import { headerChanged } from "../router.js";
 import { isLoggedIn, session } from "../session.js";
+import { countTo } from "../effects.js";
 import { attempt, flash, h, icon, link, money, navigate } from "../ui.js";
 
 const SLOTS = ["cpu", "motherboard", "ram", "gpu", "storage", "psu", "case"];
@@ -61,6 +62,7 @@ export async function builderPage() {
   let selection = loadSelection().filter((id) => products.has(id)); // drop hidden products
   let picker = null; // {slot, index}: which step has its list open; index = which piece is replaced
   let lastCheck = null; // last API answer, used for the PSU hint
+  let shown = { total: 0, score: 0, cpu: 0, gpu: 0, load: 0 }; // numbers on the panel now: the next ones animate from them
 
   const track = h("ol", { class: "build-track" });
   const stepsBox = h("div", { class: "build-steps" });
@@ -283,13 +285,30 @@ export async function builderPage() {
 
     const psu = first("psu");
     const load = psu ? Math.min(1, check.power_draw / psu.specs.wattage) : 0;
-    const bar = (label, value) => h(
-      "div",
-      { class: "meter" },
-      h("span", {}, label),
-      h("span", { class: "meter-track" }, h("span", { style: `--value: ${value / 100}` })),
-      h("b", { class: "num" }, String(value)),
-    );
+    // the panel is drawn with the old values, then moves to the new ones: bars grow, numbers count
+    const before = shown;
+    shown = { total: check.total_price, score: check.score, cpu: check.cpu_score, gpu: check.gpu_score, load };
+    const fills = [];
+    const fill = (from, to) => {
+      const node = h("span", { style: `--value: ${from}` });
+      fills.push([node, to]);
+      return node;
+    };
+    const bar = (label, from, value) => {
+      const number = h("b", { class: "num" });
+      countTo(number, from, value);
+      return h("div", { class: "meter" }, h("span", {}, label), h("span", { class: "meter-track" }, fill(from / 100, value / 100)), number);
+    };
+    const total = h("strong", { class: "total price" });
+    countTo(total, before.total, check.total_price, money);
+    const scoreText = h("b");
+    countTo(scoreText, before.score, check.score);
+    const ring = h("div", { class: "score-ring", style: `--score: ${before.score}`, role: "img", "aria-label": t("builder.score", { score: check.score }) },
+      scoreText, h("small", {}, "/100"));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      ring.style.setProperty("--score", String(check.score));
+      for (const [node, value] of fills) node.style.setProperty("--value", String(value));
+    }));
 
     const nameInput = h("input", { placeholder: t("builder.build_name"), "aria-label": t("builder.build_name"), required: true, maxLength: 100 });
     const saveErrors = h("div");
@@ -297,18 +316,17 @@ export async function builderPage() {
       h(
         "div",
         { class: "summary-top" },
-        h("div", { class: "score-ring", style: `--score: ${check.score}`, role: "img", "aria-label": t("builder.score", { score: check.score }) },
-          h("b", {}, String(check.score)), h("small", {}, "/100")),
-        h("div", {}, h("span", { class: "muted" }, t("builder.total_price")), h("strong", { class: "total price" }, money(check.total_price)),
+        ring,
+        h("div", {}, h("span", { class: "muted" }, t("builder.total_price")), total,
           h("span", { class: "tier" }, check.tier_name)),
       ),
-      h("div", { class: "meters" }, bar(t("builder.cpu_score"), check.cpu_score), bar(t("builder.gpu_score"), check.gpu_score)),
+      h("div", { class: "meters" }, bar(t("builder.cpu_score"), before.cpu, check.cpu_score), bar(t("builder.gpu_score"), before.gpu, check.gpu_score)),
       h(
         "div",
         { class: `power${load > 0.9 ? " high" : ""}` },
         h("div", { class: "power-head" }, icon("shop/power"), h("span", {}, t("builder.power_title")),
           h("b", { class: "num" }, psu ? t("builder.psu_load", { draw: check.power_draw, psu: psu.specs.wattage }) : t("builder.spec.watts", { watts: check.power_draw }))),
-        h("span", { class: "meter-track" }, h("span", { style: `--value: ${psu ? load : 0}` })),
+        h("span", { class: "meter-track" }, fill(before.load, load)),
         h("small", { class: "muted" }, t("builder.recommended_psu", { watts: check.recommended_psu })),
       ),
       selection.length // an empty build is not "compatible" yet
