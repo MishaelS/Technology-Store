@@ -39,7 +39,7 @@ export function date(iso) {
 /** Only http(s) links or paths on the site (the backend checks this too). */
 export function image(url, alt = "") {
   if (!url || !(/^https?:\/\//.test(url) || url.startsWith("/"))) return null;
-  return h("img", { src: url, alt, loading: "lazy" });
+  return h("img", { src: url, alt, loading: "lazy", decoding: "async" });
 }
 
 /** Icon from resources/icons: icon("navigation/cart").

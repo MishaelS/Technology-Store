@@ -296,9 +296,9 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
   --tone: var(--accent); --tone-soft: var(--accent-soft);
   display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 18px;
   background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--tone);
-  border-radius: var(--radius); transition: box-shadow 0.15s ease, translate 0.15s ease;
+  border-radius: var(--radius); transition: translate 0.15s ease; position: relative;
 }
-.news-tile:hover { translate: 0 -2px; box-shadow: 0 8px 20px rgb(16 24 40 / 0.08); }
+.news-tile:hover { translate: 0 -2px; }
 .news-promo { --tone: var(--error); --tone-soft: var(--error-soft); }
 .news-game { --tone: var(--ok); --tone-soft: var(--ok-soft); }
 .news-tile img { width: calc(100% + 36px); margin: -18px -18px 0; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius) var(--radius) 0 0; }
@@ -317,9 +317,15 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
 /* product card: lifts on hover, the picture zooms, the whole card opens the product */
 .product-card {
   position: relative; gap: 10px; padding: 12px 12px 14px;
-  transition: translate 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: translate 0.2s ease, border-color 0.2s ease;
 }
-.product-card:hover { translate: 0 -4px; border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); box-shadow: 0 14px 30px rgb(16 24 40 / 0.1); }
+.product-card:hover { translate: 0 -4px; border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+/* hover shadow: drawn once on a pseudo-element, the hover only fades it in (cheaper than animating box-shadow) */
+.product-card::before, .news-tile::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 14px 30px rgb(16 24 40 / 0.1); opacity: 0; transition: opacity 0.2s ease;
+}
+.product-card:hover::before, .news-tile:hover::before { opacity: 1; }
 .product-card .thumb {
   position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; max-width: 100%;
   border-radius: var(--radius-sm); overflow: hidden; color: #A3AAB8;
@@ -589,6 +595,8 @@ button.icon-only { padding: 0; width: 34px; }
 .checks li span { color: var(--text); }
 .checks li.muted span { color: var(--muted); }
 
+#to-top { gap: 6px; opacity: 0; translate: 0 12px; visibility: hidden; transition: opacity 0.25s ease, translate 0.25s ease, visibility 0s linear 0.25s; }
+#to-top.show { opacity: 1; translate: 0 0; visibility: visible; transition-delay: 0s; }
 #to-top { position: fixed; z-index: 15; right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 4px 14px rgba(22, 24, 29, 0.12); }
 
 @media (max-width: 860px) {
@@ -623,7 +631,7 @@ button.icon-only { padding: 0; width: 34px; }
 ::view-transition-old(page) { animation: page-out 0.35s ease-in both; }
 /* new page: a circle wave grows from the click point */
 ::view-transition-new(page) { animation: page-wave 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
-@keyframes page-out { to { opacity: 0; scale: 0.97; filter: blur(6px); } }
+@keyframes page-out { to { opacity: 0; scale: 0.97; } }
 @keyframes page-wave {
   from { clip-path: circle(0 at var(--wave-x, 50%) var(--wave-y, 30%)); }
   to { clip-path: circle(var(--wave-r, 150%) at var(--wave-x, 50%) var(--wave-y, 30%)); }

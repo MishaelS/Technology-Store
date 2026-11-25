@@ -149,8 +149,16 @@ function pageTransition(main, swap) {
   const x = fresh ? lastClick.x : window.innerWidth / 2;
   const y = fresh ? lastClick.y : window.innerHeight / 3;
   const root = document.documentElement.style;
-  document.startViewTransition(() => {
+  // the swap must happen exactly once: by the transition, or by the safety timer below
+  let swapped = false;
+  const swapOnce = () => {
+    if (swapped) return false;
+    swapped = true;
     swap();
+    return true;
+  };
+  const transition = document.startViewTransition(() => {
+    if (!swapOnce()) return;
     // the circle is drawn in #main's own box, so move the point into it
     const box = main.getBoundingClientRect();
     const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
@@ -158,6 +166,13 @@ function pageTransition(main, swap) {
     root.setProperty("--wave-y", `${y - box.top}px`);
     root.setProperty("--wave-r", `${Math.ceil(radius)}px`);
   });
+  // the browser waits for a frame to start the transition; if no frame comes (a page that is not
+  // painted), the new page must still appear
+  setTimeout(() => {
+    if (swapped) return;
+    transition.skipTransition();
+    swapOnce();
+  }, 1000);
 }
 
 let lastPath = null;
@@ -205,6 +220,7 @@ async function render() {
     if (current !== renderCounter) return; // the user already went to another page
     const newSection = path !== lastPath;
     const swap = () => {
+      if (current !== renderCounter) return; // a newer page came while the transition was starting
       runLeave(); // stop the old page (observers, timers) right before swapping it
       main.replaceChildren(node);
       if (newSection) window.scrollTo(0, 0); // new section: start at the top; same section (filters): stay

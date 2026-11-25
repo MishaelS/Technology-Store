@@ -72,6 +72,7 @@ The project has no releases yet, so all changes are listed under **Unreleased**.
 - README now describes the project; technical guides moved to `docs/`.
 - Header: menu and account actions on the right, search on its own row under the logo.
 - Pages no longer blink on navigation: the old page stays until the new one is ready, the header is redrawn only when the user, cart or language changes.
+- Smoother scrolling and hover: scroll checks run once per frame, card shadows fade on a pseudo-element instead of animating box-shadow, the page transition no longer blurs the whole page; a page still appears if the transition can't start.
 
 ### Removed
 

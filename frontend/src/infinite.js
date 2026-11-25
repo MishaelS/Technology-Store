@@ -1,7 +1,7 @@
 // Infinite scroll: loads the next chunk when the end of the list comes into view.
 // Works with API lists that return {items, next_cursor, total}.
 import { t } from "./i18n.js";
-import { h } from "./ui.js";
+import { h, icon } from "./ui.js";
 
 /**
  * @param container   element to append items to
@@ -61,7 +61,16 @@ export function infiniteList({ container, fetchPage, renderItem, state, onTotal,
   });
   observer.observe(sentinel);
   // backup for browsers/tabs where IntersectionObserver doesn't fire (e.g. a hidden tab)
-  const onScroll = () => nearEnd() && loadMore();
+  // checked at most once per frame: getBoundingClientRect on every scroll event makes scrolling stutter
+  let queued = false;
+  const onScroll = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      if (nearEnd()) loadMore();
+    });
+  };
   window.addEventListener("scroll", onScroll, { passive: true });
   if (!state.items.length) loadMore();
   else status.textContent = state.done ? endText : "";
@@ -78,10 +87,21 @@ export function infiniteList({ container, fetchPage, renderItem, state, onTotal,
 
 /** "Back to top" button, shown after scrolling two screens down. Returns a cleanup function. */
 export function toTopButton() {
-  const button = h("button", { id: "to-top", hidden: true, onclick: () => window.scrollTo({ top: 0 }) }, t("common.to_top"));
+  const button = h("button", { id: "to-top", type: "button", onclick: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
+    icon("navigation/arrow-up"), t("common.to_top"));
   document.body.append(button);
-  const onScroll = () => (button.hidden = window.scrollY < window.innerHeight * 2);
-  window.addEventListener("scroll", onScroll);
+  let shown = false;
+  let queued = false;
+  const onScroll = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      const show = window.scrollY > window.innerHeight * 2;
+      if (show !== shown) button.classList.toggle("show", (shown = show)); // touch the DOM only on change
+    });
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
   return () => {
     window.removeEventListener("scroll", onScroll);
     button.remove();
