@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Product editor: form split into blocks, fields side by side, suggestions as chips under the field,
   checkboxes next to their text, a smaller picture preview, a quieter "save and create another" button.
 - Promo slider: arrows and dots in one bar under the slide; promotion pictures shown whole.
+- Slightly darker page background, so the white cards and panels stand out.
 - The bonus limit in checkout is a hint under the field instead of a long label.
 
 ### Removed

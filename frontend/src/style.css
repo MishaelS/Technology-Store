@@ -2,7 +2,7 @@
    Layout: white header bar, content in a 1200px column, white cards on a cool grey ground. */
 
 :root {
-  --bg: #F6F7F9;          /* page ground */
+  --bg: #ECEFF4;          /* page ground: a bit darker than the white cards, so they stand out */
   --surface: #FFFFFF;     /* cards, header, tables */
   --surface-2: #F1F3F6;   /* inputs in the header, image placeholders */
   --line: #E3E6EC;        /* borders */
@@ -329,7 +329,7 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
 .hero h1 { font-size: clamp(30px, 4vw, 44px); line-height: 1.1; letter-spacing: -0.02em; }
 .hero p { color: var(--muted); font-size: 17px; max-width: 480px; }
 .hero .copy { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.hero-card { display: flex; flex-direction: column; gap: 10px; padding: 22px; border-radius: var(--radius); background: var(--bg); }
+.hero-card { display: flex; flex-direction: column; gap: 10px; padding: 22px; border-radius: var(--radius); background: var(--surface-2); }
 .section { display: flex; flex-direction: column; gap: 16px; }
 .section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 /* "show all" link next to a section title (moreLink() in ui.js): a pill, the arrow moves on hover */
@@ -645,7 +645,7 @@ button.icon-only { padding: 0; width: 34px; }
 .step-sum { font-size: 15px; white-space: nowrap; }
 
 .choose-part {
-  min-height: 52px; border: 1.5px dashed var(--line-strong); background: var(--bg); color: var(--accent); gap: 8px;
+  min-height: 52px; border: 1.5px dashed var(--line-strong); background: var(--surface-2); color: var(--accent); gap: 8px;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 .choose-part:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
@@ -653,7 +653,7 @@ button.icon-only { padding: 0; width: 34px; }
 
 .chosen-part {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 14px;
-  padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg); animation: dropdown-in 0.25s ease;
+  padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); animation: dropdown-in 0.25s ease;
 }
 .part-thumb { display: grid; place-items: center; width: 48px; height: 48px; border-radius: var(--radius-sm); background: var(--surface); color: var(--accent); }
 .part-thumb .icon { width: 26px; height: 26px; }
@@ -715,7 +715,7 @@ button.icon-only { padding: 0; width: 34px; }
   position: absolute; inset: 0; border-radius: inherit; background: var(--accent);
   transform-origin: left; scale: var(--value, 0) 1; transition: scale 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.power { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: var(--radius-sm); background: var(--bg); }
+.power { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
 .power-head { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
 .power-head b { margin-left: auto; font-size: 13px; }
 .power .meter-track > span { background: var(--ok); }
