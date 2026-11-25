@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/admin/system", tags=["Tech support"])
 can_view_system = require_permission("system.view")
 
 STARTED_AT = time.monotonic()
-API_VERSION = "0.1.0"
+API_VERSION = "0.2.0"
 
 
 @router.get("", response_model=SystemOut, dependencies=[Depends(can_view_system)])

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-25
+
+New design of the whole site, admin panel with infinite lists, picture uploads, product galleries,
+avatars, backups, demo data and a phone layout.
+
 ### Added
 
 - Backups (admin panel, permission `system.backup`, only for the admin): the whole database
@@ -168,5 +173,6 @@ First version: the store backend, the admin panel and the frontend with the new 
 - A client cancel and a manager cancel at the same time could refund bonuses twice.
 - Admin stats skipped order statuses that had no orders.
 
-[Unreleased]: https://github.com/MishaelS/Technology-Store/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/MishaelS/Technology-Store/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/MishaelS/Technology-Store/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/MishaelS/Technology-Store/releases/tag/v0.1.0
