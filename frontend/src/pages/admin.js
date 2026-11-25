@@ -5,7 +5,7 @@ import { checksList, pager, statusName } from "../components.js";
 import { t } from "../i18n.js";
 import { reload } from "../router.js";
 import { can, session } from "../session.js";
-import { attempt, date, field, flash, formData, h, link, money, navigate, select } from "../ui.js";
+import { attempt, date, field, flash, formData, h, icon, link, money, navigate, select } from "../ui.js";
 
 const SECTIONS = [
   ["dashboard", "stats.view", dashboard],
@@ -24,16 +24,6 @@ const NEXT_STATUSES = {
   shipped: ["done"],
   done: [],
   cancelled: [],
-};
-// Specs template for a new product, by category (keys from services/compatibility.py)
-const SPEC_TEMPLATES = {
-  cpu: { socket: "AM5", cores: 6, tdp: 65, score: 50, igpu: false },
-  motherboard: { socket: "AM5", ram_type: "DDR5", ram_slots: 4, form_factor: "ATX" },
-  ram: { ram_type: "DDR5", size_gb: 32, sticks: 2 },
-  gpu: { vram_gb: 8, tdp: 150, length_mm: 250, score: 50 },
-  psu: { wattage: 650 },
-  case: { form_factors: ["ATX", "mATX", "Mini-ITX"], max_gpu_mm: 350 },
-  storage: { type: "NVMe", size_gb: 1000 },
 };
 
 export async function adminPage({ query }) {
@@ -119,14 +109,13 @@ async function products(query) {
     api(`/api/admin/products${toQuery({ ...params, page_size: 20 })}`),
     api("/api/categories"),
   ]);
-  const editBox = h("div");
   const filters = h(
     "form",
     { class: "row", onsubmit: (e) => { e.preventDefault(); go("products", { ...formData(e.target), page: 1 }); } },
     select("category", [["", t("catalog.all_categories")], ...categories.map((c) => [c.slug, c.name])], params.category),
     h("input", { name: "search", type: "search", value: params.search, placeholder: t("common.search") }),
     h("button", {}, t("common.search")),
-    h("button", { type: "button", onclick: () => editBox.replaceChildren(productForm(null, categories)) }, t("admin.new_product")),
+    link(`/admin/products/new${toQuery({ category: params.category })}`, icon("actions/plus"), ` ${t("admin.new_product")}`),
   );
   const table = h(
     "table",
@@ -142,7 +131,8 @@ async function products(query) {
       h("td", {}, p.stock),
       h("td", {}, p.is_active ? t("common.yes") : h("span", { class: "muted" }, t("admin.hidden"))),
       h("td", {},
-        h("button", { onclick: () => { editBox.replaceChildren(productForm(p, categories)); editBox.scrollIntoView(); } }, t("common.edit")),
+        link(`/admin/products/${p.id}`, icon("actions/edit"), ` ${t("common.edit")}`), " ",
+        link(`/admin/products/new?copy=${p.id}`, t("editor.copy")), " ",
         h("button", {
           onclick: async () => {
             const action = p.is_active
@@ -153,59 +143,7 @@ async function products(query) {
         }, p.is_active ? t("admin.hide") : t("admin.show"))),
     )),
   );
-  return h("div", {}, filters, editBox, table, pager(data, (page) => go("products", { ...params, page })));
-}
-
-function productForm(product, categories) {
-  const errors = h("div");
-  const category = product?.category || categories[0].slug;
-  const specs = h("textarea", { name: "specs", rows: 6 }, JSON.stringify(product?.specs || SPEC_TEMPLATES[category], null, 2));
-  const categorySelect = select("category", categories.map((c) => [c.slug, c.name]), category);
-  categorySelect.addEventListener("change", () => {
-    if (!product) specs.value = JSON.stringify(SPEC_TEMPLATES[categorySelect.value], null, 2);
-  });
-  const form = h(
-    "form",
-    {
-      class: "stack card",
-      onsubmit: async (event) => {
-        event.preventDefault();
-        const data = formData(form);
-        try {
-          data.specs = JSON.parse(data.specs);
-        } catch {
-          errors.replaceChildren(h("p", { class: "error" }, t("admin.invalid_json")));
-          return;
-        }
-        for (const key of ["price", "stock"]) data[key] = Number(data[key]);
-        data.old_price = data.old_price ? Number(data.old_price) : null;
-        data.image_url = data.image_url || null;
-        const saved = await attempt(
-          () => product
-            ? api(`/api/admin/products/${product.id}`, { method: "PATCH", body: data })
-            : api("/api/admin/products", { method: "POST", body: data }),
-          errors,
-        );
-        if (saved) {
-          flash(t("common.saved"));
-          reload();
-        }
-      },
-    },
-    h("h3", {}, product ? `${t("common.edit")}: ${product.name}` : t("admin.new_product")),
-    field(t("catalog.category"), categorySelect),
-    field(t("common.name"), h("input", { name: "name", required: true, value: product?.name || "" })),
-    field(t("catalog.brand"), h("input", { name: "brand", required: true, value: product?.brand || "" })),
-    field(t("admin.price"), h("input", { name: "price", type: "number", min: 1, required: true, value: product?.price || "" })),
-    field(t("admin.old_price"), h("input", { name: "old_price", type: "number", min: 1, value: product?.old_price || "" })),
-    field(t("admin.stock"), h("input", { name: "stock", type: "number", min: 0, value: product?.stock ?? 0 })),
-    field(t("admin.image_url"), h("input", { name: "image_url", value: product?.image_url || "" })),
-    field(t("product.description"), h("textarea", { name: "description" }, product?.description || "")),
-    field(t("admin.specs_json"), specs),
-    h("div", { class: "row" }, h("button", {}, t("common.save")), h("button", { type: "button", onclick: () => form.remove() }, t("common.cancel"))),
-    errors,
-  );
-  return form;
+  return h("div", {}, filters, table, pager(data, (page) => go("products", { ...params, page })));
 }
 
 // ---------- client builds ----------

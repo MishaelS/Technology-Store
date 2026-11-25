@@ -10,6 +10,7 @@ import { catalogPage } from "./pages/catalog.js";
 import { homePage } from "./pages/home.js";
 import { newsPage } from "./pages/news.js";
 import { productPage } from "./pages/product.js";
+import { productEditorPage } from "./pages/product-editor.js";
 import { runAfter, runLeave } from "./router.js";
 import { can, isLoggedIn, loadUser, logout, refreshCartCount, session } from "./session.js";
 import { flash, h, icon, link, loading, navigate } from "./ui.js";
@@ -26,6 +27,8 @@ const ROUTES = [
   ["/cart", cartPage, { login: true }],
   ["/account", accountPage, { login: true }],
   ["/admin", adminPage, { permission: "admin.access" }],
+  ["/admin/products/new", productEditorPage, { permission: "products.manage" }],
+  ["/admin/products/:id", productEditorPage, { permission: "products.manage" }],
 ];
 
 function parseHash() {

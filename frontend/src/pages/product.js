@@ -1,7 +1,8 @@
 import { api } from "../api.js";
 import { addToCart, priceRow, specsTable, stockText } from "../components.js";
 import { t } from "../i18n.js";
-import { h, image } from "../ui.js";
+import { can } from "../session.js";
+import { h, icon, image, link } from "../ui.js";
 
 export async function productPage({ params }) {
   const product = await api(`/api/products/${encodeURIComponent(params.id)}`);
@@ -12,6 +13,7 @@ export async function productPage({ params }) {
     h("p", {}, h("button", { onclick: () => history.back() }, `← ${t("common.back")}`)),
     h("div", { class: "muted" }, product.category_name, " · ", product.brand),
     h("h1", {}, product.name),
+    can("products.manage") ? h("p", {}, link(`/admin/products/${product.id}`, icon("actions/edit"), ` ${t("editor.edit")}`)) : null,
     image(product.image_url, product.name),
     priceRow(product),
     h("p", {}, stockText(product)),
