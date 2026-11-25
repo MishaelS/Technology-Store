@@ -839,7 +839,7 @@ button.icon-only { padding: 0; width: 34px; }
 @keyframes bone-pulse { 50% { opacity: 0.5; } }
 
 /* hex digits behind the page (hex-background.js): fixed, under everything, never catches clicks */
-#hex-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; filter: blur(1.2px); }
+#hex-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; } /* drawn at low resolution: soft without a CSS blur */
 
 /* ---------- page transition (pageTransition() in app.js) ---------- */
 /* only the page content takes part; the header and footer stay still */
@@ -1041,8 +1041,8 @@ button.image-add:hover:not(:disabled), button.image-add.over { border-color: var
   .tab-bar {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex;
     padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));
-    background: rgb(255 255 255 / 0.92); border-top: 1px solid var(--line);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: var(--surface); border-top: 1px solid var(--line); /* solid: a blur under it slows scrolling on phones */
+    box-shadow: 0 -6px 20px rgb(16 24 40 / 0.06);
   }
   .tab-bar a {
     flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px;

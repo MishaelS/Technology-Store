@@ -7,8 +7,10 @@
 // On every page change a wave runs from the click point: the bytes it passes light up and get new values,
 // which they keep after the wave.
 //
-// Speed: one <canvas> fixed behind everything. At rest it's redrawn only IDLE_FPS times a second,
-// during a wave every frame. All 256 bytes are drawn once into a 16x16 sprite and copied with drawImage,
+// Speed: one <canvas> fixed behind everything, drawn at a low resolution (RES) and stretched by the
+// browser: that gives the soft, slightly blurred look for free (a CSS blur over the whole screen is
+// expensive, on phones especially) and ~10x fewer pixels to fill. At rest it's redrawn only a few times
+// a second and not at all while the page scrolls, so scrolling gets the whole frame; during a wave every frame. All 256 bytes are drawn once into a 16x16 sprite and copied with drawImage,
 // much cheaper than fillText for thousands of cells. A hidden tab draws nothing (requestAnimationFrame
 // stops). Reduced motion: one still picture, no drift and no waves.
 
@@ -27,12 +29,17 @@ const COLOR = "59, 91, 219"; // --accent
 const SEED = 20260515; // one seed forever: the same clouds every time
 const SCALE = 260; // px per noise unit: bigger = larger clouds
 const DRIFT = 14; // px per second the noise moves (to the bottom right)
-const IDLE_FPS = 15; // redraws per second at rest: the drift is slow, more is wasted work
+const IDLE_FPS = 10; // redraws per second at rest: the drift is slow, more is wasted work
+const IDLE_FPS_PHONE = 6; // phones: weaker, and the drift is hardly seen on a small screen
+const RES = 0.6; // canvas pixels per CSS pixel, whatever the screen density
+const SCROLL_PAUSE = 250; // ms after the last scroll before the rest-state drift goes on
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let canvas, ctx, sprite, ratio, cols, rows, bytes, alpha, size;
 let wave = null; // {x, y, start, far} while a wave runs
 let lastDraw = 0;
+let scrollPause = 0; // until when the drift waits (the page is scrolling)
+const phone = window.matchMedia("(max-width: 640px)");
 
 // ---------- Perlin noise (2D, "improved" Perlin) ----------
 
@@ -111,12 +118,13 @@ export function installHexBackground() {
   });
   setup();
   if (reducedMotion.matches) return;
+  window.addEventListener("scroll", () => (scrollPause = performance.now() + SCROLL_PAUSE), { passive: true });
   hexWave(window.innerWidth / 2, 0); // a first wave from the top when the site opens
   requestAnimationFrame(loop);
 }
 
 function setup() {
-  ratio = Math.min(window.devicePixelRatio || 1, 2);
+  ratio = RES;
   canvas.width = Math.ceil(window.innerWidth * ratio);
   canvas.height = Math.ceil(window.innerHeight * ratio);
   cols = Math.ceil(window.innerWidth / CELL_W) + 1;
@@ -191,8 +199,10 @@ function draw() {
 }
 
 function loop(now) {
-  // at rest a few frames a second are enough for the slow drift; a wave gets every frame
-  if (wave || now - lastDraw >= 1000 / IDLE_FPS) {
+  // at rest a few frames a second are enough for the slow drift, and none while the page scrolls;
+  // a wave gets every frame
+  const idleStep = 1000 / (phone.matches ? IDLE_FPS_PHONE : IDLE_FPS);
+  if (wave || (now >= scrollPause && now - lastDraw >= idleStep)) {
     lastDraw = now;
     update(now);
     draw();
