@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-25
+
+Dark theme, a new home page and a layout for phones on every page.
+
 ### Added
 
 - Dark theme: a second set of color variables, a sun/moon switch in the header; the new theme opens as a circle
@@ -194,6 +198,7 @@ First version: the store backend, the admin panel and the frontend with the new 
 - A client cancel and a manager cancel at the same time could refund bonuses twice.
 - Admin stats skipped order statuses that had no orders.
 
-[Unreleased]: https://github.com/MishaelS/Technology-Store/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/MishaelS/Technology-Store/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/MishaelS/Technology-Store/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/MishaelS/Technology-Store/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/MishaelS/Technology-Store/releases/tag/v0.1.0
