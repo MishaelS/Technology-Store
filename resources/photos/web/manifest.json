@@ -2,14 +2,47 @@
   "amd-ryzen-5-8600g": [
     "/resources/photos/web/amd-ryzen-5-8600g/01.webp"
   ],
+  "amd-ryzen-7-5700x3d": [
+    "/resources/photos/web/amd-ryzen-7-5700x3d/01.webp"
+  ],
+  "amd-ryzen-7-5800x": [
+    "/resources/photos/web/amd-ryzen-7-5800x/01.webp"
+  ],
   "amd-ryzen-7-7800x3d": [
     "/resources/photos/web/amd-ryzen-7-7800x3d/01.webp"
   ],
   "amd-ryzen-7-9700x": [
     "/resources/photos/web/amd-ryzen-7-9700x/01.webp"
   ],
+  "amd-ryzen-9-7950x": [
+    "/resources/photos/web/amd-ryzen-9-7950x/01.webp"
+  ],
   "amd-ryzen-9-9950x3d": [
     "/resources/photos/web/amd-ryzen-9-9950x3d/01.webp"
+  ],
+  "amd-wraith-prism": [
+    "/resources/photos/web/amd-wraith-prism/01.webp"
+  ],
+  "arctic-liquid-freezer-iii-240": [
+    "/resources/photos/web/arctic-liquid-freezer-iii-240/01.webp",
+    "/resources/photos/web/arctic-liquid-freezer-iii-240/02.webp",
+    "/resources/photos/web/arctic-liquid-freezer-iii-240/03.webp",
+    "/resources/photos/web/arctic-liquid-freezer-iii-240/04.webp",
+    "/resources/photos/web/arctic-liquid-freezer-iii-240/05.webp"
+  ],
+  "asrock-b550m-pro4": [
+    "/resources/photos/web/asrock-b550m-pro4/01.webp",
+    "/resources/photos/web/asrock-b550m-pro4/02.webp",
+    "/resources/photos/web/asrock-b550m-pro4/03.webp",
+    "/resources/photos/web/asrock-b550m-pro4/04.webp",
+    "/resources/photos/web/asrock-b550m-pro4/05.webp"
+  ],
+  "asrock-b650m-pro-rs": [
+    "/resources/photos/web/asrock-b650m-pro-rs/01.webp",
+    "/resources/photos/web/asrock-b650m-pro-rs/02.webp",
+    "/resources/photos/web/asrock-b650m-pro-rs/03.webp",
+    "/resources/photos/web/asrock-b650m-pro-rs/04.webp",
+    "/resources/photos/web/asrock-b650m-pro-rs/05.webp"
   ],
   "asus-dual-geforce-rtx-5060-8gb": [
     "/resources/photos/web/asus-dual-geforce-rtx-5060-8gb/01.webp",
@@ -24,6 +57,13 @@
     "/resources/photos/web/asus-prime-b760-plus-d4/03.webp",
     "/resources/photos/web/asus-prime-b760-plus-d4/04.webp",
     "/resources/photos/web/asus-prime-b760-plus-d4/05.webp"
+  ],
+  "asus-prime-geforce-rtx-5070-ti-16gb": [
+    "/resources/photos/web/asus-prime-geforce-rtx-5070-ti-16gb/01.webp",
+    "/resources/photos/web/asus-prime-geforce-rtx-5070-ti-16gb/02.webp",
+    "/resources/photos/web/asus-prime-geforce-rtx-5070-ti-16gb/03.webp",
+    "/resources/photos/web/asus-prime-geforce-rtx-5070-ti-16gb/04.webp",
+    "/resources/photos/web/asus-prime-geforce-rtx-5070-ti-16gb/05.webp"
   ],
   "asus-rog-strix-b650e-i-gaming-wifi": [
     "/resources/photos/web/asus-rog-strix-b650e-i-gaming-wifi/01.webp",
@@ -104,12 +144,26 @@
     "/resources/photos/web/corsair-vengeance-rgb-32gb-2x16-ddr5-6400/04.webp",
     "/resources/photos/web/corsair-vengeance-rgb-32gb-2x16-ddr5-6400/05.webp"
   ],
+  "deepcool-ak400": [
+    "/resources/photos/web/deepcool-ak400/01.webp",
+    "/resources/photos/web/deepcool-ak400/02.webp",
+    "/resources/photos/web/deepcool-ak400/03.webp",
+    "/resources/photos/web/deepcool-ak400/04.webp",
+    "/resources/photos/web/deepcool-ak400/05.webp"
+  ],
   "deepcool-ch370": [
     "/resources/photos/web/deepcool-ch370/01.webp",
     "/resources/photos/web/deepcool-ch370/02.webp",
     "/resources/photos/web/deepcool-ch370/03.webp",
     "/resources/photos/web/deepcool-ch370/04.webp",
     "/resources/photos/web/deepcool-ch370/05.webp"
+  ],
+  "deepcool-ls720": [
+    "/resources/photos/web/deepcool-ls720/01.webp",
+    "/resources/photos/web/deepcool-ls720/02.webp",
+    "/resources/photos/web/deepcool-ls720/03.webp",
+    "/resources/photos/web/deepcool-ls720/04.webp",
+    "/resources/photos/web/deepcool-ls720/05.webp"
   ],
   "deepcool-matrexx-40-3fs": [
     "/resources/photos/web/deepcool-matrexx-40-3fs/01.webp",
@@ -146,12 +200,155 @@
     "/resources/photos/web/fractal-design-pop-air/04.webp",
     "/resources/photos/web/fractal-design-pop-air/05.webp"
   ],
+  "g-skill-flare-x5-32gb-2x16-ddr5-6000": [
+    "/resources/photos/web/g-skill-flare-x5-32gb-2x16-ddr5-6000/01.webp",
+    "/resources/photos/web/g-skill-flare-x5-32gb-2x16-ddr5-6000/02.webp",
+    "/resources/photos/web/g-skill-flare-x5-32gb-2x16-ddr5-6000/03.webp",
+    "/resources/photos/web/g-skill-flare-x5-32gb-2x16-ddr5-6000/04.webp",
+    "/resources/photos/web/g-skill-flare-x5-32gb-2x16-ddr5-6000/05.webp"
+  ],
+  "g-skill-trident-z5-rgb-64gb-2x32-ddr5-6400": [
+    "/resources/photos/web/g-skill-trident-z5-rgb-64gb-2x32-ddr5-6400/01.webp",
+    "/resources/photos/web/g-skill-trident-z5-rgb-64gb-2x32-ddr5-6400/02.webp",
+    "/resources/photos/web/g-skill-trident-z5-rgb-64gb-2x32-ddr5-6400/03.webp",
+    "/resources/photos/web/g-skill-trident-z5-rgb-64gb-2x32-ddr5-6400/04.webp",
+    "/resources/photos/web/g-skill-trident-z5-rgb-64gb-2x32-ddr5-6400/05.webp"
+  ],
+  "gigabyte-a520m-k-v2": [
+    "/resources/photos/web/gigabyte-a520m-k-v2/01.webp",
+    "/resources/photos/web/gigabyte-a520m-k-v2/02.webp",
+    "/resources/photos/web/gigabyte-a520m-k-v2/03.webp",
+    "/resources/photos/web/gigabyte-a520m-k-v2/04.webp",
+    "/resources/photos/web/gigabyte-a520m-k-v2/05.webp"
+  ],
+  "gigabyte-b760m-ds3h-ddr4": [
+    "/resources/photos/web/gigabyte-b760m-ds3h-ddr4/01.webp",
+    "/resources/photos/web/gigabyte-b760m-ds3h-ddr4/02.webp",
+    "/resources/photos/web/gigabyte-b760m-ds3h-ddr4/03.webp",
+    "/resources/photos/web/gigabyte-b760m-ds3h-ddr4/04.webp",
+    "/resources/photos/web/gigabyte-b760m-ds3h-ddr4/05.webp"
+  ],
+  "gigabyte-geforce-rtx-3060-gaming-oc-12gb": [
+    "/resources/photos/web/gigabyte-geforce-rtx-3060-gaming-oc-12gb/01.webp"
+  ],
+  "gigabyte-geforce-rtx-4070-super-windforce-12gb": [
+    "/resources/photos/web/gigabyte-geforce-rtx-4070-super-windforce-12gb/01.webp",
+    "/resources/photos/web/gigabyte-geforce-rtx-4070-super-windforce-12gb/02.webp",
+    "/resources/photos/web/gigabyte-geforce-rtx-4070-super-windforce-12gb/03.webp",
+    "/resources/photos/web/gigabyte-geforce-rtx-4070-super-windforce-12gb/04.webp",
+    "/resources/photos/web/gigabyte-geforce-rtx-4070-super-windforce-12gb/05.webp"
+  ],
+  "gigabyte-geforce-rtx-5080-gaming-oc-16gb": [
+    "/resources/photos/web/gigabyte-geforce-rtx-5080-gaming-oc-16gb/01.webp",
+    "/resources/photos/web/gigabyte-geforce-rtx-5080-gaming-oc-16gb/02.webp",
+    "/resources/photos/web/gigabyte-geforce-rtx-5080-gaming-oc-16gb/03.webp",
+    "/resources/photos/web/gigabyte-geforce-rtx-5080-gaming-oc-16gb/04.webp",
+    "/resources/photos/web/gigabyte-geforce-rtx-5080-gaming-oc-16gb/05.webp"
+  ],
+  "gigabyte-x870-aorus-elite-wifi7": [
+    "/resources/photos/web/gigabyte-x870-aorus-elite-wifi7/01.webp",
+    "/resources/photos/web/gigabyte-x870-aorus-elite-wifi7/02.webp",
+    "/resources/photos/web/gigabyte-x870-aorus-elite-wifi7/03.webp",
+    "/resources/photos/web/gigabyte-x870-aorus-elite-wifi7/04.webp",
+    "/resources/photos/web/gigabyte-x870-aorus-elite-wifi7/05.webp"
+  ],
   "gigabyte-z790-aorus-elite-ax": [
     "/resources/photos/web/gigabyte-z790-aorus-elite-ax/01.webp",
     "/resources/photos/web/gigabyte-z790-aorus-elite-ax/02.webp",
     "/resources/photos/web/gigabyte-z790-aorus-elite-ax/03.webp",
     "/resources/photos/web/gigabyte-z790-aorus-elite-ax/04.webp",
     "/resources/photos/web/gigabyte-z790-aorus-elite-ax/05.webp"
+  ],
+  "intel-arc-b580-limited-edition-12gb": [
+    "/resources/photos/web/intel-arc-b580-limited-edition-12gb/01.webp",
+    "/resources/photos/web/intel-arc-b580-limited-edition-12gb/02.webp",
+    "/resources/photos/web/intel-arc-b580-limited-edition-12gb/03.webp"
+  ],
+  "intel-core-i3-12100f": [
+    "/resources/photos/web/intel-core-i3-12100f/01.webp",
+    "/resources/photos/web/intel-core-i3-12100f/02.webp"
+  ],
+  "intel-core-i3-14100": [
+    "/resources/photos/web/intel-core-i3-14100/01.webp",
+    "/resources/photos/web/intel-core-i3-14100/02.webp",
+    "/resources/photos/web/intel-core-i3-14100/03.webp"
+  ],
+  "intel-core-i5-12400f": [
+    "/resources/photos/web/intel-core-i5-12400f/01.webp",
+    "/resources/photos/web/intel-core-i5-12400f/02.webp"
+  ],
+  "intel-core-i5-13600k": [
+    "/resources/photos/web/intel-core-i5-13600k/01.webp",
+    "/resources/photos/web/intel-core-i5-13600k/02.webp",
+    "/resources/photos/web/intel-core-i5-13600k/03.webp"
+  ],
+  "intel-core-i5-14400f": [
+    "/resources/photos/web/intel-core-i5-14400f/01.webp",
+    "/resources/photos/web/intel-core-i5-14400f/02.webp",
+    "/resources/photos/web/intel-core-i5-14400f/03.webp"
+  ],
+  "intel-core-i7-12700kf": [
+    "/resources/photos/web/intel-core-i7-12700kf/01.webp",
+    "/resources/photos/web/intel-core-i7-12700kf/02.webp"
+  ],
+  "intel-core-i7-14700k": [
+    "/resources/photos/web/intel-core-i7-14700k/01.webp",
+    "/resources/photos/web/intel-core-i7-14700k/02.webp",
+    "/resources/photos/web/intel-core-i7-14700k/03.webp"
+  ],
+  "intel-core-i9-14900k": [
+    "/resources/photos/web/intel-core-i9-14900k/01.webp",
+    "/resources/photos/web/intel-core-i9-14900k/02.webp",
+    "/resources/photos/web/intel-core-i9-14900k/03.webp"
+  ],
+  "intel-core-ultra-5-245k": [
+    "/resources/photos/web/intel-core-ultra-5-245k/01.webp",
+    "/resources/photos/web/intel-core-ultra-5-245k/02.webp",
+    "/resources/photos/web/intel-core-ultra-5-245k/03.webp",
+    "/resources/photos/web/intel-core-ultra-5-245k/04.webp"
+  ],
+  "intel-core-ultra-7-265k": [
+    "/resources/photos/web/intel-core-ultra-7-265k/01.webp",
+    "/resources/photos/web/intel-core-ultra-7-265k/02.webp",
+    "/resources/photos/web/intel-core-ultra-7-265k/03.webp",
+    "/resources/photos/web/intel-core-ultra-7-265k/04.webp"
+  ],
+  "intel-laminar-rm1": [
+    "/resources/photos/web/intel-laminar-rm1/01.webp"
+  ],
+  "kingston-fury-beast-16gb-2x8-ddr4-3200": [
+    "/resources/photos/web/kingston-fury-beast-16gb-2x8-ddr4-3200/01.webp",
+    "/resources/photos/web/kingston-fury-beast-16gb-2x8-ddr4-3200/02.webp",
+    "/resources/photos/web/kingston-fury-beast-16gb-2x8-ddr4-3200/03.webp",
+    "/resources/photos/web/kingston-fury-beast-16gb-2x8-ddr4-3200/04.webp"
+  ],
+  "kingston-fury-beast-32gb-2x16-ddr5-6000": [
+    "/resources/photos/web/kingston-fury-beast-32gb-2x16-ddr5-6000/01.webp",
+    "/resources/photos/web/kingston-fury-beast-32gb-2x16-ddr5-6000/02.webp",
+    "/resources/photos/web/kingston-fury-beast-32gb-2x16-ddr5-6000/03.webp",
+    "/resources/photos/web/kingston-fury-beast-32gb-2x16-ddr5-6000/04.webp"
+  ],
+  "kingston-fury-beast-64gb-2x32-ddr5-5600": [
+    "/resources/photos/web/kingston-fury-beast-64gb-2x32-ddr5-5600/01.webp",
+    "/resources/photos/web/kingston-fury-beast-64gb-2x32-ddr5-5600/02.webp",
+    "/resources/photos/web/kingston-fury-beast-64gb-2x32-ddr5-5600/03.webp",
+    "/resources/photos/web/kingston-fury-beast-64gb-2x32-ddr5-5600/04.webp"
+  ],
+  "kingston-fury-beast-8gb-ddr4-3200": [
+    "/resources/photos/web/kingston-fury-beast-8gb-ddr4-3200/01.webp",
+    "/resources/photos/web/kingston-fury-beast-8gb-ddr4-3200/02.webp",
+    "/resources/photos/web/kingston-fury-beast-8gb-ddr4-3200/03.webp"
+  ],
+  "kingston-fury-renegade-32gb-2x16-ddr4-3600": [
+    "/resources/photos/web/kingston-fury-renegade-32gb-2x16-ddr4-3600/01.webp",
+    "/resources/photos/web/kingston-fury-renegade-32gb-2x16-ddr4-3600/02.webp",
+    "/resources/photos/web/kingston-fury-renegade-32gb-2x16-ddr4-3600/03.webp",
+    "/resources/photos/web/kingston-fury-renegade-32gb-2x16-ddr4-3600/04.webp"
+  ],
+  "kingston-kc3000-2tb-nvme": [
+    "/resources/photos/web/kingston-kc3000-2tb-nvme/01.webp",
+    "/resources/photos/web/kingston-kc3000-2tb-nvme/02.webp",
+    "/resources/photos/web/kingston-kc3000-2tb-nvme/03.webp"
   ],
   "lian-li-lancool-216": [
     "/resources/photos/web/lian-li-lancool-216/01.webp",
@@ -227,6 +424,12 @@
     "/resources/photos/web/msi-pro-z890-p-wifi/03.webp",
     "/resources/photos/web/msi-pro-z890-p-wifi/04.webp",
     "/resources/photos/web/msi-pro-z890-p-wifi/05.webp"
+  ],
+  "noctua-nh-d15-g2": [
+    "/resources/photos/web/noctua-nh-d15-g2/01.webp",
+    "/resources/photos/web/noctua-nh-d15-g2/02.webp",
+    "/resources/photos/web/noctua-nh-d15-g2/03.webp",
+    "/resources/photos/web/noctua-nh-d15-g2/04.webp"
   ],
   "nzxt-h5-flow": [
     "/resources/photos/web/nzxt-h5-flow/01.webp"
@@ -311,6 +514,11 @@
     "/resources/photos/web/teamgroup-t-force-delta-rgb-32gb-2x16-ddr5-6000/03.webp",
     "/resources/photos/web/teamgroup-t-force-delta-rgb-32gb-2x16-ddr5-6000/04.webp",
     "/resources/photos/web/teamgroup-t-force-delta-rgb-32gb-2x16-ddr5-6000/05.webp"
+  ],
+  "thermalright-peerless-assassin-120-se": [
+    "/resources/photos/web/thermalright-peerless-assassin-120-se/01.webp",
+    "/resources/photos/web/thermalright-peerless-assassin-120-se/02.webp",
+    "/resources/photos/web/thermalright-peerless-assassin-120-se/03.webp"
   ],
   "wd-black-sn850x-1tb-nvme": [
     "/resources/photos/web/wd-black-sn850x-1tb-nvme/01.webp"
