@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Server mode: `./run.sh deploy` with `docker-compose.prod.yml` — only Caddy is open outside (80/443) and gives HTTPS
+  by itself for a domain (`SITE_ADDRESS`); the database, the API and Adminer are closed; the API runs without reload;
+  everything restarts by itself; passwords and `JWT_SECRET` are generated. Every `./run.sh` command keeps the mode.
+- `docs/DEPLOY.md`: step by step from renting a VPS to updating the site.
+
 ### Fixed
 
 - Backups larger than 6 MB could not be uploaded through the site (the proxy limit was 6 MB for the whole API).

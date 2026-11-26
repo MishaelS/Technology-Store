@@ -31,7 +31,16 @@ die()  { printf '%sОшибка:%s %s\n' "$RED" "$RESET" "$*" >&2; exit 1; }
 # `docker compose exec` needs -T when there is no terminal (CI, pipes)
 if [ -t 0 ] && [ -t 1 ]; then TTY_FLAG=""; else TTY_FLAG="-T"; fi
 
-compose() { docker compose "$@"; }
+# On a server (RUN_MODE=server in .env, set by ./run.sh deploy) every command also uses
+# docker-compose.prod.yml: only Caddy is open outside, see docs/DEPLOY.md.
+server_mode() { [ -f .env ] && grep -qE '^RUN_MODE=server$' .env; }
+compose() {
+    if server_mode; then
+        docker compose -f docker-compose.yml -f docker-compose.prod.yml "$@"
+    else
+        docker compose "$@"
+    fi
+}
 
 # ---------- helpers ----------
 
@@ -80,10 +89,18 @@ is_running() {
     [ -n "$(compose ps -q --status running backend 2>/dev/null)" ]
 }
 
+api_alive() {
+    if server_mode; then  # on a server the API port is closed: ask from inside its container
+        compose exec -T backend python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')" >/dev/null 2>&1
+    else
+        curl -fs "$API_URL/api/health" >/dev/null 2>&1
+    fi
+}
+
 wait_for_api() {
     info "Жду, пока API запустится…"
     for _ in $(seq 1 60); do
-        if curl -fs "$API_URL/api/health" >/dev/null 2>&1; then
+        if api_alive; then
             return 0
         fi
         sleep 2
@@ -146,6 +163,8 @@ ${BOLD}Настройка и данные${RESET}
   password     Показать пароль тестовых аккаунтов
   reset        Стереть базу и создать заново с тестовыми данными (спросит подтверждение)
   photos       Подключить настоящие фото товаров (resources/photos/web); у кого их нет — заглушка
+  deploy       Запуск на сервере: пароли и ключи генерируются сами, наружу только 80/443,
+               HTTPS, если в .env указан домен (SITE_ADDRESS). Подробнее: docs/DEPLOY.md
   demo         Наполнить базу демо-данными: ещё товары с картинками, новости и события,
                клиенты с заказами, сборки, ремонт, поставки (один раз; заново — reset, потом demo)
   help         Эта справка
@@ -192,6 +211,10 @@ cmd_start() {
     info "Запускаю…"
     compose up -d
     wait_for_api
+    if server_mode; then
+        print_server_address
+        return
+    fi
     printf '\n%sГотово!%s\n' "$BOLD" "$RESET"
     printf '  Сайт                http://localhost:5173\n'
     printf '  API и документация  %s/docs\n' "$API_URL"
@@ -236,6 +259,51 @@ cmd_reset() {
     info "Удаляю контейнеры и базу…"
     compose down -v
     cmd_start
+}
+
+# ---------- server (docs/DEPLOY.md) ----------
+
+is_default_secret() {  # empty, or a value from .env.example that must never be used on a server
+    case "$1" in ""|store|dev-secret-change-me) return 0 ;; *) return 1 ;; esac
+}
+
+print_server_address() {
+    local site
+    site="$(env_get SITE_ADDRESS)"
+    printf '\n%sСайт запущен в режиме сервера.%s\n' "$BOLD" "$RESET"
+    if [ -z "$site" ] || [ "$site" = ":80" ]; then
+        printf '  Адрес               http://<IP сервера>\n'
+    else
+        printf '  Адрес               https://%s\n' "$site"
+    fi
+    printf '  Пароль аккаунтов    ./run.sh password  (вход: admin@store.dev)\n'
+    printf '  Логи                ./run.sh logs  ·  ./run.sh logs caddy\n'
+    printf '  Обновить код        git pull && ./run.sh deploy\n\n'
+}
+
+cmd_deploy() {
+    check_docker
+    [ -f .env ] || cp .env.example .env
+    # secrets: long random values instead of the examples (the database password only before the database exists)
+    if is_default_secret "$(env_get POSTGRES_PASSWORD)"; then
+        if db_volume_exists; then
+            warn "База уже создана со стандартным паролем — оставляю его. Чтобы сменить: ./run.sh reset -y (данные удалятся)."
+        else
+            env_set POSTGRES_PASSWORD "$(random_password)$(random_password)"
+            info "Сгенерирован пароль базы данных"
+        fi
+    fi
+    if is_default_secret "$(env_get JWT_SECRET)"; then
+        env_set JWT_SECRET "$(random_password)$(random_password)$(random_password)"
+        info "Сгенерирован JWT_SECRET (ключ подписи входа)"
+    fi
+    ensure_seed_password
+    [ -n "$(env_get SITE_ADDRESS)" ] || env_set SITE_ADDRESS ":80"
+    env_set RUN_MODE server
+    info "Собираю и запускаю в режиме сервера (наружу открыты только порты 80 и 443)…"
+    compose up -d --build --remove-orphans
+    wait_for_api
+    print_server_address
 }
 
 cmd_demo() {
@@ -339,6 +407,7 @@ main() {
             reset)          cmd_reset ;;
             password)       cmd_password ;;
             demo)           cmd_demo ;;
+            deploy)         cmd_deploy ;;
             photos)         cmd_photos ;;
             locales)        cmd_locales ;;
             db)             cmd_db ;;

@@ -1,0 +1,45 @@
+# Server mode: on top of docker-compose.yml. Turned on by ./run.sh deploy (RUN_MODE=server in .env),
+# after that every ./run.sh command uses both files. See docs/DEPLOY.md.
+#
+# What changes on a server:
+#  - only Caddy listens outside: ports 80 and 443; it gives HTTPS by itself when SITE_ADDRESS is a domain;
+#  - the database, the API and nginx are reachable only inside Docker (no open 5432/8000/5173);
+#  - Adminer doesn't start (run it by hand only if needed: docker compose --profile tools up -d adminer);
+#  - the API runs without --reload; everything restarts by itself after a crash or a server reboot.
+services:
+  db:
+    ports: !reset []
+    restart: unless-stopped
+
+  backend:
+    ports: !reset []
+    environment:
+      RELOAD: "0"
+    restart: unless-stopped
+
+  frontend:
+    ports: !reset []
+    restart: unless-stopped
+
+  adminer:
+    profiles: ["tools"]
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # ":80" — plain http by the server's IP; a domain (shop.example.ru) — HTTPS with a free certificate
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data        # certificates: kept between restarts
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

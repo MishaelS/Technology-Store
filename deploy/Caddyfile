@@ -1,0 +1,12 @@
+# Caddy: the only door of the server (docker-compose.prod.yml).
+# SITE_ADDRESS from .env: ":80" for plain http by IP, or a domain — then Caddy gets an HTTPS certificate
+# from Let's Encrypt by itself and renews it (ports 80 and 443 must be open).
+{$SITE_ADDRESS}
+
+# everything goes to nginx of the frontend container (the site, /api, /resources, /uploads)
+reverse_proxy frontend:80
+
+# backups can be big (the API allows up to 500 MB)
+request_body {
+	max_size 520MB
+}

@@ -134,6 +134,7 @@ nginx (контейнер frontend)
 | **Docker и Docker Compose** | четыре контейнера: `db`, `backend`, `frontend`, `adminer` (`docker-compose.yml`) |
 | **`run.sh`** (bash) | все команды одной строкой: `start`, `stop`, `test`, `demo`, `reset`, `typecheck`… (`./run.sh help`) |
 | **`.env`** | пароли и настройки; в репозитории только пример `.env.example` |
+| **Caddy** 2 (`caddy:2-alpine`) | только на сервере (`./run.sh deploy`): единственный открытый вход, HTTPS с бесплатным сертификатом — [DEPLOY.md](DEPLOY.md) |
 
 | Контейнер | Образ | Порт | Что это |
 |---|---|---|---|
