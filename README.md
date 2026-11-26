@@ -4,6 +4,31 @@ Technology-Store, this website is a job for an educational institution and in re
 
 Учебный интернет-магазин комплектующих для ПК: процессоры, видеокарты, материнские платы, память, накопители, блоки питания и корпуса. Здесь можно выбрать детали, собрать из них компьютер с проверкой совместимости, оформить заказ и копить бонусы.
 
+<p align="center">
+  <img src="docs/screenshots/tour.gif" alt="Прогулка по сайту: главная с 3D-компьютером, каталог, страница товара, конфигуратор" width="800">
+</p>
+
+## Как выглядит
+
+| Главная: собранный ПК крутится и меняет детали | Конфигуратор: детали встают в 3D-корпус |
+|---|---|
+| ![Главная](docs/screenshots/home-dark.webp) | ![Конфигуратор](docs/screenshots/builder.webp) |
+| **Каталог** с фильтрами и бесконечной прокруткой | **Страница товара** с галереей и лупой |
+| ![Каталог](docs/screenshots/catalog.webp) | ![Товар](docs/screenshots/product.webp) |
+| **Новости, акции и события** | **Админка:** статистика, заказы, товары, ремонт |
+| ![Новости](docs/screenshots/news.webp) | ![Админка](docs/screenshots/admin.webp) |
+| **Светлая тема** | **Конфигуратор в светлой теме** |
+| ![Главная, светлая тема](docs/screenshots/home-light.webp) | ![Конфигуратор, светлая тема](docs/screenshots/builder-light.webp) |
+
+<details>
+<summary><b>На телефоне</b></summary>
+
+| Главная | Конфигуратор | Каталог |
+|---|---|---|
+| <img src="docs/screenshots/phone-home.webp" width="260"> | <img src="docs/screenshots/phone-builder.webp" width="260"> | <img src="docs/screenshots/phone-catalog.webp" width="260"> |
+
+</details>
+
 ## Возможности
 
 - **Каталог** с фильтрами, поиском и бесконечной прокруткой — без переключения страниц.
