@@ -12,6 +12,7 @@ import secrets
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from PIL import Image, ImageOps
 
 from app.config import settings
 from app.deps import get_current_user
@@ -66,12 +67,37 @@ async def read_image(request: Request) -> tuple[bytes, str]:
     return bytes(data), extension
 
 
+SMALL = (480, 360)       # copy for cards and lists: 4:3, the picture whole on white
+SMALL_AVATAR = (256, 256)  # copy for avatars: a square, cut to fill the circle
+
+
+def save_small_copy(path: Path, square: bool) -> None:
+    """<name>-sm.webp next to the picture: the site loads it in cards, lists and the header (images.js).
+    A picture Pillow can't read just gets no copy: the site then loads the picture itself."""
+    try:
+        with Image.open(path) as original:
+            image = ImageOps.exif_transpose(original).convert("RGBA")
+        white = Image.new("RGBA", image.size, (255, 255, 255, 255))
+        image = Image.alpha_composite(white, image).convert("RGB")
+        if square:
+            small = ImageOps.fit(image, SMALL_AVATAR, Image.Resampling.LANCZOS)
+        else:
+            small = Image.new("RGB", SMALL, (255, 255, 255))
+            fitted = ImageOps.contain(image, SMALL, Image.Resampling.LANCZOS)
+            small.paste(fitted, ((SMALL[0] - fitted.width) // 2, (SMALL[1] - fitted.height) // 2))
+        small.save(path.with_name(f"{path.stem}-sm.webp"), "WEBP", quality=78, method=4)
+    except (OSError, ValueError, Image.DecompressionBombError):
+        pass
+
+
 def save_image(data: bytes, extension: str, folder: str = "") -> str:
-    """Saves the picture under a random name (no paths or names from the user). Returns its URL."""
+    """Saves the picture under a random name (no paths or names from the user) and its small copy.
+    Returns its URL."""
     target = Path(settings.upload_dir) / folder
     target.mkdir(parents=True, exist_ok=True)
     name = f"{secrets.token_hex(12)}.{extension}"
     (target / name).write_bytes(data)
+    save_small_copy(target / name, square=folder == "avatars")
     return f"/uploads/{folder + '/' if folder else ''}{name}"
 
 
@@ -83,7 +109,9 @@ def delete_upload(url: str | None, folder: str) -> None:
     name = url[len(prefix):]
     if "/" in name or name.startswith("."):
         return
-    (Path(settings.upload_dir) / folder / name).unlink(missing_ok=True)
+    file = Path(settings.upload_dir) / folder / name
+    file.unlink(missing_ok=True)
+    file.with_name(f"{file.stem}-sm.webp").unlink(missing_ok=True)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

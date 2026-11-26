@@ -62,11 +62,12 @@ export function infiniteList({ container, fetchPage, renderItem, state, onTotal,
   }
 
   function nearEnd() {
-    return !state.done && sentinel.isConnected && sentinel.getBoundingClientRect().top < window.innerHeight + 300;
+    return !state.done && sentinel.isConnected && sentinel.getBoundingClientRect().top < window.innerHeight + 1200;
   }
 
+  // the next chunk is asked for well before the end of the list: by the time you scroll there, it's on the page
   const observer = new IntersectionObserver((entries) => entries[0].isIntersecting && loadMore(), {
-    rootMargin: "300px",
+    rootMargin: "1200px",
   });
   observer.observe(sentinel);
   // backup for browsers/tabs where IntersectionObserver doesn't fire (e.g. a hidden tab)

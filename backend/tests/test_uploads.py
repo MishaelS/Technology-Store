@@ -64,3 +64,32 @@ def test_who_can_upload(client, make_user, role, code):
 
 def test_guest_cannot_upload(client):
     assert client.post("/api/admin/uploads", content=PNG).status_code == 401
+
+
+def real_png(width=1200, height=800) -> bytes:
+    import io
+
+    from PIL import Image
+
+    buffer = io.BytesIO()
+    Image.new("RGBA", (width, height), (200, 30, 30, 255)).save(buffer, "PNG")
+    return buffer.getvalue()
+
+
+def test_upload_makes_a_small_copy_for_cards(client, make_user, upload_dir):
+    from PIL import Image
+
+    _, headers = make_user("manager")
+    url = client.post("/api/admin/uploads", content=real_png(), headers=headers).json()["url"]
+    name = url.rsplit("/", 1)[1]
+    small = upload_dir / name.replace(".png", "-sm.webp")
+    assert small.exists()
+    with Image.open(small) as image:
+        assert image.size == (480, 360) and image.format == "WEBP"
+    assert small.stat().st_size < (upload_dir / name).stat().st_size
+
+
+def test_unreadable_picture_gets_no_small_copy(client, make_user, upload_dir):
+    _, headers = make_user("manager")
+    client.post("/api/admin/uploads", content=PNG, headers=headers)  # PNG bytes, but not a real picture
+    assert not list(upload_dir.glob("*-sm.webp"))  # no copy: the site loads the picture itself

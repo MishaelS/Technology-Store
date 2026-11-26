@@ -41,16 +41,11 @@ def picture(name: str, view: int = 1) -> str:
 
 
 def fill_pictures(db) -> int:
-    """Pictures for products that have none: the main one and two extra views. Returns how many changed."""
-    changed = 0
-    for product in db.scalars(select(Product)):
-        if not product.image_url:
-            product.image_url = picture(product.name)
-            changed += 1
-        if not product.images and product.image_url == picture(product.name):
-            product.images = [picture(product.name, 2), picture(product.name, 3)]
-            changed += 1
-    return changed
+    """Real photos where resources/photos has some, the placeholder picture for the rest (app/photos.py)."""
+    from app.photos import apply_photos  # here, not on top: app.photos imports this module
+
+    real, placeholder = apply_photos(db, commit=False)
+    return real + placeholder
 
 
 def description(category: str, name: str, specs: dict) -> str:
@@ -90,8 +85,8 @@ def demo() -> None:
             # already there: only add what newer versions of the demo have (extra photos)
             changed = fill_pictures(db)
             db.commit()
-            print(f"demo: demo data is already there — pictures added to {changed} products"
-                  if changed else "demo: demo data is already there — skipping (start over: ./run.sh reset, then ./run.sh demo)")
+            print(f"demo: demo data is already there — pictures checked for {changed} products "
+                  "(start over: ./run.sh reset, then ./run.sh demo)")
             return
 
         categories = {c.slug: c for c in db.scalars(select(Category))}
@@ -100,7 +95,7 @@ def demo() -> None:
         # ---------- products: new ones, pictures and descriptions for all ----------
         for cat, brand, name, price, old_price, stock, specs in DEMO_PRODUCTS:
             db.add(Product(category=categories[cat], brand=brand, name=name, price=price, old_price=old_price,
-                           stock=stock, specs=specs, image_url=picture(name), images=[picture(name, 2), picture(name, 3)],
+                           stock=stock, specs=specs, image_url=picture(name),
                            description=description(cat, name, specs),
                            created_at=NOW - timedelta(days=rng.randint(0, 40))))
         db.flush()

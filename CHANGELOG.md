@@ -10,11 +10,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `docs/TECH.md`: the technologies of the project, their versions and what each one is for.
+- `docs/PHOTOS.md`: what product photos are needed (format, size, background, angles per category) and how to add them.
+- Real product photos: `scripts/prepare_product_photos.py` makes web versions (1600x1200 WebP, white background,
+  product whole and centered) of `resources/photos/products`; `./run.sh photos` (`app/photos.py`) gives them to
+  the products, the rest get the placeholder; photos uploaded by hand are kept. The demo uses them too.
+- A picture that fails to load is replaced with a grey placeholder (`resources/demo/placeholder.svg`).
+- The "build your PC" slide shows real parts lying together on its circle instead of the wrench icon
+  (`scripts/make_hero_collage.py`: backgrounds cut out, soft shadows, transparent WebP); the icon stays
+  while it loads or when there is no such file.
+- Our own image loader (`images.js`): small copies in cards and lists, the big photo only on the product page;
+  loading starts 800 px before the screen, at most 6 at once, the nearest first; pictures are decoded before
+  they fade in, a shimmer shows meanwhile; loaded pictures show at once next time; the photos of a card and
+  the big photo of its page are preloaded while the mouse rests on the card.
+- Small copies: 480x360 `-sm.webp` next to every prepared photo and every upload (avatars 256x256); Pillow in the backend.
+- nginx compresses text (CSS 88 KB -> 20 KB, catalog answer 10.5 KB -> 1.8 KB) and lets the browser keep pictures
+  (a day for the repository's pictures, a year for uploads with their random names).
 
 ### Changed
 
+- Cards pop in faster (shorter animation and delays), the next chunk of a list is asked for 1200 px before its end.
 - Softer home page slides: the circles are gradients with a light corner and a soft shadow; promotions are violet
   and peach instead of red, the small circle of other slides is mint.
+
+### Fixed
+
+- A picture of a slide that went over its circle showed at the edge of the next slide.
 
 ## [0.3.0] - 2026-11-25
 

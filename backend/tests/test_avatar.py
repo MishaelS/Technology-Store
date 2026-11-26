@@ -67,3 +67,20 @@ def test_photo_can_not_be_set_through_the_profile(client, make_user):
     _, headers = make_user("client")
     client.patch("/api/auth/me", json={"name": "Иван", "avatar_url": "https://evil.example/x.png"}, headers=headers)
     assert client.get("/api/auth/me", headers=headers).json()["avatar_url"] is None
+
+
+def test_avatar_small_copy_is_square_and_goes_with_the_photo(client, make_user, upload_dir):
+    import io
+
+    from PIL import Image
+
+    _, headers = make_user("client")
+    buffer = io.BytesIO()
+    Image.new("RGB", (900, 600), (10, 120, 200)).save(buffer, "PNG")
+    url = client.post("/api/auth/me/avatar", content=buffer.getvalue(), headers=headers).json()["avatar_url"]
+    name = url.rsplit("/", 1)[1]
+    small = upload_dir / "avatars" / name.replace(".png", "-sm.webp")
+    with Image.open(small) as image:
+        assert image.size == (256, 256)
+    client.delete("/api/auth/me/avatar", headers=headers)
+    assert files(upload_dir) == []  # the photo and its copy are both gone
