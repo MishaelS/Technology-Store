@@ -6,6 +6,7 @@ import { onLeave } from "../router.js";
 import { h, icon, image, moreLink } from "../ui.js";
 
 const AUTOPLAY_MS = 6000;
+const HERO_BUILD = "/resources/photos/web/hero-build.webp";
 
 function section(title, content, more = null) {
   return h("section", { class: "section" }, h("div", { class: "section-head" }, h("h2", {}, title), more), content);
@@ -42,7 +43,11 @@ function buildSlide() {
       h("a", { href: "#/builder", class: "btn primary big" }, icon("navigation/builder"), t("nav.builder")),
       h("a", { href: "#/catalog", class: "btn big" }, t("nav.catalog")),
     ],
-    picture: icon("navigation/builder"),
+    // real parts lying together (scripts/make_hero_collage.py); the icon stays under it while it loads
+    // and when there is no such file
+    picture: [icon("navigation/builder"),
+      image(HERO_BUILD, "", window.innerWidth < 860 ? "small" : "full", { placeholder: false })],
+    tone: "build",
   });
 }
 
@@ -53,7 +58,7 @@ function productSlide(product) {
     text: short(product.description || ""),
     extra: h("div", { class: "hero-price" }, priceRow(product)),
     actions: [h("a", { href: `#/product/${product.id}`, class: "btn primary big" }, t("home.promo_more"), icon("navigation/arrow-right"))],
-    picture: image(product.image_url, product.name) || icon(`categories/${product.category}`),
+    picture: image(product.image_url, product.name, "full") || icon(`categories/${product.category}`),
     tone: "product",
   });
 }

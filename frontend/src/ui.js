@@ -1,6 +1,7 @@
 // Small helpers to build the page. Text is always inserted as text (never as HTML),
 // so data from the API can't inject scripts.
 import { getLanguage, t } from "./i18n.js";
+import { picture } from "./images.js";
 
 /** h("a", {href: "#/", class: "x", onclick: fn}, "text", otherNode) */
 export function h(tag, props = {}, ...children) {
@@ -37,9 +38,13 @@ export function date(iso) {
 }
 
 /** Only http(s) links or paths on the site (the backend checks this too). */
-export function image(url, alt = "") {
-  if (!url || !(/^https?:\/\//.test(url) || url.startsWith("/"))) return null;
-  return h("img", { src: url, alt, loading: "lazy", decoding: "async" });
+export function isImageUrl(url) {
+  return Boolean(url) && (/^https?:\/\//.test(url) || url.startsWith("/"));
+}
+
+/** Picture through our loader (images.js): size "small" for cards and lists, "full" for the product page. */
+export function image(url, alt = "", size = "small", options = {}) {
+  return isImageUrl(url) ? picture(url, alt, size, options) : null;
 }
 
 /** Icon from resources/icons: icon("navigation/cart").

@@ -145,6 +145,7 @@ ${BOLD}Настройка и данные${RESET}
   setup        Только подготовка: проверить Docker, создать .env, сгенерировать пароль, собрать образы
   password     Показать пароль тестовых аккаунтов
   reset        Стереть базу и создать заново с тестовыми данными (спросит подтверждение)
+  photos       Подключить настоящие фото товаров (resources/photos/web); у кого их нет — заглушка
   demo         Наполнить базу демо-данными: ещё товары с картинками, новости и события,
                клиенты с заказами, сборки, ремонт, поставки (один раз; заново — reset, потом demo)
   help         Эта справка
@@ -243,6 +244,12 @@ cmd_demo() {
     compose exec $TTY_FLAG backend python -m app.demo
 }
 
+cmd_photos() {
+    ensure_running
+    info "Подключаю фото товаров…"
+    compose exec $TTY_FLAG backend python -m app.photos
+}
+
 cmd_test() {
     ensure_running
     info "Запускаю автотесты…"
@@ -279,7 +286,8 @@ cmd_ide() {
     fi
     info "Ставлю библиотеки бэкенда для редактора…"
     backend/.venv/bin/pip install -q --upgrade pip
-    backend/.venv/bin/pip install -q -r backend/requirements.txt basedpyright
+    # pillow: for backend/scripts (product photos), they run on the computer, not in the container
+    backend/.venv/bin/pip install -q -r backend/requirements.txt basedpyright pillow
     info "Готово. Перезапустите VS Code (или «Python: Restart Language Server») — ошибки импорта пропадут."
     info "Настройки проверки лежат в pyrightconfig.json."
 }
@@ -331,6 +339,7 @@ main() {
             reset)          cmd_reset ;;
             password)       cmd_password ;;
             demo)           cmd_demo ;;
+            photos)         cmd_photos ;;
             locales)        cmd_locales ;;
             db)             cmd_db ;;
             shell)          cmd_shell ;;

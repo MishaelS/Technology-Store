@@ -31,6 +31,9 @@
   --dot: rgb(22 24 29 / 0.25);
   --shadow: rgb(16 24 40 / 0.1);
   --hex: 59, 91, 219; /* the bytes of the background (hex-background.js) */
+  /* circles of the home page slides: main color and the small circle's color */
+  --hero-1: #4C6EF5; --hero-2: #38D9A9;
+  --promo: #845EF7; --promo-2: #FFA94D; /* promotion slides: soft violet and peach */
   color-scheme: light;
 }
 
@@ -60,6 +63,8 @@
   --dot: rgb(255 255 255 / 0.25);
   --shadow: rgb(0 0 0 / 0.45);
   --hex: 116, 143, 252;
+  --hero-1: #5C7CFA; --hero-2: #20C997;
+  --promo: #9775FA; --promo-2: #FFA94D;
   color-scheme: dark;
 }
 /* pictures are drawn for a light page: a little dimmer, so they don't glare in the dark */
@@ -436,7 +441,7 @@ tr:last-child > td, tr:last-child > th { border-bottom: 0; }
   background: var(--sale); color: #fff; font: 700 12px/1 var(--mono); box-shadow: 0 4px 10px rgb(194 65 12 / 0.3);
 }
 .card-badge.out { left: auto; right: 10px; background: var(--text); color: var(--bg); font-family: inherit; box-shadow: none; }
-.product-card.is-out .thumb > :not(.card-badge) { filter: grayscale(1); opacity: 0.35; }
+.product-card.is-out .thumb > :not(.card-badge, .caution-tape) { filter: grayscale(1); opacity: 0.35; }
 .card-category { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
 .card-category .icon { width: 14px; height: 14px; }
 .product-card .title { color: var(--text); text-decoration: none; font-weight: 700; line-height: 1.35; min-height: 42px; transition: color 0.15s ease; }
@@ -897,9 +902,9 @@ button.icon-only { padding: 0; width: 34px; }
 }
 
 /* ---------- cards pop in from the center, each with its own random delay (--delay) ---------- */
-.product-card, .news-tile { animation: card-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay, 0ms) both; }
+.product-card, .news-tile { animation: card-pop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay, 0ms) both; }
 @keyframes card-pop {
-  from { opacity: 0; scale: 0.6; }
+  from { opacity: 0; scale: 0.85; }
   60% { opacity: 1; }
   to { opacity: 1; scale: 1; }
 }
@@ -1186,15 +1191,23 @@ body { overflow-x: clip; } /* full-width bands use 100vw, which includes the scr
 .hero-kicker { color: var(--muted); font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
 .hero-title { margin: 0; color: var(--accent); font-size: clamp(38px, 5.6vw, 72px); font-weight: 800; line-height: 1; letter-spacing: -0.035em; text-wrap: balance; }
 .hero-slide.tone-product .hero-title { font-size: clamp(30px, 3.8vw, 50px); line-height: 1.05; }
-.hero-slide.tone-promo .hero-title { color: var(--error); font-size: clamp(32px, 4.4vw, 56px); }
+.hero-slide.tone-promo .hero-title { color: var(--promo); font-size: clamp(32px, 4.4vw, 56px); }
 .hero-text { margin: 0; max-width: 520px; color: var(--muted); font-size: 18px; line-height: 1.55; }
 .hero-price .price-row .price { font-size: 30px; font-weight: 800; }
 .hero-art { position: relative; justify-self: end; width: min(100%, 470px); aspect-ratio: 1; }
 .hero-art .circle { position: absolute; border-radius: 50%; }
-.hero-art .circle.big { inset: 0 6% 6% 0; background: var(--accent); z-index: 1; }
-.hero-art .circle.small { width: 44%; aspect-ratio: 1; right: 0; bottom: 0; background: var(--ok); }
-.tone-promo .hero-art .circle.big { background: var(--error); }
-.tone-promo .hero-art .circle.small { background: var(--warn); }
+/* soft circles: a gradient with a light corner and a shadow of their own color instead of a flat fill */
+.hero-art { --c1: var(--hero-1); --c2: var(--hero-2); }
+.hero-art .circle.big {
+  inset: 0 6% 6% 0; z-index: 1;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--c1) 55%, #FFFFFF), var(--c1) 70%);
+  box-shadow: 0 30px 60px color-mix(in srgb, var(--c1) 30%, transparent);
+}
+.hero-art .circle.small {
+  width: 44%; aspect-ratio: 1; right: 0; bottom: 0;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c2) 55%, #FFFFFF), var(--c2) 75%);
+}
+.tone-promo .hero-art { --c1: var(--promo); --c2: var(--promo-2); }
 .hero-pic { position: absolute; inset: 16% 18% 20% 12%; z-index: 2; display: grid; place-items: center; }
 .hero-pic img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 18px; box-shadow: 0 24px 50px rgb(0 0 0 / 0.25); }
 .hero-pic > .icon { width: 46%; height: 46%; color: #FFFFFF; }
@@ -1322,3 +1335,58 @@ body { overflow-x: clip; } /* full-width bands use 100vw, which includes the scr
   .admin-list-body .admin-table { border: 0; }
   .toolbar-end { width: 100%; justify-content: space-between; margin-left: 0; }
 }
+
+/* ---------- our image loader (images.js) ---------- */
+/* a picture waiting for its turn is invisible; its frame shimmers until it comes */
+img { transition: opacity 0.25s ease; }
+img.img-pending { opacity: 0; }
+:where(.thumb, .zoom-frame, .cart-thumb, .part-thumb, .gallery-thumb, .drop-preview, .image-tile, .hero-pic, .avatar, .news-tile):has(> img.img-pending) {
+  background-image: linear-gradient(100deg, var(--surface-2) 30%, color-mix(in srgb, var(--surface-2) 40%, var(--surface)) 50%, var(--surface-2) 70%);
+  background-size: 300% 100%;
+  animation: img-shimmer 1.2s ease-in-out infinite;
+}
+@keyframes img-shimmer { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+
+/* ---------- barrier tape over a product that is out of stock (cautionTape() in components.js) ---------- */
+.caution-tape { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; }
+.tape {
+  position: absolute; left: -25%; width: 150%;
+  display: flex; align-items: center; justify-content: center;
+  background-color: #FFD43B;
+  box-shadow: 0 6px 14px rgb(0 0 0 / 0.28);
+}
+/* the band with the words: yellow, a light gloss on it, black hazard stripes along both edges */
+.tape-main {
+  top: 42%; height: 38px; rotate: -12deg;
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.35), transparent 45%, rgb(0 0 0 / 0.08)),
+    repeating-linear-gradient(-45deg, #16181D 0 7px, transparent 7px 14px),
+    repeating-linear-gradient(-45deg, #16181D 0 7px, transparent 7px 14px);
+  background-size: 100% 100%, 100% 6px, 100% 6px;
+  background-position: 0 0, 0 0, 0 100%;
+  background-repeat: no-repeat;
+  transition: translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tape-words {
+  display: flex; gap: 22px; white-space: nowrap;
+  color: #16181D; font: 800 12px/1 var(--font); letter-spacing: 0.12em; text-transform: uppercase;
+}
+.tape-words span::after { content: "•"; margin-left: 22px; }
+/* the second band behind: all hazard stripes, crossing the first one */
+.tape-back {
+  top: 30%; height: 22px; rotate: 10deg;
+  background-image: repeating-linear-gradient(-45deg, #16181D 0 12px, #FFD43B 12px 24px);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.2);
+}
+.product-card:hover .tape-main { translate: 0 -3px; } /* the tape gives a little under the mouse */
+.zoom-frame .tape-main { height: 52px; }
+.zoom-frame .tape-words { font-size: 16px; }
+.zoom-frame .tape-back { height: 30px; }
+:root[data-theme="dark"] .tape { box-shadow: 0 6px 16px rgb(0 0 0 / 0.6); }
+
+/* "build your PC" slide: real parts lying on the circle and a little over its edges (hero-build.webp) */
+.hero-band .slide { overflow: hidden; } /* a picture spilling over its circle never shows on the next slide */
+.tone-build .hero-pic { inset: -2% 0 2% -16%; background: none !important; animation: none !important; }
+.tone-build .hero-pic img { width: 100%; height: 100%; aspect-ratio: auto; object-fit: contain; border-radius: 0; box-shadow: none; }
+.tone-build .hero-pic > .icon { position: absolute; inset: 0; margin: auto; }
+.tone-build .hero-pic:has(> img:not(.img-pending)) > .icon { display: none; } /* the photo came: no icon */

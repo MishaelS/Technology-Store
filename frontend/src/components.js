@@ -1,9 +1,10 @@
 // Pieces used on several pages.
 import { api } from "./api.js";
+import { preload } from "./images.js";
 import { t } from "./i18n.js";
 import { headerChanged } from "./router.js";
 import { isLoggedIn, session } from "./session.js";
-import { attempt, date, flash, h, icon, image, money, navigate } from "./ui.js";
+import { attempt, date, flash, h, icon, image, isImageUrl, money, navigate } from "./ui.js";
 
 export function goToLogin() {
   navigate(`/login?next=${encodeURIComponent(location.hash.slice(1) || "/")}`);
@@ -22,7 +23,7 @@ export async function addToCart(productId, quantity = 1) {
 
 /** All photos of a product: the main one first, then the extra ones; only links image() accepts. */
 export function productPictures(product) {
-  return [product.image_url, ...(product.images || [])].filter((url) => image(url));
+  return [product.image_url, ...(product.images || [])].filter(isImageUrl);
 }
 
 const FLIP_MS = 650; // how long each photo stays while the mouse rests on a card
@@ -80,9 +81,10 @@ export function productGallery(product) {
   const fallback = h("div", { class: "card product-card" }, productThumb(product, `/product/${product.id}`));
   if (!pictures.length) return fallback;
 
-  const big = image(pictures[0], product.name);
+  const big = image(pictures[0], product.name, "full");
   const hint = h("span", { class: "zoom-hint" }, icon("actions/search"), t("product.zoom_hint"));
-  const frame = h("div", { class: "zoom-frame" }, big, hint, h("span", { class: "zoom-progress" }));
+  const frame = h("div", { class: "zoom-frame" }, big, hint, h("span", { class: "zoom-progress" }),
+    product.stock <= 0 ? cautionTape() : null);
   let timer = null;
   const place = (event) => {
     const box = frame.getBoundingClientRect();
@@ -114,18 +116,34 @@ export function productGallery(product) {
         "aria-label": t("product.photo_n", { n: i + 1 }),
         onclick: (event) => select(event.currentTarget, url),
         onpointerenter: (event) => select(event.currentTarget, url),
+        onfocus: () => preload(url, 1),
       }, image(url, ""))))
     : null;
   function select(button, url) {
-    big.src = url;
+    // the big photo through the loader: already preloaded when the mouse came onto the thumbnail
+    preload(url, 0).then(() => (big.src = url), () => {});
     thumbs.querySelectorAll(".gallery-thumb").forEach((b) => b.classList.toggle("on", b === button));
   }
   return h("div", { class: "card product-gallery" }, frame, thumbs);
 }
 
+/**
+ * Yellow barrier tape across the picture of a product that is out of stock: one band with the words,
+ * a thinner striped one crossing it behind. Only a picture: the card still says "out of stock" in text.
+ */
+export function cautionTape() {
+  const words = Array.from({ length: 4 }, () => h("span", {}, t("product.out_of_stock_tape")));
+  return h(
+    "span",
+    { class: "caution-tape", "aria-hidden": "true" },
+    h("span", { class: "tape tape-back" }),
+    h("span", { class: "tape tape-main" }, h("span", { class: "tape-words" }, words)),
+  );
+}
+
 /** Random delay for the pop-in animation of a card: they appear one by one, in a random order. */
 function popDelay() {
-  return `--delay: ${Math.round(Math.random() * 450)}ms`;
+  return `--delay: ${Math.round(Math.random() * 140)}ms`; // short: cards must not keep you waiting
 }
 
 export function productCard(product) {
@@ -136,7 +154,7 @@ export function productCard(product) {
   if (product.discount_percent > 0) {
     thumb.append(h("span", { class: "card-badge" }, t("product.discount_badge", { percent: product.discount_percent })));
   }
-  if (out) thumb.append(h("span", { class: "card-badge out" }, t("product.out_of_stock")));
+  if (out) thumb.append(cautionTape());
 
   const label = h("span", {}, t("product.add_to_cart"));
   const buy = h(
@@ -169,7 +187,12 @@ export function productCard(product) {
     {
       class: `card product-card${out ? " is-out" : ""}`,
       style: popDelay(),
-      onpointerenter: () => thumb.flip?.start(),
+      onpointerenter: () => {
+        thumb.flip?.start();
+        // the click will probably follow: the big photo of the product page loads meanwhile
+        const main = productPictures(product)[0];
+        if (main) preload(main, 8).catch(() => {});
+      },
       onpointerleave: () => thumb.flip?.stop(),
     },
     thumb,

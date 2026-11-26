@@ -27,7 +27,7 @@ DEMO_PRODUCTS = [
      {"socket": "AM5", "cores": 6, "tdp": 65, "igpu": True, "score": 52}),
     ("cpu", "AMD", "AMD Ryzen 7 9700X", 34990, None, 8,
      {"socket": "AM5", "cores": 8, "tdp": 65, "igpu": True, "score": 80}),
-    ("cpu", "AMD", "AMD Ryzen 9 9950X3D", 79990, 84990, 2,
+    ("cpu", "AMD", "AMD Ryzen 9 9950X3D", 79990, 84990, 0,
      {"socket": "AM5", "cores": 16, "tdp": 170, "igpu": True, "score": 99}),
     # Motherboards
     ("motherboard", "ASUS", "ASUS TUF GAMING B760M-PLUS WIFI D4", 15990, None, 10,
@@ -59,7 +59,7 @@ DEMO_PRODUCTS = [
      {"vram_gb": 12, "tdp": 250, "length_mm": 338, "score": 76}),
     ("gpu", "ASUS", "ASUS PRIME GeForce RTX 5070 Ti 16GB", 99990, None, 4,
      {"vram_gb": 16, "tdp": 300, "length_mm": 304, "score": 84}),
-    ("gpu", "Gigabyte", "Gigabyte GeForce RTX 5080 GAMING OC 16GB", 139990, None, 2,
+    ("gpu", "Gigabyte", "Gigabyte GeForce RTX 5080 GAMING OC 16GB", 139990, None, 0,
      {"vram_gb": 16, "tdp": 360, "length_mm": 340, "score": 93}),
     ("gpu", "PowerColor", "PowerColor Radeon RX 7600 Fighter 8GB", 27990, None, 15,
      {"vram_gb": 8, "tdp": 165, "length_mm": 200, "score": 40}),
@@ -84,7 +84,7 @@ DEMO_PRODUCTS = [
      {"ram_type": "DDR5", "size_gb": 32, "sticks": 2}),
     ("ram", "G.Skill", "G.Skill Trident Z5 RGB 64GB (2x32) DDR5-6400", 25990, None, 5,
      {"ram_type": "DDR5", "size_gb": 64, "sticks": 2}),
-    ("ram", "Corsair", "Corsair Vengeance 96GB (2x48) DDR5-6000", 32990, None, 2,
+    ("ram", "Corsair", "Corsair Vengeance 96GB (2x48) DDR5-6000", 32990, None, 0,
      {"ram_type": "DDR5", "size_gb": 96, "sticks": 2}),
     # Storage
     ("storage", "Samsung", "Samsung 870 EVO 500GB SATA SSD", 5490, None, 24,
@@ -101,7 +101,7 @@ DEMO_PRODUCTS = [
      {"type": "HDD", "size_gb": 1000}),
     ("storage", "WD", "WD Red Plus 4TB HDD", 11990, None, 7,
      {"type": "HDD", "size_gb": 4000}),
-    ("storage", "Seagate", "Seagate IronWolf 8TB HDD", 21990, None, 3,
+    ("storage", "Seagate", "Seagate IronWolf 8TB HDD", 21990, None, 0,
      {"type": "HDD", "size_gb": 8000}),
     # Power supplies
     ("psu", "Chieftec", "Chieftec Proton 550W", 4990, None, 19, {"wattage": 550}),
@@ -124,11 +124,15 @@ DEMO_PRODUCTS = [
      {"form_factors": ["ATX", "mATX", "Mini-ITX"], "max_gpu_mm": 360}),
     ("case", "Fractal Design", "Fractal Design North", 15990, None, 5,
      {"form_factors": ["ATX", "mATX", "Mini-ITX"], "max_gpu_mm": 355}),
-    ("case", "Lian Li", "Lian Li O11 Dynamic EVO", 17990, None, 3,
+    ("case", "Lian Li", "Lian Li O11 Dynamic EVO", 17990, None, 0,
      {"form_factors": ["ATX", "mATX", "Mini-ITX"], "max_gpu_mm": 422}),
     ("case", "Cooler Master", "Cooler Master MasterBox NR200P", 9490, None, 6,
      {"form_factors": ["Mini-ITX"], "max_gpu_mm": 330}),
 ]
+
+# sold out on purpose: the catalog always has products "out of stock" to see how they look
+OUT_OF_STOCK = ["Intel Arc B580 Limited Edition 12GB", "AMD Ryzen 9 9950X3D", "Gigabyte GeForce RTX 5080 GAMING OC 16GB",
+                "Corsair Vengeance 96GB (2x48) DDR5-6000", "Seagate IronWolf 8TB HDD", "Lian Li O11 Dynamic EVO"]
 
 # (type, days ago, title, text, picture number or None) — picture: resources/demo/news/<type>-<n>.svg
 DEMO_NEWS = [

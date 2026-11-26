@@ -29,7 +29,7 @@ export function imageDrop(input) {
 
   function draw() {
     const url = input.value.trim();
-    const picture = image(url);
+    const picture = image(url, "", "full");
     preview.replaceChildren(picture || h("span", { class: "drop-empty" }, icon("content/image")));
     zone.classList.toggle("has-image", Boolean(picture));
     removeButton.hidden = !url;

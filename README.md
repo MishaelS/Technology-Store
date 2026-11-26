@@ -36,6 +36,8 @@ Python (FastAPI), PostgreSQL, Docker. Фронтенд — HTML и JavaScript б
 | Документ | О чём |
 |---|---|
 | [docs/SETUP.md](docs/SETUP.md) | как запустить проект |
+| [docs/TECH.md](docs/TECH.md) | какие технологии используются и для чего |
+| [docs/PHOTOS.md](docs/PHOTOS.md) | какие фото товаров нужны и как их добавить |
 | [frontend/README.md](frontend/README.md) | как устроен фронтенд |
 | [resources/icons/README.md](resources/icons/README.md) | иконки сайта |
 | [docs/API.md](docs/API.md) | как работать с API, роли и права |
