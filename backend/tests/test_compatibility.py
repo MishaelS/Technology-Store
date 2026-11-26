@@ -167,3 +167,32 @@ def test_missing_spec_fields():
     assert missing_spec_fields("psu", {"wattage": 500}) == []
     assert missing_spec_fields("cpu", {"socket": "AM5"}) == ["cores", "tdp", "score"]
     assert missing_spec_fields("unknown", {}) == []
+
+
+def test_every_seed_and_demo_product_fits_the_rules():
+    """The 3D case picks models by the specs: every product must use the known values."""
+    from app.demo_data import DEMO_PRODUCTS
+    from app.seed import PRODUCTS
+    from app.services.compatibility import invalid_spec_fields
+
+    for category, _brand, name, *_rest, specs in PRODUCTS + DEMO_PRODUCTS:
+        assert not missing_spec_fields(category, specs), name
+        assert not invalid_spec_fields(category, specs), name
+
+
+def test_tower_cooler_height_in_the_case():
+    tall = part("cooler", type="Башенный", sockets=["AM5"], tdp=250, height_mm=168)
+    low_case = part("case", form_factors=["ATX"], max_gpu_mm=405, max_cooler_mm=160)
+    high_case = part("case", form_factors=["ATX"], max_gpu_mm=405, max_cooler_mm=170)
+    swap = lambda *parts: [next((p for p in parts if p.category_slug == g.category_slug), g) for g in GOOD]  # noqa: E731
+    assert statuses(check_build(swap(tall, low_case)))["cooler_height"] == "error"
+    assert statuses(check_build(swap(tall, high_case)))["cooler_height"] == "ok"
+    assert "cooler_height" not in statuses(check_build(GOOD))  # sizes unknown: nothing to say
+
+
+def test_liquid_radiator_in_the_case():
+    aio = part("cooler", type="СЖО", sockets=["AM5"], tdp=300, radiator_mm=360)
+    small = part("case", form_factors=["ATX"], max_gpu_mm=405, max_radiator_mm=280)
+    swap = [aio if p.category_slug == "cooler" else small if p.category_slug == "case" else p for p in GOOD]
+    result = check_build(swap)
+    assert statuses(result)["radiator"] == "error" and not result["is_compatible"]

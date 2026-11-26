@@ -370,6 +370,7 @@ class SpecFieldOut(BaseModel):
     kind: Literal["text", "number", "score", "flag", "text_list"]
     required: bool
     suggestions: list[str]  # values already used by other products of the category
+    choices: list[str] = []  # the only allowed values (fields the 3D case picks a model by); empty = any
 
 
 class RoleOut(BaseModel):

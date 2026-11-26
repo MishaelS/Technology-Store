@@ -106,10 +106,41 @@ def test_spec_schema(client, manager_headers):
     cpu = {f["key"]: f for f in schema["cpu"]}
     assert cpu["socket"]["kind"] == "text" and cpu["socket"]["required"]
     assert {"AM4", "AM5", "LGA1700"} <= set(cpu["socket"]["suggestions"])
-    assert cpu["igpu"] == {"key": "igpu", "kind": "flag", "required": False, "suggestions": []}
+    assert cpu["igpu"] == {"key": "igpu", "kind": "flag", "required": False, "suggestions": [], "choices": []}
     case = {f["key"]: f for f in schema["case"]}
     assert case["form_factors"]["kind"] == "text_list"
     assert set(case["form_factors"]["suggestions"]) == {"ATX", "mATX", "Mini-ITX"}
+    assert case["form_factors"]["choices"] == ["ATX", "mATX", "Mini-ITX"]
+    cooler = {f["key"]: f for f in schema["cooler"]}
+    assert cooler["type"]["choices"] == ["Башенный", "Низкопрофильный", "СЖО"]
+    assert cpu["socket"]["choices"] == []  # any socket
+
+
+NEW_COOLER = {"category": "cooler", "name": "Тестовый кулер", "brand": "Test", "price": 2000, "stock": 3,
+              "specs": {"type": "Башенный", "sockets": ["AM5"], "tdp": 150}}
+
+
+@pytest.mark.parametrize(
+    "specs, status",
+    [
+        ({}, 201),                                                   # a tower cooler as is
+        ({"type": "Водяной"}, 422),                                  # the 3D case doesn't know this kind
+        ({"type": "СЖО"}, 422),                                      # liquid needs the radiator size
+        ({"type": "СЖО", "radiator_mm": 360}, 201),
+    ],
+)
+def test_fields_of_the_3d_case_take_known_values(client, manager_headers, specs, status):
+    body = {**NEW_COOLER, "specs": {**NEW_COOLER["specs"], **specs}}
+    assert client.post("/api/admin/products", json=body, headers=manager_headers).status_code == status
+
+
+def test_board_and_drive_types_are_checked(client, manager_headers):
+    board = {"category": "motherboard", "name": "Плата", "brand": "Test", "price": 9000, "stock": 1,
+             "specs": {"socket": "AM5", "ram_type": "DDR5", "ram_slots": 4, "form_factor": "E-ATX"}}
+    drive = {"category": "storage", "name": "Диск", "brand": "Test", "price": 3000, "stock": 1,
+             "specs": {"type": "SSD M.2", "size_gb": 1000}}
+    assert client.post("/api/admin/products", json=board, headers=manager_headers).status_code == 422
+    assert client.post("/api/admin/products", json=drive, headers=manager_headers).status_code == 422
 
 
 def test_manager_creates_and_edits_product(client, manager_headers):

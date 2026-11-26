@@ -23,6 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 3D models of the case and the parts are built in Blender by `scripts/make_builder_models.py`
   (`./run.sh models` → `resources/models/builder.glb`); three.js r187 is in `frontend/vendor/three`.
 
+- The fields the 3D case shows a part by (board form factor, case boards, cooler type, drive type) take only known
+  values; the product editor shows them as a choice, a liquid cooler needs its radiator size. A new product added
+  in the admin panel goes into the case by itself.
+
+- More specs of the products (CPU threads and clocks, GPU chip and memory, RAM timings, drive speeds, PSU certificate,
+  board chipset and Wi-Fi, cooler height and noise) and the size, front panel and colour of cases; the colour of
+  GPUs, RAM and coolers. `./run.sh demo` adds them to an existing database without touching edited values.
+- Builder checks: a tower cooler must not be higher than the case allows, a liquid cooler's radiator must fit the case.
+- Parts out of stock in the builder list are wrapped in the barrier tape, like the catalog cards.
+
 ### Changed
 
 - The builder sections: no progress line and no list of steps any more, the summary stays on the right.

@@ -44,8 +44,49 @@ SPEC_KINDS: dict[str, str] = {
     "score": "score",
     "igpu": "flag",
     "form_factors": "text_list", "sockets": "text_list",
+    # optional details: shown on the product page, not used by the checks
+    "threads": "number", "base_ghz": "number", "boost_ghz": "number", "l3_mb": "number",
+    "height_mm": "number", "fans": "number", "noise_db": "number",
+    "chipset": "text", "m2_slots": "number", "wifi": "flag", "max_ram_gb": "number",
+    "speed_mts": "number", "cl": "number", "rgb": "flag",
+    "chip": "text", "memory_type": "text", "bus_bit": "number", "boost_mhz": "number", "power_connector": "text",
+    "interface": "text", "read_mb_s": "number", "write_mb_s": "number", "tbw": "number", "rpm": "number",
+    "certificate": "text", "modular": "text",
+    "max_cooler_mm": "number", "fans_included": "number", "color": "text",
+    # the case: outside size (height_mm above), front panel, the biggest radiator — the 3D case and the checks use them
+    "depth_mm": "number", "width_mm": "number", "front_panel": "text", "max_radiator_mm": "number",
 }
-OPTIONAL_SPEC_FIELDS: dict[str, tuple[str, ...]] = {"cpu": ("igpu",), "cooler": ("radiator_mm",)}
+# Optional fields per category: the product editor shows them, the product page lists the filled ones
+OPTIONAL_SPEC_FIELDS: dict[str, tuple[str, ...]] = {
+    "cpu": ("igpu", "threads", "base_ghz", "boost_ghz", "l3_mb"),
+    "cooler": ("radiator_mm", "height_mm", "fans", "noise_db", "color"),
+    "motherboard": ("chipset", "m2_slots", "wifi", "max_ram_gb"),
+    "ram": ("speed_mts", "cl", "rgb", "color"),
+    "gpu": ("chip", "memory_type", "bus_bit", "boost_mhz", "power_connector", "color"),
+    "storage": ("interface", "read_mb_s", "write_mb_s", "tbw", "rpm"),
+    "psu": ("certificate", "modular"),
+    "case": ("depth_mm", "width_mm", "height_mm", "front_panel", "color",
+             "max_cooler_mm", "max_radiator_mm", "fans_included"),
+}
+
+# Fields the 3D case of the builder (frontend/src/pc-case.js) picks a model by: only these values are allowed,
+# so a new product added in the admin panel goes into the case without new models.
+FORM_FACTORS = ["ATX", "mATX", "Mini-ITX"]
+COLORS = ["Чёрный", "Белый", "Серый", "Серебристый", "Коричневый"]
+SPEC_CHOICES: dict[tuple[str, str], list[str]] = {
+    ("motherboard", "form_factor"): FORM_FACTORS,
+    ("case", "form_factors"): FORM_FACTORS,
+    ("cooler", "type"): ["Башенный", "Низкопрофильный", "СЖО"],   # tower, low profile, liquid
+    ("storage", "type"): ["NVMe", "SATA SSD", "HDD"],
+    ("psu", "modular"): ["Полностью", "Частично", "Нет"],
+    # the 3D case paints the parts by these
+    ("case", "color"): COLORS,
+    ("gpu", "color"): COLORS,
+    ("ram", "color"): COLORS,
+    ("cooler", "color"): COLORS,
+    ("case", "front_panel"): ["Сетка", "Стекло", "Глухая", "Дерево"],   # mesh, glass, solid, wood
+}
+LIQUID_COOLER = "СЖО"   # a liquid cooler needs radiator_mm (240 or 360 mm radiator in the case)
 
 
 def _is_valid(kind: str, value) -> bool:
@@ -64,13 +105,23 @@ def _is_valid(kind: str, value) -> bool:
 
 
 def missing_spec_fields(category: str, specs: dict) -> list[str]:
-    return [f for f in SPEC_FIELDS.get(category, ()) if f not in specs]
+    missing = [f for f in SPEC_FIELDS.get(category, ()) if f not in specs]
+    if category == "cooler" and specs.get("type") == LIQUID_COOLER and "radiator_mm" not in specs:
+        missing.append("radiator_mm")
+    return missing
 
 
 def invalid_spec_fields(category: str, specs: dict) -> list[str]:
     """Known fields that are present but have a wrong type or value."""
     known = SPEC_FIELDS.get(category, ()) + OPTIONAL_SPEC_FIELDS.get(category, ())
-    return [f for f in known if f in specs and not _is_valid(SPEC_KINDS[f], specs[f])]
+    return [f for f in known if f in specs and (not _is_valid(SPEC_KINDS[f], specs[f]) or not _is_choice(category, f, specs[f]))]
+
+
+def _is_choice(category: str, key: str, value) -> bool:
+    choices = SPEC_CHOICES.get((category, key))
+    if choices is None:
+        return True
+    return all(v in choices for v in value) if isinstance(value, list) else value in choices
 
 
 def _part(category: str) -> str:
@@ -177,6 +228,20 @@ def check_build(products: list[Product]) -> dict:
         )
     else:
         checks.append(_check("gpu_length", "skip", "gpu_length_skip"))
+
+    # 5b. Cooler in the case: a tower must not be higher than the case allows, a radiator must fit.
+    #     Only when both sizes are known (they are optional fields).
+    if cooler and case:
+        liquid = cooler.specs.get("type") == LIQUID_COOLER
+        size, limit = (("radiator_mm", "max_radiator_mm") if liquid else ("height_mm", "max_cooler_mm"))
+        have, allowed = cooler.specs.get(size), case.specs.get(limit)
+        if have and allowed:
+            code = "radiator" if liquid else "cooler_height"
+            checks.append(
+                _check(code, "ok", f"{code}_ok", size=have, max=allowed)
+                if have <= allowed
+                else _check(code, "error", f"{code}_error", size=have, max=allowed)
+            )
 
     # 6. Form factor
     if mb and case:

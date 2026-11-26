@@ -44,6 +44,7 @@ from app.schemas import (
 from app.services.bonus import add_bonus
 from app.services.compatibility import (
     OPTIONAL_SPEC_FIELDS,
+    SPEC_CHOICES,
     SPEC_FIELDS,
     SPEC_KINDS,
     invalid_spec_fields,
@@ -189,7 +190,8 @@ def spec_schema(db: Session = Depends(get_db)):
         fields = [(key, True) for key in required] + [(key, False) for key in OPTIONAL_SPEC_FIELDS.get(slug, ())]
         schema[slug] = [
             {"key": key, "kind": SPEC_KINDS[key], "required": is_required,
-             "suggestions": sorted(used.get((slug, key), set()))}
+             "suggestions": SPEC_CHOICES.get((slug, key)) or sorted(used.get((slug, key), set())),
+             "choices": SPEC_CHOICES.get((slug, key), [])}
             for key, is_required in fields
         ]
     return schema

@@ -53,11 +53,19 @@ export async function productEditorPage({ params, query }) {
       const box = h("input", { type: "checkbox", checked: value === true });
       return { node: h("label", { class: "check-row" }, box, label), read: () => box.checked };
     }
+    const choices = spec.choices || [];
+    if (spec.kind === "text" && choices.length) {
+      // the 3D case picks a model by this field: only the values it knows
+      const input = select(spec.key, [["", t("editor.choose_value")], ...choices.map((c) => [c, c])], value);
+      input.required = spec.required;
+      return { node: h("div", { class: "spec-field" }, field(label, input), h("div", { class: "muted" }, t("editor.choices_hint"))), read: () => input.value };
+    }
     if (spec.kind === "text_list") {
       const current = Array.isArray(value) ? value : [];
       const boxes = spec.suggestions.map((s) => h("input", { type: "checkbox", value: s, checked: current.includes(s) }));
       const other = h("input", {
         placeholder: t("editor.list_other"),
+        hidden: choices.length > 0, // only the listed values are allowed
         value: current.filter((v) => !spec.suggestions.includes(v)).join(", "),
       });
       return {
