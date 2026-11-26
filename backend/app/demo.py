@@ -26,6 +26,7 @@ from app.models import (
     BonusHistory, Build, BuildItem, Category, Fact, News, Order, OrderItem, Product, Repair, StockReceipt, User,
 )
 from app.security import hash_password
+from app.seed import PRODUCTS
 
 NOW = datetime.now(timezone.utc)
 
@@ -100,6 +101,13 @@ def demo() -> None:
                     db.add(Product(category=categories[cat], brand=brand, name=name, price=price, old_price=old_price,
                                    stock=stock, specs=specs, image_url=picture(name), description=description(cat, name, specs)))
             db.flush()
+            # details added to the lists later (threads, clocks, speeds…) reach the products already in the database;
+            # values someone changed in the admin panel stay
+            lists = {name: specs for _c, _b, name, *_rest, specs in PRODUCTS + DEMO_PRODUCTS}
+            for product in db.scalars(select(Product).where(Product.name.in_(list(lists)))):
+                extra = {k: v for k, v in lists[product.name].items() if k not in (product.specs or {})}
+                if extra:
+                    product.specs = {**(product.specs or {}), **extra}
             for product in db.scalars(select(Product).where(Product.description.endswith("в наличии в Technology-Store."))):
                 product.description = description(product.category.slug, product.name, product.specs)
             changed = fill_pictures(db)
