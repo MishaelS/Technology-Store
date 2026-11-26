@@ -654,17 +654,18 @@ export function cableGeometry(kind, a, b) {
  * The view. Returns {node, update(build), highlight(slot), refit()}.
  * build: {case, motherboard, cpu, cooler, gpu, psu: product | null, ram, storage: product[], powered, problems: Set}
  * onPick(slot) — a part (or its empty place) was clicked.
+ * showcase: true — the home page: the case turns by itself, no mouse control, no texts, no clicks.
  */
-export function createCaseView({ onPick, loadingText, failedText, hintText }) {
+export function createCaseView({ onPick = () => {}, loadingText = () => "", failedText = "", hintText = "", showcase = false, lookArea = null }) {
   const node = document.createElement("div");
-  node.className = "case-stage";
+  node.className = showcase ? "case-stage showcase" : "case-stage";
   const status = document.createElement("div");
   status.className = "case-status";
   status.textContent = loadingText(null);
   const hint = document.createElement("div");
   hint.className = "case-hint";
   hint.textContent = hintText;
-  node.append(status, hint);
+  if (!showcase) node.append(status, hint);
 
   let renderer;
   try {
@@ -674,7 +675,8 @@ export function createCaseView({ onPick, loadingText, failedText, hintText }) {
     node.classList.add("failed");
     return { node, update() {}, highlight() {}, refit() {} };
   }
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  // the home slide is small: draw it at 2x even on plain screens, so thin edges don't stair-step
+  renderer.setPixelRatio(showcase ? 2 : Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -703,6 +705,25 @@ export function createCaseView({ onPick, loadingText, failedText, hintText }) {
   controls.minAzimuthAngle = -Math.PI * 0.62;
   controls.maxAzimuthAngle = Math.PI * 0.42;
   controls.rotateSpeed = 0.7;
+  if (showcase) {
+    // turns around by itself: no limits, no input
+    controls.enabled = false;
+    Object.assign(controls, { minAzimuthAngle: -Infinity, maxAzimuthAngle: Infinity });
+  }
+  const orbit = new THREE.Spherical();
+  const spinOffset = new THREE.Vector3();
+  // showcase: the mouse over lookArea turns the view (x: from the front edge to the rear edge, y: up and down)
+  const look = { x: 0, y: 0, at: 0 };
+  lookArea?.addEventListener("pointermove", (event) => {
+    if (event.pointerType !== "mouse") return;
+    const box = lookArea.getBoundingClientRect();
+    look.x = ((event.clientX - box.left) / box.width) * 2 - 1;
+    look.y = ((event.clientY - box.top) / box.height) * 2 - 1;
+    look.at = performance.now();
+  });
+  lookArea?.addEventListener("pointerleave", () => { look.at = 0; });
+  let onScreen = true; // nothing is drawn while the view is scrolled away or its slide is hidden
+  new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; }).observe(node);
 
   // light: a soft key from the front-left above, a cool rim from behind, a warm fill inside the case
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -729,7 +750,7 @@ export function createCaseView({ onPick, loadingText, failedText, hintText }) {
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = 0.5;
   ground.receiveShadow = true;
-  scene.add(ground);
+  if (!showcase) scene.add(ground); // on the home page the canvas edge would cut the shadow off
 
   const world = new THREE.Group(); // the case and the parts
   scene.add(world);
@@ -758,8 +779,9 @@ export function createCaseView({ onPick, loadingText, failedText, hintText }) {
   function homeCamera() {
     const direction = new THREE.Vector3(-0.62, 0.38, 1).normalize();
     const half = THREE.MathUtils.degToRad(camera.fov / 2);
-    const byHeight = 350 / Math.tan(half);
-    const byWidth = 360 / (Math.tan(half) * camera.aspect);
+    const room = showcase ? 1.18 : 1; // the home slide: a little more air around the case
+    const byHeight = (350 * room) / Math.tan(half);
+    const byWidth = (360 * room) / (Math.tan(half) * camera.aspect);
     camera.position.copy(center).addScaledVector(direction, Math.max(byHeight, byWidth));
     controls.update();
   }
@@ -830,6 +852,12 @@ export function createCaseView({ onPick, loadingText, failedText, hintText }) {
     caseObj.userData.radiatorMax = stretch.radiatorMax || modelRadiatorMax(caseObj);
     stretchCase(caseObj, stretch);
     keepVariant(caseObj, ["front_mesh", "front_glass", "front_solid", "front_wood"], `front_${front}`);
+    if (showcase) {
+      // home page: no side glass — its haze and the parts flying through it make a muddy picture
+      caseObj.traverse((child) => {
+        if (child.name.startsWith("glass_side")) child.visible = false;
+      });
+    }
     caseObj.traverse((child) => {
       if (child.isMesh && child.material.name === "CaseBody") (caseObj.userData.body ||= []).push(child.material);
       if (child.isMesh && child.material.name === "CaseInner") (caseObj.userData.inner ||= []).push(child.material);
@@ -1193,7 +1221,23 @@ export function createCaseView({ onPick, loadingText, failedText, hintText }) {
     }
     const dt = Math.min(clock.getDelta(), 0.05);
     const now = performance.now();
+    if (!onScreen) return;
     controls.target.lerp(center, Math.min(1, dt * 4)); // a case of another size: the view glides to its middle
+    if (showcase && !reduceMotion) {
+      // a slow swing around the case, the open side always toward the viewer (the other side is a plain wall)
+      spinOffset.copy(camera.position).sub(controls.target);
+      orbit.setFromVector3(spinOffset);
+      // from the front edge to the rear edge and back around the open side, never behind it;
+      // the mouse over the slide takes over, and the swing comes back softly when it leaves
+      const following = look.at && now - look.at < 4000;
+      const theta = following ? -0.25 + 0.95 * look.x : -0.25 + 0.95 * Math.sin(now / 7000); // −70°…+40°
+      const phi = following ? 1.2 + 0.22 * look.y : 1.2 + 0.07 * Math.sin(now / 3700);
+      const ease = Math.min(1, dt * (following ? 3 : 1.2));
+      orbit.theta += (theta - orbit.theta) * ease;
+      orbit.phi += (phi - orbit.phi) * ease;
+      camera.position.copy(controls.target).add(spinOffset.setFromSpherical(orbit));
+      camera.lookAt(controls.target);
+    }
     controls.update();
 
     for (const [key, record] of parts) {
@@ -1226,7 +1270,7 @@ export function createCaseView({ onPick, loadingText, failedText, hintText }) {
         }
       }
       // a short flash of the accent when a part clicks into place
-      const flash = record.landed ? clamp01(1 - (now - record.landed) / 600) : 0;
+      const flash = record.landed && !showcase ? clamp01(1 - (now - record.landed) / 600) : 0; // no blue blink on the home page
       if (record.state !== "out" && (flash > 0 || record.flashing)) {
         record.flashing = flash > 0;
         for (const material of record.materials) {

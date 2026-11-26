@@ -5,7 +5,7 @@ import { getLanguage, t } from "../i18n.js";
 import { onLeave } from "../router.js";
 import { h, icon, image, moreLink } from "../ui.js";
 
-const AUTOPLAY_MS = 6000;
+const AUTOPLAY_MS = 12000; // slow: the 3D PC on the first slide has time to change a few parts
 const HERO_BUILD = "/resources/photos/web/hero-build.webp";
 
 function section(title, content, more = null) {
@@ -35,7 +35,9 @@ function heroSlide({ kicker, title, text, extra = null, actions, picture, tone =
 const short = (text, max = 140) => (text.length > max ? `${text.slice(0, max).replace(/\s+\S*$/, "")}…` : text);
 
 function buildSlide() {
-  return heroSlide({
+  // real parts lying together (scripts/make_hero_collage.py) while the 3D PC loads, and for good without WebGL
+  const collage = image(HERO_BUILD, "", window.innerWidth < 860 ? "small" : "full", { placeholder: false });
+  const slide = heroSlide({
     kicker: t("app.tagline"),
     title: t("home.hero_build_title"),
     text: t("home.build_cta_text"),
@@ -43,12 +45,13 @@ function buildSlide() {
       h("a", { href: "#/builder", class: "btn primary big" }, icon("navigation/builder"), t("nav.builder")),
       h("a", { href: "#/catalog", class: "btn big" }, t("nav.catalog")),
     ],
-    // real parts lying together (scripts/make_hero_collage.py); the icon stays under it while it loads
-    // and when there is no such file
-    picture: [icon("navigation/builder"),
-      image(HERO_BUILD, "", window.innerWidth < 860 ? "small" : "full", { placeholder: false })],
+    picture: [icon("navigation/builder"), collage],
     tone: "build",
   });
+  // an assembled PC that turns and keeps changing its parts (hero-build.js): after the page is drawn
+  const art = slide.querySelector(".hero-art");
+  setTimeout(() => import("../hero-build.js").then(({ startHeroBuild }) => startHeroBuild(art, collage)).catch(() => {}), 300);
+  return slide;
 }
 
 function productSlide(product) {

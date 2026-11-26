@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   low coolers, two pump styles, three RAM styles, PSU lengths, M.2 with a heatsink, sleeved power cables;
   the case follows its size, front panel (mesh, glass, solid, wood) and colour, parts take their colour;
   a part that doesn't fit gets a red outline. No part of a compatible build intersects another.
+- The first slide of the home page shows an assembled 3D PC instead of a picture: it swings around its open side
+  (or follows the mouse over the slide) and keeps changing its parts, one compatible part every few seconds.
 - The model file is Draco-compressed (1.8 MB instead of 4.5 MB); the decoder is in `frontend/vendor/three`.
 
 ### Changed

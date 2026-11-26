@@ -1265,6 +1265,15 @@ body { overflow-x: clip; } /* full-width bands use 100vw, which includes the scr
 .hero-pic { position: absolute; inset: 16% 18% 20% 12%; z-index: 2; display: grid; place-items: center; }
 .hero-pic img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 18px; box-shadow: 0 24px 50px rgb(0 0 0 / 0.25); }
 .hero-pic > .icon { width: 46%; height: 46%; color: #FFFFFF; }
+/* the 3D PC of the first slide (hero-build.js): over the circles, a little bigger than them */
+.hero-art .case-stage.hero-3d {
+  position: absolute; inset: -14% -10% -8% -16%; z-index: 3; height: auto; min-height: 0;
+  border: 0; border-radius: 0; background: none; overflow: visible;
+}
+.hero-art .case-stage.hero-3d canvas { pointer-events: none; cursor: default; }
+.hero-art .case-stage.hero-3d::after { display: none; }
+.hero-pic img, .hero-pic > .icon { transition: opacity 0.6s ease; }
+.hero-art:has(.hero-fallback-gone) .hero-pic { opacity: 0; transition: opacity 0.6s ease; }
 /* the picture of the shown slide comes in with a small pop */
 .hero-band .slide .hero-art { transition: scale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease; }
 /* bars instead of dots, under the text on the left */
