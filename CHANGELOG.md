@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   GPUs, RAM and coolers. `./run.sh demo` adds them to an existing database without touching edited values.
 - Builder checks: a tower cooler must not be higher than the case allows, a liquid cooler's radiator must fit the case.
 - Parts out of stock in the builder list are wrapped in the barrier tape, like the catalog cards.
+- More detailed 3D models and more variants: GPU styles by brand, single and dual tower coolers, flat and round
+  low coolers, two pump styles, three RAM styles, PSU lengths, M.2 with a heatsink, sleeved power cables;
+  the case follows its size, front panel (mesh, glass, solid, wood) and colour, parts take their colour;
+  a part that doesn't fit gets a red outline. No part of a compatible build intersects another.
+- The model file is Draco-compressed (1.8 MB instead of 4.5 MB); the decoder is in `frontend/vendor/three`.
 
 ### Changed
 
