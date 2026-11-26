@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Backups larger than 6 MB could not be uploaded through the site (the proxy limit was 6 MB for the whole API).
+
 ## [0.4.0] - 2026-11-26
 
 Real product photos with a fast image loader, barrier tape for products out of stock, softer home page slides
