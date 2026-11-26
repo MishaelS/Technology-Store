@@ -62,6 +62,10 @@ def description(category: str, name: str, specs: dict) -> str:
             graphics = "есть встроенная графика" if s.get("igpu") else "нужна отдельная видеокарта"
             return (f"{name} — {s['cores']}-ядерный процессор для сокета {s['socket']}. "
                     f"Тепловыделение {s['tdp']} Вт, {graphics}. Оценка мощности в конфигураторе: {s['score']} из 100.")
+        case "cooler":
+            radiator = f", радиатор {s['radiator_mm']} мм" if s.get("radiator_mm") else ""
+            return (f"Кулер для процессора ({s['type'].lower()}{radiator}): отводит до {s['tdp']} Вт тепла. "
+                    f"Сокеты: {', '.join(s['sockets'])}.")
         case "motherboard":
             return (f"Материнская плата формата {s['form_factor']} под сокет {s['socket']}. "
                     f"{s['ram_slots']} слота под память {s['ram_type']}.")
@@ -88,7 +92,16 @@ def demo() -> None:
             print("demo: the database is empty — start the project first (./run.sh start)")
             return
         if db.scalar(select(Product.id).where(Product.name == DEMO_PRODUCTS[0][2])):
-            # already there: only add what newer versions of the demo have (extra photos)
+            # already there: only add what newer versions of the demo have (new products, extra photos)
+            categories = {c.slug: c for c in db.scalars(select(Category))}
+            names = set(db.scalars(select(Product.name)))
+            for cat, brand, name, price, old_price, stock, specs in DEMO_PRODUCTS:
+                if name not in names and cat in categories:
+                    db.add(Product(category=categories[cat], brand=brand, name=name, price=price, old_price=old_price,
+                                   stock=stock, specs=specs, image_url=picture(name), description=description(cat, name, specs)))
+            db.flush()
+            for product in db.scalars(select(Product).where(Product.description.endswith("в наличии в Technology-Store."))):
+                product.description = description(product.category.slug, product.name, product.specs)
             changed = fill_pictures(db)
             sold_out(db)
             db.commit()
@@ -169,6 +182,8 @@ def demo() -> None:
         # ---------- saved builds: compatible parts, half of them with an engineer's comment ----------
         for i in range(12):
             cpu = rng.choice(by_category["cpu"])
+            cooler = rng.choice([c for c in by_category.get("cooler", []) if cpu.specs["socket"] in c.specs["sockets"]
+                                 and c.specs["tdp"] >= cpu.specs["tdp"]] or [None])
             boards = [b for b in by_category["motherboard"] if b.specs["socket"] == cpu.specs["socket"]]
             if not boards:
                 continue
@@ -183,7 +198,7 @@ def demo() -> None:
             db.add(Build(user_id=user.id, name=rng.choice(BUILD_NAMES), created_at=NOW - timedelta(days=rng.randint(0, 30)),
                          engineer_comment=rng.choice(BUILD_COMMENTS) if commented else None,
                          engineer_id=staff["employee"].id if commented and "employee" in staff else None,
-                         items=[BuildItem(product_id=p.id) for p in (cpu, board, ram, gpu, case, psu, storage)]))
+                         items=[BuildItem(product_id=p.id) for p in (cpu, cooler, board, ram, gpu, case, psu, storage) if p]))
 
         # ---------- repairs in every status ----------
         repair_statuses = ["accepted", "accepted", "diagnostics", "diagnostics", "repairing", "repairing",

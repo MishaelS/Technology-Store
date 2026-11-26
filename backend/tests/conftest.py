@@ -142,6 +142,7 @@ def product(db):
 # Builds from seed data, used in several test files
 GOOD_BUILD = [
     "AMD Ryzen 5 7600",
+    "DEEPCOOL AK400",
     "MSI MAG B650 TOMAHAWK WIFI",
     "G.Skill Flare X5 32GB (2x16) DDR5-6000",
     "MSI GeForce RTX 4060 VENTUS 2X 8GB",

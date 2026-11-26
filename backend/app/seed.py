@@ -29,6 +29,7 @@ USERS = [
 
 CATEGORIES = [
     ("cpu", "Процессоры"),
+    ("cooler", "Кулеры"),
     ("motherboard", "Материнские платы"),
     ("gpu", "Видеокарты"),
     ("ram", "Оперативная память"),
@@ -58,6 +59,11 @@ PRODUCTS = [
      {"socket": "AM5", "cores": 8, "tdp": 120, "igpu": True, "score": 85}),
     ("cpu", "AMD", "AMD Ryzen 9 7950X", 54990, 59990, 3,
      {"socket": "AM5", "cores": 16, "tdp": 170, "igpu": True, "score": 95}),
+    # CPU coolers
+    ("cooler", "DEEPCOOL", "DEEPCOOL AK400", 2490, None, 30,
+     {"type": "Башенный", "sockets": ["LGA1700", "LGA1851", "AM4", "AM5"], "tdp": 220}),
+    ("cooler", "ARCTIC", "ARCTIC Liquid Freezer III 240", 8990, 9990, 9,
+     {"type": "СЖО", "sockets": ["LGA1700", "LGA1851", "AM4", "AM5"], "tdp": 300, "radiator_mm": 240}),
     # Motherboards
     ("motherboard", "MSI", "MSI PRO H610M-E DDR4", 7490, None, 14,
      {"socket": "LGA1700", "ram_type": "DDR4", "ram_slots": 2, "form_factor": "mATX"}),
@@ -154,6 +160,27 @@ FACTS = [
 ]
 
 
+def add_missing_categories(db) -> None:
+    """Categories added in newer versions (e.g. coolers) appear in an existing database too, in the list order."""
+    existing = {c.slug: c for c in db.scalars(select(Category))}
+    missing = [slug for slug, _ in CATEGORIES if slug not in existing]
+    if not missing:
+        return
+    for position, (slug, name) in enumerate(CATEGORIES):
+        if slug in existing:
+            existing[slug].position = position
+        else:
+            existing[slug] = Category(slug=slug, name=name, position=position)
+            db.add(existing[slug])
+    # the seed products of a new category come with it
+    for cat, brand, name, price, old_price, stock, specs in PRODUCTS:
+        if cat in missing:
+            db.add(Product(category=existing[cat], brand=brand, name=name, price=price, old_price=old_price,
+                           stock=stock, specs=specs, description=f"{name} — в наличии в Technology-Store."))
+    db.commit()
+    print("seed: added categories " + ", ".join(missing))
+
+
 def add_missing_users(db) -> None:
     """Adds seed accounts that don't exist yet (with SEED_PASSWORD), keeps everything else."""
     existing = set(db.scalars(select(User.email)))
@@ -175,6 +202,7 @@ def add_missing_users(db) -> None:
 def seed() -> None:
     with SessionLocal() as db:
         if db.scalar(select(User.id).limit(1)):
+            add_missing_categories(db)
             add_missing_users(db)
             return
 

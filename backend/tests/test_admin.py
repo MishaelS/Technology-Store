@@ -102,7 +102,7 @@ def test_product_validation(client, employee_headers, change, status):
 
 def test_spec_schema(client, manager_headers):
     schema = client.get("/api/admin/products/spec-schema", headers=manager_headers).json()
-    assert set(schema) == {"cpu", "motherboard", "ram", "gpu", "psu", "case", "storage"}
+    assert set(schema) == {"cpu", "cooler", "motherboard", "ram", "gpu", "psu", "case", "storage"}
     cpu = {f["key"]: f for f in schema["cpu"]}
     assert cpu["socket"]["kind"] == "text" and cpu["socket"]["required"]
     assert {"AM4", "AM5", "LGA1700"} <= set(cpu["socket"]["suggestions"])

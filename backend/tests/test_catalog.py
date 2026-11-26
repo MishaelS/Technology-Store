@@ -2,7 +2,7 @@
 
 import pytest
 
-TOTAL_PRODUCTS = 41
+TOTAL_PRODUCTS = 43
 
 
 def scroll(client, url):
@@ -20,7 +20,7 @@ def scroll(client, url):
 def test_categories_are_translated(client):
     ru = client.get("/api/categories").json()
     en = client.get("/api/categories?lang=en").json()
-    assert [c["slug"] for c in ru][:3] == ["cpu", "motherboard", "gpu"]
+    assert [c["slug"] for c in ru][:4] == ["cpu", "cooler", "motherboard", "gpu"]
     assert ru[0]["name"] == "Процессоры" and en[0]["name"] == "Processors"
 
 
@@ -69,7 +69,7 @@ def test_last_chunk_has_no_cursor(client):
         ("search=RYZEN 7", 2),
         ("brand=samsung", 2),
         ("min_price=100000", 2),
-        ("max_price=3000", 1),
+        ("max_price=3000", 2),
         ("category=cpu&min_price=10000&max_price=30000", 4),
         ("search=%25", 0),          # % is escaped, not a wildcard
         ("search=_", 0),

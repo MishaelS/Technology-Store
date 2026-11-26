@@ -22,6 +22,7 @@ OUT = ROOT / "resources" / "demo"
 # category -> (main color, light background)
 COLORS = {
     "cpu": ("#3B5BDB", "#EEF2FF"),
+    "cooler": ("#1098AD", "#E3FAFC"),
     "motherboard": ("#0C8599", "#E3FAFC"),
     "gpu": ("#7048E8", "#F3F0FF"),
     "ram": ("#E8590C", "#FFF4E6"),
@@ -59,6 +60,7 @@ def number(seed: str, low: int, high: int) -> int:
 def main_spec(category: str, s: dict) -> str:
     match category:
         case "cpu": return f"{s['socket']} · {s['cores']} ядер"
+        case "cooler": return f"{s['type']} · {s['tdp']} Вт"
         case "motherboard": return f"{s['socket']} · {s['ram_type']} · {s['form_factor']}"
         case "gpu": return f"{s['vram_gb']} ГБ · {s['tdp']} Вт"
         case "ram": return f"{s['ram_type']} · {s['size_gb']} ГБ"

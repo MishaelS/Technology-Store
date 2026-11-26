@@ -28,8 +28,11 @@ PSU_450 = part("psu", wattage=450)
 CASE_ATX = part("case", form_factors=["ATX", "mATX", "Mini-ITX"], max_gpu_mm=405)
 CASE_SMALL = part("case", form_factors=["Mini-ITX"], max_gpu_mm=300)
 SSD = part("storage", type="NVMe", size_gb=1000)
+COOLER = part("cooler", type="Башенный", sockets=["LGA1700", "AM4", "AM5"], tdp=200)
+COOLER_INTEL = part("cooler", type="Низкопрофильный", sockets=["LGA1700"], tdp=65)
+COOLER_WEAK = part("cooler", type="Низкопрофильный", sockets=["AM5"], tdp=50)
 
-GOOD = [CPU_AM5, MB_AM5, RAM_DDR5, GPU_MID, PSU_650, CASE_ATX, SSD]
+GOOD = [CPU_AM5, COOLER, MB_AM5, RAM_DDR5, GPU_MID, PSU_650, CASE_ATX, SSD]
 
 
 @pytest.fixture(autouse=True)
@@ -65,6 +68,7 @@ def test_empty_build():
         ({"psu": PSU_450, "gpu": GPU_TOP}, "psu"),
         ({"case": part("case", form_factors=["ATX"], max_gpu_mm=150)}, "gpu_length"),
         ({"case": CASE_SMALL}, "form_factor"),
+        ({"cooler": COOLER_INTEL}, "cooler"),
     ],
 )
 def test_each_rule_reports_an_error(replace, code):
@@ -120,6 +124,23 @@ def test_tiers(cpu_score, gpu_score, tier):
     cpu = part("cpu", socket="AM5", cores=8, tdp=100, igpu=False, score=cpu_score)
     gpu = part("gpu", vram_gb=8, tdp=100, length_mm=200, score=gpu_score)
     assert check_build([cpu, gpu])["tier"] == tier
+
+
+def test_weak_cooler_is_a_warning():
+    result = check_build([COOLER_WEAK if p.category_slug == "cooler" else p for p in GOOD])
+    assert statuses(result)["cooler"] == "warning"
+    assert result["is_compatible"]
+
+
+def test_build_without_cooler_is_not_complete():
+    result = check_build([p for p in GOOD if p.category_slug != "cooler"])
+    assert statuses(result)["cooler"] == "skip"
+    assert not result["is_complete"]
+    assert "кулер" in next(c["message"] for c in result["checks"] if c["code"] == "complete")
+
+
+def test_two_coolers_are_not_allowed():
+    assert statuses(check_build(GOOD + [COOLER]))["single_cooler"] == "error"
 
 
 def test_small_ram_lowers_the_score():

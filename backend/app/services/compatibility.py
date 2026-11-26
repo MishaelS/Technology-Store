@@ -12,6 +12,7 @@ from app.models import Product
 # Required specs keys per category (validated when a product is created in the admin panel)
 SPEC_FIELDS: dict[str, tuple[str, ...]] = {
     "cpu": ("socket", "cores", "tdp", "score"),          # + optional igpu: bool
+    "cooler": ("type", "sockets", "tdp"),                # tdp: how much heat it can take away, W; + optional radiator_mm
     "motherboard": ("socket", "ram_type", "ram_slots", "form_factor"),
     "ram": ("ram_type", "size_gb", "sticks"),
     "gpu": ("vram_gb", "tdp", "length_mm", "score"),
@@ -20,8 +21,8 @@ SPEC_FIELDS: dict[str, tuple[str, ...]] = {
     "storage": ("type", "size_gb"),
 }
 
-REQUIRED = ("cpu", "motherboard", "ram", "psu", "storage")      # a PC can't be built without these
-SINGLE = ("cpu", "motherboard", "gpu", "psu", "case")           # at most one of each
+REQUIRED = ("cpu", "cooler", "motherboard", "ram", "psu", "storage")      # a PC can't be built without these
+SINGLE = ("cpu", "cooler", "motherboard", "gpu", "psu", "case")           # at most one of each
 
 TIERS = (  # (min score, code); names are in locales: builder.tiers.<code>
     (80, "top"),
@@ -39,12 +40,12 @@ IGPU_SCORE = 8        # "performance" of integrated graphics
 SPEC_KINDS: dict[str, str] = {
     "socket": "text", "ram_type": "text", "form_factor": "text", "type": "text",
     "cores": "number", "tdp": "number", "ram_slots": "number", "size_gb": "number", "sticks": "number",
-    "vram_gb": "number", "length_mm": "number", "wattage": "number", "max_gpu_mm": "number",
+    "vram_gb": "number", "length_mm": "number", "wattage": "number", "max_gpu_mm": "number", "radiator_mm": "number",
     "score": "score",
     "igpu": "flag",
-    "form_factors": "text_list",
+    "form_factors": "text_list", "sockets": "text_list",
 }
-OPTIONAL_SPEC_FIELDS: dict[str, tuple[str, ...]] = {"cpu": ("igpu",)}
+OPTIONAL_SPEC_FIELDS: dict[str, tuple[str, ...]] = {"cpu": ("igpu",), "cooler": ("radiator_mm",)}
 
 
 def _is_valid(kind: str, value) -> bool:
@@ -91,6 +92,7 @@ def check_build(products: list[Product]) -> dict:
         return by_cat[cat][0] if by_cat[cat] else None
 
     cpu, mb, gpu, psu, case = one("cpu"), one("motherboard"), one("gpu"), one("psu"), one("case")
+    cooler = one("cooler")
     rams = by_cat["ram"]
     checks: list[dict] = []
 
@@ -109,6 +111,19 @@ def check_build(products: list[Product]) -> dict:
         )
     else:
         checks.append(_check("socket", "skip", "socket_skip"))
+
+    # 1b. Cooler: fits the CPU socket and takes away the CPU heat
+    if cpu and cooler:
+        socket = cpu.specs["socket"]
+        if socket not in cooler.specs["sockets"]:
+            checks.append(_check("cooler", "error", "cooler_socket_error", socket=socket,
+                                 supported=", ".join(cooler.specs["sockets"])))
+        elif cooler.specs["tdp"] < cpu.specs["tdp"]:
+            checks.append(_check("cooler", "warning", "cooler_weak", cooler=cooler.specs["tdp"], cpu=cpu.specs["tdp"]))
+        else:
+            checks.append(_check("cooler", "ok", "cooler_ok", socket=socket, cooler=cooler.specs["tdp"], cpu=cpu.specs["tdp"]))
+    else:
+        checks.append(_check("cooler", "skip", "cooler_skip"))
 
     # 2. RAM type
     if mb and rams:

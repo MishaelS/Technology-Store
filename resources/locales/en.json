@@ -53,6 +53,7 @@
   },
   "categories": {
     "cpu": "Processors",
+    "cooler": "CPU coolers",
     "motherboard": "Motherboards",
     "gpu": "Graphics cards",
     "ram": "Memory",
@@ -141,7 +142,9 @@
     "length_mm": "Length, mm",
     "wattage": "Wattage, W",
     "form_factors": "Supported boards",
+    "sockets": "Sockets",
     "max_gpu_mm": "Max GPU length, mm",
+    "radiator_mm": "Liquid cooler radiator, mm",
     "type": "Type"
   },
   "cart": {
@@ -219,6 +222,7 @@
     "login_to_save": "Log in to save your build",
     "parts": {
       "cpu": "processor",
+      "cooler": "CPU cooler",
       "motherboard": "motherboard",
       "ram": "memory",
       "gpu": "graphics card",
@@ -237,6 +241,10 @@
       "socket_ok": "Socket matches: {socket}",
       "socket_error": "CPU socket {cpu_socket} doesn't fit a motherboard with socket {mb_socket}",
       "socket_skip": "Choose a processor and a motherboard",
+      "cooler_ok": "The cooler fits socket {socket} and takes away {cooler} W (the CPU needs {cpu} W)",
+      "cooler_socket_error": "The cooler doesn't fit socket {socket} (fits: {supported})",
+      "cooler_weak": "The cooler takes away {cooler} W, but the CPU puts out up to {cpu} W: it will overheat under load",
+      "cooler_skip": "Choose a CPU and a cooler",
       "ram_type_ok": "Memory type matches: {ram_type}",
       "ram_type_error": "The motherboard supports {mb_type}, but {ram_type} memory is selected",
       "ram_skip": "Choose a motherboard and memory",
@@ -269,7 +277,7 @@
       "warning": "Warning",
       "skip": "Not checked"
     },
-    "subtitle": "Build your computer step by step — we check right away that the parts fit together",
+    "subtitle": "Choose parts in the sections under the case: each one goes straight into its place, and we check that everything fits",
     "progress": "{done} of {total} chosen",
     "optional": "optional",
     "search_in_list": "Search the list",
@@ -280,9 +288,10 @@
     "gpu_score": "Graphics card",
     "power_title": "Power",
     "psu_load": "{draw} of {psu} W",
-    "start_hint": "Start with the CPU — the builder will show what fits next.",
+    "start_hint": "Start with the motherboard: the builder will show what fits it next.",
     "hints": {
       "cpu": "The brain of the computer: speed in apps and games depends on it",
+      "cooler": "Takes the heat away from the CPU: the socket and the wattage must fit",
       "motherboard": "Connects all parts: its socket must match the CPU",
       "ram": "Memory for running apps: its type must suit the board",
       "gpu": "Needed for games and 3D; without it the CPU graphics work",
@@ -297,8 +306,19 @@
       "tb": "{size} TB",
       "sticks": "{sticks} × {size} GB",
       "mm": "{mm} mm",
-      "gpu_up_to": "GPU up to {mm} mm"
-    }
+      "gpu_up_to": "GPU up to {mm} mm",
+      "cools": "up to {watts} W"
+    },
+    "not_selected_short": "Not chosen",
+    "pieces": "{count} pcs",
+    "in_case": "In the case",
+    "add_more_hint": "Click one more part to add it",
+    "loading_3d": "Loading the 3D model… {percent}%",
+    "no_3d": "The 3D model didn't load: you can still choose parts below",
+    "case_hint": "Drag to turn the case · click a part to replace it",
+    "powered": "The build is complete and powered on: everything fits",
+    "loading_3d_plain": "Loading the 3D model…",
+    "powered_short": "Complete and powered on"
   },
   "auth": {
     "login_title": "Log in",
