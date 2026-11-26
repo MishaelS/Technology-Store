@@ -3,7 +3,7 @@
 // of its parts right under it; the chosen part flies into the case. The panel on the right is checked by
 // the API on every change. The selection is kept in localStorage, so it survives page reloads.
 import { api } from "../api.js";
-import { checksList, goToLogin } from "../components.js";
+import { cautionTape, checksList, goToLogin } from "../components.js";
 import { t } from "../i18n.js";
 import { headerChanged } from "../router.js";
 import { isLoggedIn, session } from "../session.js";
@@ -18,6 +18,7 @@ const STORAGE_KEY = "builder";
 const CHECK_SLOTS = {
   socket: ["cpu", "motherboard"], cooler: ["cooler"], ram_type: ["ram"], ram_slots: ["ram"], psu: ["psu"],
   gpu_length: ["gpu", "case"], form_factor: ["motherboard", "case"], graphics: ["gpu"],
+  cooler_height: ["cooler", "case"], radiator: ["cooler", "case"],
 };
 
 function loadSelection() {
@@ -55,7 +56,8 @@ function specChips(product) {
     gpu: [s.vram_gb && gb(s.vram_gb), s.length_mm && t("builder.spec.mm", { mm: s.length_mm }), s.tdp && t("builder.spec.watts", { watts: s.tdp })],
     storage: [s.type, s.size_gb && gb(s.size_gb)],
     psu: [s.wattage && t("builder.spec.watts", { watts: s.wattage })],
-    case: [...(s.form_factors || []), s.max_gpu_mm && t("builder.spec.gpu_up_to", { mm: s.max_gpu_mm })],
+    case: [...(s.form_factors || []), s.max_gpu_mm && t("builder.spec.gpu_up_to", { mm: s.max_gpu_mm }),
+      s.max_cooler_mm && t("builder.spec.cooler_up_to", { mm: s.max_cooler_mm }), s.color],
   }[product.category] || [];
   return h("div", { class: "spec-chips" }, chips.filter(Boolean).map((text) => h("span", {}, text)));
 }
@@ -138,6 +140,9 @@ export async function builderPage() {
       case "cooler":
         need(cpu, s.sockets?.includes(cpu?.socket), cpu?.socket);
         need(cpu, s.tdp >= (cpu?.tdp || 0), t("builder.spec.cools", { watts: s.tdp }));
+        // in the chosen case: the tower's height or the radiator's size (when both are known)
+        if (s.type === "СЖО") need(box?.max_radiator_mm && s.radiator_mm, s.radiator_mm <= box?.max_radiator_mm, t("builder.spec.mm", { mm: s.radiator_mm }));
+        else need(box?.max_cooler_mm && s.height_mm, s.height_mm <= box?.max_cooler_mm, t("builder.spec.mm", { mm: s.height_mm }));
         break;
       case "motherboard":
         need(cpu, cpu?.socket === s.socket, s.socket);
@@ -152,6 +157,8 @@ export async function builderPage() {
         break;
       case "case":
         need(mb, s.form_factors?.includes(mb?.form_factor), mb?.form_factor);
+        if (cooler?.type === "СЖО") need(cooler.radiator_mm && s.max_radiator_mm, cooler.radiator_mm <= s.max_radiator_mm, t("builder.spec.mm", { mm: cooler.radiator_mm }));
+        else need(cooler?.height_mm && s.max_cooler_mm, cooler?.height_mm <= s.max_cooler_mm, t("builder.spec.cooler_up_to", { mm: s.max_cooler_mm }));
         need(gpu, gpu?.length_mm <= s.max_gpu_mm, t("builder.spec.gpu_up_to", { mm: s.max_gpu_mm }));
         break;
       case "psu":
@@ -247,7 +254,7 @@ export async function builderPage() {
       "button",
       {
         type: "button",
-        class: `option-tile${selected ? " selected" : ""}${match?.ok === false ? " misfit" : ""}`,
+        class: `option-tile${selected ? " selected" : ""}${match?.ok === false ? " misfit" : ""}${out ? " is-out" : ""}`,
         disabled: out,
         onclick: () => choose(slot, product.id),
       },
@@ -267,6 +274,7 @@ export async function builderPage() {
                   match.ok ? t("builder.fit_ok") : t("builder.fit_bad", { reason: match.reason }))
               : "",
       ),
+      out ? cautionTape() : null, // the same barrier tape as on the catalog card
     );
     tile.dataset.name = product.name.toLowerCase();
     return tile;
