@@ -163,6 +163,7 @@ ${BOLD}Настройка и данные${RESET}
   password     Показать пароль тестовых аккаунтов
   reset        Стереть базу и создать заново с тестовыми данными (спросит подтверждение)
   photos       Подключить настоящие фото товаров (resources/photos/web); у кого их нет — заглушка
+  models       Пересобрать 3D-модели конфигуратора в Blender (resources/models/builder.glb)
   deploy       Запуск на сервере: пароли и ключи генерируются сами, наружу только 80/443,
                HTTPS, если в .env указан домен (SITE_ADDRESS). Подробнее: docs/DEPLOY.md
   demo         Наполнить базу демо-данными: ещё товары с картинками, новости и события,
@@ -318,6 +319,16 @@ cmd_photos() {
     compose exec $TTY_FLAG backend python -m app.photos
 }
 
+cmd_models() {
+    # Blender: from PATH, or the usual place on macOS
+    local blender
+    blender="$(command -v blender || true)"
+    [ -n "$blender" ] || [ ! -x /Applications/Blender.app/Contents/MacOS/Blender ] || blender=/Applications/Blender.app/Contents/MacOS/Blender
+    [ -n "$blender" ] || die "Нужен Blender 4.2 или новее: https://www.blender.org/download/ (или добавьте blender в PATH)"
+    info "Строю 3D-модели конфигуратора в Blender…"
+    "$blender" -b -P backend/scripts/make_builder_models.py 2>&1 | grep -E "^made|Error|Traceback" || true
+}
+
 cmd_test() {
     ensure_running
     info "Запускаю автотесты…"
@@ -409,6 +420,7 @@ main() {
             demo)           cmd_demo ;;
             deploy)         cmd_deploy ;;
             photos)         cmd_photos ;;
+            models)         cmd_models ;;
             locales)        cmd_locales ;;
             db)             cmd_db ;;
             shell)          cmd_shell ;;

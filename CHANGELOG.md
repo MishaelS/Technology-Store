@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   by itself for a domain (`SITE_ADDRESS`); the database, the API and Adminer are closed; the API runs without reload;
   everything restarts by itself; passwords and `JWT_SECRET` are generated. Every `./run.sh` command keeps the mode.
 - `docs/DEPLOY.md`: step by step from renting a VPS to updating the site.
+- CPU coolers: a new category (`cooler`) with 8 products (tower, low profile, liquid), the rule "the cooler fits
+  the CPU socket and takes away its heat" in the builder check, and the cooler is a required part of a complete build.
+  An existing database gets the category on the next start (`app.seed`), `./run.sh demo` adds the demo coolers.
+- The PC builder is a 3D case now: an open case in the middle (three.js), the sections of parts under it in the order
+  of an assembly (motherboard → CPU → cooler → RAM → PSU → GPU → drives → case) and a strip of parts of the open section.
+  A chosen part flies into its place inside the case; parts that don't fit glow red; a complete compatible build
+  powers on (fans spin, RGB lights up). The case turns with the mouse or a finger.
+- 3D models of the case and the parts are built in Blender by `scripts/make_builder_models.py`
+  (`./run.sh models` → `resources/models/builder.glb`); three.js r187 is in `frontend/vendor/three`.
+
+### Changed
+
+- The builder sections: no progress line and no list of steps any more, the summary stays on the right.
 
 ### Fixed
 

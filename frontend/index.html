@@ -15,6 +15,10 @@
         || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     } catch (e) {}
   </script>
+  <!-- three.js for the 3D case of the PC builder (frontend/vendor/three), loaded only on that page -->
+  <script type="importmap">
+    { "imports": { "three": "/vendor/three/build/three.module.js", "three/addons/": "/vendor/three/examples/jsm/" } }
+  </script>
   <link rel="stylesheet" href="/src/style.css">
   <script type="module" src="/src/app.js"></script>
 </head>

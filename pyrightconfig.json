@@ -1,9 +1,17 @@
 {
-  "include": ["backend"],
-  "exclude": ["backend/.venv", "**/__pycache__"],
+  "include": [
+    "backend"
+  ],
+  "exclude": [
+    "backend/.venv",
+    "**/__pycache__",
+    "backend/scripts/make_builder_models.py"
+  ],
   "venvPath": "backend",
   "venv": ".venv",
-  "extraPaths": ["backend"],
+  "extraPaths": [
+    "backend"
+  ],
   "pythonVersion": "3.12",
   "typeCheckingMode": "basic"
 }
