@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `docs/TECH.md`: the technologies of the project, their versions and what each one is for.
+
 ## [0.3.0] - 2026-11-25
 
 Dark theme, a new home page and a layout for phones on every page.
