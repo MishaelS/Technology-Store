@@ -31,6 +31,9 @@
   --dot: rgb(22 24 29 / 0.25);
   --shadow: rgb(16 24 40 / 0.1);
   --hex: 59, 91, 219; /* the bytes of the background (hex-background.js) */
+  /* circles of the home page slides: main color and the small circle's color */
+  --hero-1: #4C6EF5; --hero-2: #38D9A9;
+  --promo: #845EF7; --promo-2: #FFA94D; /* promotion slides: soft violet and peach */
   color-scheme: light;
 }
 
@@ -60,6 +63,8 @@
   --dot: rgb(255 255 255 / 0.25);
   --shadow: rgb(0 0 0 / 0.45);
   --hex: 116, 143, 252;
+  --hero-1: #5C7CFA; --hero-2: #20C997;
+  --promo: #9775FA; --promo-2: #FFA94D;
   color-scheme: dark;
 }
 /* pictures are drawn for a light page: a little dimmer, so they don't glare in the dark */
@@ -1186,15 +1191,23 @@ body { overflow-x: clip; } /* full-width bands use 100vw, which includes the scr
 .hero-kicker { color: var(--muted); font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
 .hero-title { margin: 0; color: var(--accent); font-size: clamp(38px, 5.6vw, 72px); font-weight: 800; line-height: 1; letter-spacing: -0.035em; text-wrap: balance; }
 .hero-slide.tone-product .hero-title { font-size: clamp(30px, 3.8vw, 50px); line-height: 1.05; }
-.hero-slide.tone-promo .hero-title { color: var(--error); font-size: clamp(32px, 4.4vw, 56px); }
+.hero-slide.tone-promo .hero-title { color: var(--promo); font-size: clamp(32px, 4.4vw, 56px); }
 .hero-text { margin: 0; max-width: 520px; color: var(--muted); font-size: 18px; line-height: 1.55; }
 .hero-price .price-row .price { font-size: 30px; font-weight: 800; }
 .hero-art { position: relative; justify-self: end; width: min(100%, 470px); aspect-ratio: 1; }
 .hero-art .circle { position: absolute; border-radius: 50%; }
-.hero-art .circle.big { inset: 0 6% 6% 0; background: var(--accent); z-index: 1; }
-.hero-art .circle.small { width: 44%; aspect-ratio: 1; right: 0; bottom: 0; background: var(--ok); }
-.tone-promo .hero-art .circle.big { background: var(--error); }
-.tone-promo .hero-art .circle.small { background: var(--warn); }
+/* soft circles: a gradient with a light corner and a shadow of their own color instead of a flat fill */
+.hero-art { --c1: var(--hero-1); --c2: var(--hero-2); }
+.hero-art .circle.big {
+  inset: 0 6% 6% 0; z-index: 1;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--c1) 55%, #FFFFFF), var(--c1) 70%);
+  box-shadow: 0 30px 60px color-mix(in srgb, var(--c1) 30%, transparent);
+}
+.hero-art .circle.small {
+  width: 44%; aspect-ratio: 1; right: 0; bottom: 0;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c2) 55%, #FFFFFF), var(--c2) 75%);
+}
+.tone-promo .hero-art { --c1: var(--promo); --c2: var(--promo-2); }
 .hero-pic { position: absolute; inset: 16% 18% 20% 12%; z-index: 2; display: grid; place-items: center; }
 .hero-pic img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 18px; box-shadow: 0 24px 50px rgb(0 0 0 / 0.25); }
 .hero-pic > .icon { width: 46%; height: 46%; color: #FFFFFF; }
