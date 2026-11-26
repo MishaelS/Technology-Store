@@ -18,7 +18,7 @@ from sqlalchemy import select
 from app.config import settings
 from app.database import SessionLocal
 from app.demo_data import (
-    ADDRESSES, BUILD_COMMENTS, BUILD_NAMES, DEMO_CLIENTS, DEMO_FACTS, DEMO_NEWS, DEMO_PRODUCTS, ORDER_COMMENTS,
+    ADDRESSES, BUILD_COMMENTS, BUILD_NAMES, DEMO_CLIENTS, DEMO_FACTS, DEMO_NEWS, DEMO_PRODUCTS, ORDER_COMMENTS, OUT_OF_STOCK,
     RECEIPT_COMMENTS, REPAIR_PROBLEM_CLIENTS, REPAIRS, SUPPLIERS,
 )
 from app.i18n import DEFAULT_LANGUAGE, t
@@ -38,6 +38,12 @@ def slug(name: str) -> str:
 def picture(name: str, view: int = 1) -> str:
     """Demo picture of a product; views 2 and 3 are the extra photos of the gallery."""
     return f"/resources/demo/products/{slug(name)}{'' if view == 1 else f'-{view}'}.svg"
+
+
+def sold_out(db) -> None:
+    """A few products are always out of stock, so the catalog shows how such a card looks."""
+    for product in db.scalars(select(Product).where(Product.name.in_(OUT_OF_STOCK))):
+        product.stock = 0
 
 
 def fill_pictures(db) -> int:
@@ -84,6 +90,7 @@ def demo() -> None:
         if db.scalar(select(Product.id).where(Product.name == DEMO_PRODUCTS[0][2])):
             # already there: only add what newer versions of the demo have (extra photos)
             changed = fill_pictures(db)
+            sold_out(db)
             db.commit()
             print(f"demo: demo data is already there — pictures checked for {changed} products "
                   "(start over: ./run.sh reset, then ./run.sh demo)")
@@ -206,6 +213,7 @@ def demo() -> None:
                                 comment=rng.choice(RECEIPT_COMMENTS), received_by_id=receiver.id if receiver else None,
                                 created_at=NOW - timedelta(days=rng.randint(0, 45), hours=rng.randint(0, 23))))
 
+        sold_out(db)
         db.commit()
         print(f"demo: added {len(DEMO_PRODUCTS)} products, {len(DEMO_NEWS)} news, {len(DEMO_FACTS)} facts, "
               f"{len(clients)} clients, {len(statuses)} orders, 12 builds, {len(REPAIRS)} repairs, 25 stock receipts")

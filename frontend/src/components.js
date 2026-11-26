@@ -83,7 +83,8 @@ export function productGallery(product) {
 
   const big = image(pictures[0], product.name, "full");
   const hint = h("span", { class: "zoom-hint" }, icon("actions/search"), t("product.zoom_hint"));
-  const frame = h("div", { class: "zoom-frame" }, big, hint, h("span", { class: "zoom-progress" }));
+  const frame = h("div", { class: "zoom-frame" }, big, hint, h("span", { class: "zoom-progress" }),
+    product.stock <= 0 ? cautionTape() : null);
   let timer = null;
   const place = (event) => {
     const box = frame.getBoundingClientRect();
@@ -126,6 +127,20 @@ export function productGallery(product) {
   return h("div", { class: "card product-gallery" }, frame, thumbs);
 }
 
+/**
+ * Yellow barrier tape across the picture of a product that is out of stock: one band with the words,
+ * a thinner striped one crossing it behind. Only a picture: the card still says "out of stock" in text.
+ */
+export function cautionTape() {
+  const words = Array.from({ length: 4 }, () => h("span", {}, t("product.out_of_stock_tape")));
+  return h(
+    "span",
+    { class: "caution-tape", "aria-hidden": "true" },
+    h("span", { class: "tape tape-back" }),
+    h("span", { class: "tape tape-main" }, h("span", { class: "tape-words" }, words)),
+  );
+}
+
 /** Random delay for the pop-in animation of a card: they appear one by one, in a random order. */
 function popDelay() {
   return `--delay: ${Math.round(Math.random() * 140)}ms`; // short: cards must not keep you waiting
@@ -139,7 +154,7 @@ export function productCard(product) {
   if (product.discount_percent > 0) {
     thumb.append(h("span", { class: "card-badge" }, t("product.discount_badge", { percent: product.discount_percent })));
   }
-  if (out) thumb.append(h("span", { class: "card-badge out" }, t("product.out_of_stock")));
+  if (out) thumb.append(cautionTape());
 
   const label = h("span", {}, t("product.add_to_cart"));
   const buy = h(

@@ -123,7 +123,8 @@
     "old_price": "Old price",
     "added": "Added to cart",
     "zoom_hint": "Rest the mouse here to look closer",
-    "photo_n": "Photo {n}"
+    "photo_n": "Photo {n}",
+    "out_of_stock_tape": "Out of stock"
   },
   "specs": {
     "socket": "Socket",

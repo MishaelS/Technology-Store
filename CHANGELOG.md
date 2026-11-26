@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Products out of stock: yellow barrier tape across the picture ("out of stock" band and a striped one crossing it)
+  instead of the black badge, on cards and on the product page; the demo keeps 6 products sold out to see it.
 - Cards pop in faster (shorter animation and delays), the next chunk of a list is asked for 1200 px before its end.
 - Softer home page slides: the circles are gradients with a light corner and a soft shadow; promotions are violet
   and peach instead of red, the small circle of other slides is mint.
